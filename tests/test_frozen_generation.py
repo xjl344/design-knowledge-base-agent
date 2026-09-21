@@ -338,10 +338,12 @@ def test_audit_version_is_bumped_for_the_new_rule():
     verdict that happened to be reached.
 
     v5: multi-hop questions gain per-hop coverage (``hop_recall``).
+    v6: citation attribution is measured against the answer's own numeric
+    claims rather than against the evidence count.
     """
     from src.frozen_evidence import AUDIT_VERSION
 
-    assert AUDIT_VERSION == "soft-audit-behaviour-v5"
+    assert AUDIT_VERSION == "soft-audit-behaviour-v6"
 
 
 def test_no_question_specific_branch_remains_in_the_audit():
@@ -732,3 +734,131 @@ def test_the_hard_deadline_exceeds_the_client_timeout():
     from src.generator_v2 import _hard_deadline_seconds
 
     assert _hard_deadline_seconds() > float(settings.llm_timeout_seconds)
+
+
+# --- citation attribution (v6) -------------------------------------------
+# The metric this replaces was "citations used / citations allowed", and
+# "allowed" is the evidence count -- so it fell whenever more evidence was
+# supplied, and reported a breach on every configuration change.  These tests
+# pin the property that matters: the denominator is a property of the *answer*.
+
+
+def _coverage(answer: str) -> dict:
+    from src.frozen_evidence import numeric_claim_citation_coverage
+
+    return numeric_claim_citation_coverage(answer)
+
+
+def test_a_cited_numeric_claim_is_attributed():
+    result = _coverage("座高为 400mm~440mm。[L1]")
+    assert result["numeric_claim_blocks"] == 1
+    assert result["numeric_claim_citation_coverage"] == 1.0
+    assert result["uncited_numeric_claim_blocks"] == 0
+
+
+def test_an_uncited_numeric_claim_is_not_attributed():
+    result = _coverage("座高为 400mm~440mm。")
+    assert result["numeric_claim_citation_coverage"] == 0.0
+    # The excerpt has to travel with the score, or a flag cannot be judged.
+    assert result["uncited_numeric_claim_excerpts"] == ["座高为 400mm~440mm。"]
+
+
+def test_list_markers_are_not_measurements():
+    """``1.`` in ``1. 对象不同`` contains a digit but asserts nothing."""
+    result = _coverage("1. **对象不同**：座高描述家具；坐高描述人体。\n2. **用途不同**：用途各异。")
+    assert result["numeric_claim_blocks"] == 0
+    assert result["numeric_claim_citation_coverage"] is None
+
+
+def test_standard_designations_are_not_measurements():
+    """"GB/T 3326—2016" identifies a document; it states no dimension."""
+    result = _coverage("GB/T 3326—2016 对扶手椅的尺寸要求如下：")
+    assert result["numeric_claim_blocks"] == 0
+
+
+def test_numbers_restated_in_a_refusal_are_not_claims():
+    """"无法确认2025年的趋势" asserts nothing about 2025."""
+    result = _coverage("当前资料无法确认 2025 年产品设计领域的新趋势。")
+    assert result["numeric_claim_blocks"] == 0
+
+
+def test_a_declared_derivation_is_not_an_unattributed_claim():
+    """Prompt rule 4 requires non-facts to say so, so this is rule conformance."""
+    result = _coverage("**设计计算（有限推导，并非标准原文）**：配合高差取 250~320 mm。")
+    assert result["numeric_claim_blocks"] == 1
+    assert result["numeric_claim_citation_coverage"] == 1.0
+
+
+def test_a_lead_in_keeps_its_list():
+    """A citation written once at the end of a lead-in covers its items.
+
+    Splitting them apart reported a whole list as uncited when it was not.
+    """
+    answer = "GB/T 3326—2016 的要求如下：\n- 扶手内宽：≥480 mm\n- 座深：400～480 mm [L1]"
+    result = _coverage(answer)
+    assert result["numeric_claim_blocks"] == 1, "前导句与其列表项应视为一个归因单位"
+    assert result["numeric_claim_citation_coverage"] == 1.0
+
+
+def test_a_cited_lead_in_covers_its_uncited_items():
+    """The realistic shape: the citation sits on the lead-in, the items do not."""
+    answer = "GB/T 3326—2016 的要求如下 [L1]：\n\n- 扶手内宽：≥480 mm\n- 座深：400～480 mm"
+    result = _coverage(answer)
+    assert result["numeric_claim_blocks"] == 1
+    assert result["numeric_claim_citation_coverage"] == 1.0
+
+
+def test_the_metric_does_not_move_with_the_evidence_count():
+    """The property that motivated the redesign.
+
+    The old ratio halved its value when the evidence cap doubled, purely
+    because its denominator was the evidence count.  This one divides by the
+    answer's own claims, so the same answer scores the same either way.
+    """
+    from src.frozen_evidence import (
+        build_evidence_pack,
+        load_cases,
+        numeric_claim_citation_coverage,
+    )
+
+    repo_root = Path(__file__).resolve().parent.parent
+    case = load_cases(repo_root / "data" / "frozen_multihop_cases.jsonl")["mh01_child_desk_height"]
+    answer = "桌面高为 680mm~760mm，座高 400mm~440mm。[L1] 适用于 4岁~17岁 未成年人。[L3]"
+
+    # The metric takes only the answer, so the evidence pack cannot influence
+    # it -- assert that explicitly rather than by construction alone.
+    small = build_evidence_pack(case, max_items=5)
+    large = build_evidence_pack(case, max_items=99)
+    assert len(small.items) == 5 and len(large.items) == 17
+
+    coverage = numeric_claim_citation_coverage(answer)
+    assert coverage["numeric_claim_citation_coverage"] == 1.0
+    # And it is not a function of the pack at all.
+    import inspect
+
+    assert "pack" not in inspect.signature(numeric_claim_citation_coverage).parameters
+
+
+def test_coverage_is_not_applicable_without_numeric_claims():
+    """A purely qualitative answer has nothing to attribute."""
+    from src.frozen_evidence import build_evidence_pack, soft_audit
+
+    audit = soft_audit("对象不同，用途也不同。", build_evidence_pack(make_case()))
+    assert audit["numeric_claim_citation_coverage"] is None
+    assert audit["numeric_citation_metric_applicable"] is False
+
+
+def test_coverage_is_not_scored_for_a_provider_substitute():
+    from src.frozen_evidence import FALLBACK_ANSWER_WITH_EVIDENCE, build_evidence_pack, soft_audit
+
+    audit = soft_audit(FALLBACK_ANSWER_WITH_EVIDENCE, build_evidence_pack(make_case()))
+    assert audit["numeric_claim_citation_coverage"] is None
+    assert audit["numeric_citation_metric_applicable"] is False
+
+
+def test_coverage_is_applicable_for_an_answered_fact_question():
+    from src.frozen_evidence import build_evidence_pack, soft_audit
+
+    audit = soft_audit("座高为 400mm~440mm。[L1]", build_evidence_pack(make_case()))
+    assert audit["numeric_claim_citation_coverage"] == 1.0
+    assert audit["numeric_citation_metric_applicable"] is True

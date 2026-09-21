@@ -55,6 +55,7 @@ MULTIHOP_METRICS = (
 
 CITATION_METRICS = (
     "citation_validity_rate",
+    "numeric_citation_coverage_mean",
     "citation_id_usage_ratio_mean",
 )
 

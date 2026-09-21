@@ -87,6 +87,23 @@ def test_fixtures_cover_multi_hop_questions(fixtures):
         assert fixture["recorded_audit"].get("hop_recall") is not None or fixture["status"] != "completed"
 
 
+def test_fixtures_record_the_pack_they_were_scored_against(fixtures):
+    """A replay must rebuild the same evidence the run used.
+
+    Without this the exporter always built a 5-item, untruncated pack, so a
+    fixture exported from a compressed run replayed against a larger context and
+    reported drift in unsupported_number_count and citation_status that was
+    really just different evidence.
+    """
+    for fixture in fixtures:
+        pack = fixture.get("pack")
+        assert isinstance(pack, dict), f"{fixture['fixture_id']} 未记录 pack 配置"
+        assert pack.get("max_items"), f"{fixture['fixture_id']} 未记录 max_items"
+        # Explicitly present even when None: "no budget" and "budget unrecorded"
+        # must not look the same.
+        assert "max_chars_per_item" in pack
+
+
 @pytest.mark.parametrize("fixture_id", [f["fixture_id"] for f in load_fixtures()])
 def test_replay_reproduces_recorded_audit(fixture_id):
     """Re-audit the recorded answer and match the recorded scores."""
@@ -97,7 +114,17 @@ def test_replay_reproduces_recorded_audit(fixture_id):
         pytest.skip("provider failure rows carry a fallback string, not a model answer")
 
     cases = load_fixture_cases()
-    pack = build_evidence_pack(cases[fixture["question_id"]], max_items=5)
+    # Rebuild the evidence exactly as the run did.  The fixture records the pack
+    # configuration because a compressed run and an uncompressed one produce
+    # different packs, and replaying against the wrong one reports drift in
+    # unsupported_number_count and citation_status that is really a different
+    # context.  Absent for fixtures exported before this was recorded.
+    pack_config = fixture.get("pack") or {}
+    pack = build_evidence_pack(
+        cases[fixture["question_id"]],
+        max_items=int(pack_config.get("max_items") or 5),
+        max_chars_per_item=pack_config.get("max_chars_per_item"),
+    )
     expected = fixture["expected"]
     audit = soft_audit(
         fixture["answer"],

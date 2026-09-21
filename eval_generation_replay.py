@@ -171,6 +171,14 @@ def summarize_rows(rows: list[dict]) -> dict:
     # span metrics above.  Without it, single-hop rows would report "not
     # applicable" as a zero and drag every multi-hop mean down.
     hop_values = _values("hop_recall", applicable_key="hop_metric_applicable")
+    # Attribution is scored against the answer's own numeric claims, so this
+    # denominator is answer properties rather than evidence count -- which is
+    # what makes it comparable across configurations with different evidence
+    # volumes, unlike the utilisation ratio.
+    numeric_citation_values = _values(
+        "numeric_claim_citation_coverage",
+        applicable_key="numeric_citation_metric_applicable",
+    )
 
     return {
         "total": len(rows),
@@ -199,6 +207,8 @@ def summarize_rows(rows: list[dict]) -> dict:
         "required_term_metric_sample_size": len(required_values),
         "hop_recall_mean": _mean(hop_values),
         "hop_metric_sample_size": len(hop_values),
+        "numeric_citation_coverage_mean": _mean(numeric_citation_values),
+        "numeric_citation_metric_sample_size": len(numeric_citation_values),
         "malformed_output_count": len(sanitized_rows),
         "malformed_output_question_ids": [row.get("question_id") for row in sanitized_rows],
         "sanitization_rule_counts": sanitization_rule_counts,

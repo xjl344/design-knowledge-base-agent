@@ -379,8 +379,10 @@ def build_slices(specs: list[dict[str, Any]]) -> dict[str, Any]:
             },
             "citation": {
                 # `citation_id_usage_ratio_mean` is deliberately NOT gated; see
-                # CITATION_USAGE_DIAGNOSTIC_REASON.
-                "metrics": ["citation_validity_rate"],
+                # CITATION_USAGE_DIAGNOSTIC.  `numeric_citation_coverage_mean`
+                # takes its place: its denominator is a property of the answer,
+                # so it does not move when the evidence volume changes.
+                "metrics": ["citation_validity_rate", "numeric_citation_coverage_mean"],
                 "diagnostics": [CITATION_USAGE_DIAGNOSTIC],
                 "allowed_change": 0.05,
                 "enforcement": "gate",

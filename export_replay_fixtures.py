@@ -60,6 +60,9 @@ AUDIT_FIELDS = (
     # offline regression coverage at all.
     "hop_recall",
     "hop_metric_applicable",
+    # Attribution is scored against the answer's own claims; the v6 rule.
+    "numeric_claim_citation_coverage",
+    "numeric_citation_metric_applicable",
     "answer_length",
 )
 
@@ -114,7 +117,12 @@ def _synthesize_failure_fixtures(
     fixtures: list[dict[str, Any]] = []
     for index, (question_id, answer) in enumerate(chosen):
         status = SYNTHESIZED_FAILURE_STATUSES[index % len(SYNTHESIZED_FAILURE_STATUSES)]
-        pack = build_evidence_pack(cases[question_id], max_items=5)
+        pack_config = {"max_items": 5, "max_chars_per_item": None}
+        pack = build_evidence_pack(
+            cases[question_id],
+            max_items=pack_config["max_items"],
+            max_chars_per_item=pack_config["max_chars_per_item"],
+        )
         spec = spec_by_id.get(question_id, {})
         audit = soft_audit(
             answer,
@@ -138,6 +146,7 @@ def _synthesize_failure_fixtures(
                 "sanitization_applied": False,
                 "sanitization_rules": [],
                 "generation_latency_seconds": None,
+                "pack": dict(pack_config),
                 "expected": {
                     "allowed_citations": list(pack.allowed_citations),
                     "expected_answer_spans": spec.get("expected_answer_spans", []),
@@ -197,6 +206,15 @@ def export(
         if run_version != AUDIT_VERSION:
             skipped.append((run_path.name, str(run_version)))
             continue
+        # The pack the run actually scored must be the pack the replay rebuilds.
+        # This used to be hardcoded to max_items=5 with no character budget, so
+        # a fixture exported from a compressed run replayed against a *different*
+        # (larger) pack and reported drift in unsupported_number_count and
+        # citation_status that was really just a different context.
+        pack_config = {
+            "max_items": int(run.get("max_evidence") or 5),
+            "max_chars_per_item": run.get("max_chars_per_item"),
+        }
         for row in run.get("rows", []):
             question_id = str(row.get("question_id"))
             status = str(row.get("status"))
@@ -208,7 +226,11 @@ def export(
             if question_id not in cases:
                 continue
             spec = spec_by_id.get(question_id, {})
-            pack = build_evidence_pack(cases[question_id], max_items=5)
+            pack = build_evidence_pack(
+                cases[question_id],
+                max_items=pack_config["max_items"],
+                max_chars_per_item=pack_config["max_chars_per_item"],
+            )
             recorded_audit = row.get("audit") or {}
             fixtures.append(
                 {
@@ -222,6 +244,8 @@ def export(
                     "sanitization_applied": row.get("sanitization_applied"),
                     "sanitization_rules": row.get("sanitization_rules") or [],
                     "generation_latency_seconds": row.get("generation_latency_seconds"),
+                    # How to rebuild the evidence this row was scored against.
+                    "pack": dict(pack_config),
                     "expected": {
                         "allowed_citations": list(pack.allowed_citations),
                         "expected_answer_spans": spec.get("expected_answer_spans", []),

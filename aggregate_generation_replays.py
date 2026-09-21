@@ -140,6 +140,11 @@ def aggregate(paths: list[Path]) -> dict[str, Any]:
     # on the applicable flag (not on "not None") keeps single-hop rows, which
     # report no hop verdict at all, out of the denominator.
     hop_values = audit_values("hop_recall", "hop_metric_applicable")
+    # Attribution against the answer's own claims: comparable across
+    # configurations, unlike the evidence-utilisation ratio.
+    numeric_citation_values = audit_values(
+        "numeric_claim_citation_coverage", "numeric_citation_metric_applicable"
+    )
 
     by_question: dict[str, dict[str, Any]] = {}
     for row in rows:
@@ -271,6 +276,8 @@ def aggregate(paths: list[Path]) -> dict[str, Any]:
         # which is why the sample size ships beside it.
         "hop_recall_mean": mean(hop_values),
         "hop_metric_sample_size": len(hop_values),
+        "numeric_citation_coverage_mean": mean(numeric_citation_values),
+        "numeric_citation_metric_sample_size": len(numeric_citation_values),
         "per_question": by_question,
     }
 

@@ -36,7 +36,10 @@ if TYPE_CHECKING:  # pragma: no cover - import-time only
 #         rather than from whether a verdict was produced
 #   v5 -> multi-hop questions gain per-hop coverage (``hop_recall``); a hop is
 #         scored on its own required terms so one hop cannot carry another
-AUDIT_VERSION = "soft-audit-behaviour-v5"
+#   v6 -> citation attribution is measured against the answer's own numeric
+#         claims instead of against the evidence count, so it no longer moves
+#         when the amount of evidence changes
+AUDIT_VERSION = "soft-audit-behaviour-v6"
 
 
 # Text substituted when the provider failed to produce an answer.  It lives
@@ -240,6 +243,159 @@ def _has_refusal_context(answer: str, start: int, end: int) -> bool:
     right = min(right_candidates) if right_candidates else len(answer)
     sentence = answer[left + 1 : right]
     return any(marker in sentence for marker in refusal_markers)
+
+
+_CITATION_MARKER_RE = re.compile(r"\[L\d+\]")
+_LIST_MARKER_RE = re.compile(r"^\s*(?:[-*+]|\d+[.、)])\s*")
+# Numbers that identify a document or a table rather than measure anything.
+# "GB/T 3326—2016" and "表1-1" contain digits but assert no dimension, so
+# counting them as numeric claims made every lead-in line look unattributed.
+_DESIGNATION_RE = re.compile(
+    r"(?:GB/T|ISO|IEC|ASTM|EN|DIN|JIS)\s*[\d.]+(?:[—\-]\d{4})?"
+    r"|表\s*\d+(?:[.\-]\d+)?|图\s*\d+(?:[.\-]\d+)?",
+    flags=re.I,
+)
+# Rule 4 of the generator prompt requires anything that is NOT a source fact to
+# say so ("推导必须说明它不是资料原文").  Exempting such blocks is therefore
+# checking conformance to a stated rule, not guessing at intent.
+#
+# The list is a heuristic and its failure direction is deliberate: an unseen
+# marker word means the block is still counted as an unattributed claim, i.e.
+# the metric over-reports rather than silently excusing a real gap.
+_DECLARED_NON_FACT_MARKERS = (
+    "推导", "推算依据", "并非资料原文", "并非标准原文", "不是资料原文",
+    "不是标准原文", "非资料原文", "非标准原文", "无直接证据", "没有直接证据",
+    "无法确认", "未能确认", "缺少", "不具备", "未提供",
+)
+
+
+def _absorbs_following_list(block_lines: list[str]) -> bool:
+    """Whether a block should swallow the list items that follow it.
+
+    Only a lead-in -- a non-list first line ending in ``：`` -- does.  Testing
+    the *last* line instead meant the first item was absorbed and the second
+    started a new block, splitting a list that shares one citation.
+    """
+    if not block_lines:
+        return False
+    first = block_lines[0].strip()
+    return first.endswith("：") and not _LIST_MARKER_RE.match(first)
+
+
+def _answer_blocks(answer: str) -> list[str]:
+    """Split an answer into attribution units: paragraphs and list items.
+
+    A lead-in line ending in ``：`` is kept with the list that follows it, even
+    across a blank line.  Citations are frequently written once at the end of
+    such a lead-in and meant to cover its items, so splitting them apart
+    reported a whole list as uncited when it was not.
+    """
+    paragraphs = [part.strip() for part in re.split(r"\n\s*\n", str(answer or "")) if part.strip()]
+    blocks: list[str] = []
+    for paragraph in paragraphs:
+        lines = paragraph.split("\n")
+        content_lines = [line for line in lines if line.strip()]
+        if (
+            blocks
+            and blocks[-1].rstrip().endswith("：")
+            and content_lines
+            and all(_LIST_MARKER_RE.match(line) for line in content_lines)
+        ):
+            blocks[-1] = f"{blocks[-1]}\n{paragraph}"
+            continue
+        current: list[str] = []
+        for line in lines:
+            if _LIST_MARKER_RE.match(line) and current and not _absorbs_following_list(current):
+                blocks.append("\n".join(current))
+                current = [line]
+            else:
+                current.append(line)
+        if current:
+            blocks.append("\n".join(current))
+    return [block.strip() for block in blocks if block.strip()]
+
+
+def _measurement_numbers(block: str) -> list[tuple[int, str]]:
+    """Numbers that assert a value, with their offsets inside ``block``.
+
+    List markers and document/table designations are stripped first, so the
+    ``1.`` in ``1. 对象不同`` and the year in ``GB/T 3326—2016`` are not
+    mistaken for measurements.
+    """
+    text = "\n".join(_LIST_MARKER_RE.sub("", line) for line in block.split("\n"))
+    text = _DESIGNATION_RE.sub(" ", text)
+    return [(match.start(), match.group(0)) for match in re.finditer(r"\d+(?:\.\d+)?", text)]
+
+
+def _is_numeric_claim(block: str) -> bool:
+    """Whether a block asserts a measurement rather than merely naming things."""
+    numbers = _measurement_numbers(block)
+    if not numbers:
+        return False
+    # Numbers the question itself supplied, restated in a refusal, are not
+    # claims: "无法确认2025年的趋势" asserts nothing about 2025.
+    return not all(
+        _has_refusal_context(block, start, start + len(token))
+        for start, token in numbers
+    )
+
+
+def _is_declared_non_fact(block: str) -> bool:
+    return any(marker in block for marker in _DECLARED_NON_FACT_MARKERS)
+
+
+def numeric_claim_citation_coverage(answer: str) -> dict[str, Any]:
+    """Share of numeric claims that are either cited or declared non-factual.
+
+    Why this replaces ``citation_id_usage_ratio``
+    ---------------------------------------------
+    That metric was "citations used / citations allowed", and "allowed" is the
+    evidence count.  Its denominator grew whenever more evidence was supplied,
+    so it fell for reasons unrelated to attribution (measured: 0.767 -> 0.307
+    when the evidence cap rose from 5 to 9-20 items) and could not be compared
+    across configurations.  This one divides by a property of the *answer* --
+    how many blocks state a measurement -- so it does not move with the
+    evidence volume.
+
+    What it measures
+    ----------------
+    A "numeric claim" is a paragraph or list item that states a measurement.
+    List markers, document/table designations, and numbers restated inside a
+    refusal are excluded, because ``1.`` in ``1. 对象不同``, the year in
+    ``GB/T 3326—2016``, and the ``2025`` in ``无法确认2025年的趋势`` all contain
+    digits while asserting nothing.
+
+    A claim is attributed when it carries a citation, or when it declares
+    itself a derivation or limitation -- which prompt rule 4 requires of
+    anything that is not a source fact.
+
+    Known limitation
+    ----------------
+    The declared-non-fact markers are a heuristic.  A model that invents a new
+    wording is counted as unattributed, so the metric over-reports rather than
+    silently excusing a real gap; the uncited blocks are returned so a reader
+    can see whether a flag is genuine.  Measured on the current runs, that
+    happens for one block in five runs.
+    """
+    claims = [block for block in _answer_blocks(answer) if _is_numeric_claim(block)]
+    uncited = [
+        block
+        for block in claims
+        if not _CITATION_MARKER_RE.search(block) and not _is_declared_non_fact(block)
+    ]
+    attributed = len(claims) - len(uncited)
+    return {
+        "numeric_claim_blocks": len(claims),
+        "attributed_numeric_claim_blocks": attributed,
+        "uncited_numeric_claim_blocks": len(uncited),
+        "numeric_claim_citation_coverage": (
+            round(attributed / len(claims), 3) if claims else None
+        ),
+        # Excerpts, capped: enough to judge a flag without bloating the run file.
+        "uncited_numeric_claim_excerpts": [
+            re.sub(r"\s+", " ", block)[:120] for block in uncited[:5]
+        ],
+    }
 
 
 def _document_identity(document: Document) -> str:
@@ -730,6 +886,21 @@ def soft_audit(
         )
         hop_metric_applicable = True
 
+    # --- citation attribution ----------------------------------------------
+    # Scored against the answer's own numeric claims, so unlike the evidence
+    # utilisation ratio it does not move when the amount of evidence changes.
+    # Only meaningful for questions that were actually answered with content:
+    # a refusal has no claims to attribute, and a provider substitute is an
+    # availability failure rather than an attribution one.
+    citation_coverage = numeric_claim_citation_coverage(answer)
+    citation_claim_metric_applicable = bool(
+        answer_present
+        and citation_coverage["numeric_claim_blocks"]
+        and not declares_boundary
+    )
+    if not citation_claim_metric_applicable:
+        citation_coverage["numeric_claim_citation_coverage"] = None
+
     return {
         "allowed_citations": sorted(allowed, key=lambda value: (value[0], int(value[1:]))),
         "used_citations": used,
@@ -761,6 +932,8 @@ def soft_audit(
         "hop_results": hop_results,
         "hop_recall": hop_recall,
         "hop_metric_applicable": hop_metric_applicable,
+        **citation_coverage,
+        "numeric_citation_metric_applicable": citation_claim_metric_applicable,
         "answer_length": len(answer),
         "length_limit_exceeded": length_limit_exceeded,
         "warnings": warnings,

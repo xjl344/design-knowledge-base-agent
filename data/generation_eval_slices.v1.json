@@ -138,7 +138,7 @@
     },
     "citation": {
       "description": "引用质量：仅事实题参与统计。",
-      "metrics": ["citation_validity_rate"],
+      "metrics": ["citation_validity_rate", "numeric_citation_coverage_mean"],
       "diagnostics": [
         {
           "metric": "citation_id_usage_ratio_mean",

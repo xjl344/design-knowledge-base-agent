@@ -55,7 +55,8 @@
     },
     "citation": {
       "metrics": [
-        "citation_validity_rate"
+        "citation_validity_rate",
+        "numeric_citation_coverage_mean"
       ],
       "diagnostics": [
         {

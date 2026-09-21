@@ -332,6 +332,7 @@ async def generate_from_pack(
             "refusal_correctness",
             "ambiguity_safety",
             "hop_recall",
+            "numeric_claim_citation_coverage",
             "unsupported_number_count",
             "unsupported_claim_count",
             "answer_length",
@@ -342,6 +343,7 @@ async def generate_from_pack(
         audit["citation_metric_applicable"] = False
         audit["span_metric_applicable"] = False
         audit["hop_metric_applicable"] = False
+        audit["numeric_citation_metric_applicable"] = False
         audit["warnings"] = list(audit.get("warnings") or []) + [
             {
                 "status": "not_audited",
