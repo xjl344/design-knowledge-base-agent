@@ -93,6 +93,12 @@ async def _measure(
         "latency_seconds": round(time.perf_counter() - started, 3),
         "context_chars": len(pack.context_text()),
         "evidence_count": len(pack.items),
+        # Output length is the most likely driver of latency variance, so it is
+        # recorded: without it, a difference between arms cannot be told apart
+        # from one arm simply writing more.  An earlier probe of compression
+        # produced a shift that answer length turned out not to explain, and
+        # having the field would have settled it in the same run.
+        "answer_chars": len(str(result.answer or "")),
     }
 
 
@@ -181,6 +187,16 @@ def summarise(observations: list[dict[str, Any]], names: list[str]) -> dict[str,
 
     faster = sum(1 for diff in diffs if diff < 0)
     slower = sum(1 for diff in diffs if diff > 0)
+    # Answer length per arm, so a latency difference can be checked against the
+    # most likely innocent explanation before being read as a context effect.
+    answer_chars = {
+        name: [
+            item["answer_chars"]
+            for item in completed
+            if item["arm"] == name and item.get("answer_chars") is not None
+        ]
+        for name in names
+    }
     return {
         "completed_calls": len(completed),
         "failed_calls": len(observations) - len(completed),
@@ -215,6 +231,14 @@ def summarise(observations: list[dict[str, Any]], names: list[str]) -> dict[str,
                 if item["arm"] == name and item.get("context_chars") is not None
             })
             for name in names
+        },
+        "answer_chars_by_arm": {
+            name: {
+                "n": len(values),
+                "mean": round(statistics.fmean(values), 1) if values else None,
+                "median": round(statistics.median(values), 1) if values else None,
+            }
+            for name, values in answer_chars.items()
         },
     }
 

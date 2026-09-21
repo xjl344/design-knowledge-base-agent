@@ -149,3 +149,29 @@ def test_context_sizes_are_recorded_per_arm():
         ["small", "large"],
     )
     assert result["context_chars_by_arm"] == {"small": [3000], "large": [12800]}
+
+
+def test_answer_length_is_reported_per_arm():
+    """Output length is the most likely innocent cause of a latency shift.
+
+    An earlier probe measured one arm slower and could not rule this out,
+    because answer length was not recorded.  It has to travel with the result.
+    """
+    observations = [
+        {**_observation(0, "q1", "small", 40), "answer_chars": 500},
+        {**_observation(0, "q1", "large", 70), "answer_chars": 800},
+        {**_observation(0, "q2", "small", 45), "answer_chars": 600},
+        {**_observation(0, "q2", "large", 75), "answer_chars": 900},
+    ]
+    result = summarise(observations, ["small", "large"])
+    assert result["answer_chars_by_arm"]["small"] == {"n": 2, "mean": 550.0, "median": 550.0}
+    assert result["answer_chars_by_arm"]["large"] == {"n": 2, "mean": 850.0, "median": 850.0}
+
+
+def test_missing_answer_length_does_not_break_the_summary():
+    """Runs recorded before the field existed must still summarise."""
+    result = summarise(
+        [_observation(0, "q1", "small", 40), _observation(0, "q1", "large", 70)],
+        ["small", "large"],
+    )
+    assert result["answer_chars_by_arm"]["small"] == {"n": 0, "mean": None, "median": None}
