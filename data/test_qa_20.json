@@ -1,0 +1,154 @@
+{
+  "description": "设计知识库 LangSmith 评测集（20 问：11 个本地肯定有、5 个本地肯定没有、4 个模棱两可）。预期答案已按当前索引内容（chroma_db，collection=design_knowledge，1848 分块）核对；expected_sources 与分块 metadata.source 完全一致。",
+  "questions": [
+    {
+      "id": "q01_hit",
+      "category": "本地肯定有",
+      "question": "按照国家标准 GB/T 3326—2016，椅凳类家具的座高标准（座面高度）是多少？",
+      "expected_answer": "座高（座面中轴线前部最高点至地面的距离）为 400mm~440mm；软面最大座高为 460mm（包括下沉量）。",
+      "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"]
+    },
+    {
+      "id": "q02_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 3326—2016 中桌面高的标准值是多少？",
+      "expected_answer": "桌面高为 680mm~760mm。",
+      "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"]
+    },
+    {
+      "id": "q03_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 3326—2016 对扶手椅的扶手内宽、座深、扶手高分别有什么尺寸要求？",
+      "expected_answer": "扶手内宽不小于 480mm；座深 400mm~480mm；扶手高 200mm~250mm；背长不小于 350mm；座倾角 1°~4°；背倾角 95°~100°。",
+      "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"]
+    },
+    {
+      "id": "q04_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 3326—2016 对靠背椅的座前宽和座深有什么要求？",
+      "expected_answer": "座前宽不小于 400mm；座深 340mm~460mm；背长不小于 350mm；座倾角 1°~4°；背倾角 95°~100°。",
+      "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"]
+    },
+    {
+      "id": "q05_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 3326—2016 中方凳、圆凳的凳面尺寸要求是多少？",
+      "expected_answer": "凳面宽（或凳面直径）不小于 300mm。",
+      "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"]
+    },
+    {
+      "id": "q06_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 26158—2010《中国未成年人人体尺寸》的适用范围是什么？",
+      "expected_answer": "适用于 4 岁~17 岁的中国未成年人，给出了 72 项人体尺寸所涉及的 11 个百分位数。",
+      "expected_sources": ["人机工程与人体工学/26158-2010-gbt-e-300.pdf"]
+    },
+    {
+      "id": "q07_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 10000—2023《中国成年人人体尺寸》代替了哪些标准？",
+      "expected_answer": "代替 GB/T 10000—1988，并整合了 GB/T 13547—1992《工作空间人体尺寸》的内容。",
+      "expected_sources": ["人机工程与人体工学/GBT+10000-2023.pdf"]
+    },
+    {
+      "id": "q08_hit",
+      "category": "本地肯定有",
+      "question": "GB/T 10000—2023 的人体尺寸统计数据基于什么调查？",
+      "expected_answer": "基于 2014 年至 2018 年开展的全国成年人人体尺寸调查。",
+      "expected_sources": ["人机工程与人体工学/GBT+10000-2023.pdf"]
+    },
+    {
+      "id": "q09_hit",
+      "category": "本地肯定有",
+      "question": "闻邦椿《产品设计方法学》一书的主题是什么？",
+      "expected_answer": "该书的主题是产品的顶层设计与系统化设计，系统论述了产品设计方法学。",
+      "expected_sources": ["产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"]
+    },
+    {
+      "id": "q10_hit",
+      "category": "本地肯定有",
+      "question": "《产品设计方法学》中列举了哪些产品设计方法？",
+      "expected_answer": "列举了数十种方法，包括优化设计、稳健设计、模块化设计、人机工程设计、虚拟设计、可视化设计、协同设计、并行设计、智能设计、数字化设计等。",
+      "expected_sources": ["产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"]
+    },
+    {
+      "id": "q11_hit",
+      "category": "本地肯定有",
+      "question": "《实用工程塑料手册》主要覆盖哪些工程塑料？",
+      "expected_answer": "覆盖尼龙（聚酰胺）、聚碳酸酯、聚砜等多种工程塑料的性能、改性与应用。",
+      "expected_sources": ["材料与加工工艺/实用工程塑料手册 (张玉龙,张文栋,严晓峰) (z-library.sk, 1lib.sk, z-lib.sk).pdf"]
+    },
+    {
+      "id": "q12_miss",
+      "category": "本地肯定没有",
+      "question": "2025年产品设计领域有哪些新趋势？",
+      "expected_answer": "本地知识库没有 2025 年相关内容（库中最新的文档为 2023 年发布的标准），应回答无法从本地资料中找到；如启用网络搜索可回退到网络资料。",
+      "expected_sources": []
+    },
+    {
+      "id": "q13_miss",
+      "category": "本地肯定没有",
+      "question": "GB/T 12985—1991《在产品设计中应用人体尺寸百分位数的通则》的主要内容是什么？",
+      "expected_answer": "本地知识库没有 GB/T 12985—1991 的正文内容（该文件存在于 documents 目录但未入库/无文本层），应明确说明无法从本地资料回答，不应编造通则条文。",
+      "expected_sources": []
+    },
+    {
+      "id": "q14_miss",
+      "category": "本地肯定没有",
+      "question": "如何用 ChatGPT 辅助工业设计流程？",
+      "expected_answer": "本地知识库没有关于使用 ChatGPT/AI 工具辅助设计的内容，应回答无法从本地资料找到。",
+      "expected_sources": []
+    },
+    {
+      "id": "q15_miss",
+      "category": "本地肯定没有",
+      "question": "ISO 9001 质量管理体系标准有哪些要求？",
+      "expected_answer": "本地知识库只收录 GB/T 设计类标准与设计资料，没有 ISO 9001 的内容，应回答无法从本地资料找到。",
+      "expected_sources": []
+    },
+    {
+      "id": "q16_miss",
+      "category": "本地肯定没有",
+      "question": "《工业设计基础 产品的材料与加工工艺》中介绍了哪些材料的加工工艺？",
+      "expected_answer": "本地知识库中没有该书的正文内容（该书为扫描版、未入库），应明确说明无法从本地资料回答。",
+      "expected_sources": []
+    },
+    {
+      "id": "q17_ambiguous",
+      "category": "模棱两可",
+      "question": "设计儿童座椅时，座面高度应该怎么确定？",
+      "expected_answer": "本地库没有“儿童座椅座高标准”的直接条文，需要跨文档综合：GB/T 3326—2016 只给出通用桌椅凳座高 400mm~440mm；GB/T 26158—2010 提供儿童坐高、膝高、小腿加足高（腘高）等坐姿测量项目，应按目标年龄段百分位数推算。",
+      "expected_sources": [
+        "设计规范与标准/3326-2016-gbt-cd-300.pdf",
+        "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+      ]
+    },
+    {
+      "id": "q18_ambiguous",
+      "category": "模棱两可",
+      "question": "中国成年人手部尺寸应该参考哪个国家标准？",
+      "expected_answer": "两份标准均相关：GB/T 10000—2023《中国成年人人体尺寸》包含手长、手宽等人体尺寸百分位数；GB/T 16252—2023 是成年人手部尺寸分型的专用标准。应根据具体用途选择，并注意两份标准数据口径的差异。",
+      "expected_sources": [
+        "人机工程与人体工学/GBT+10000-2023.pdf",
+        "人机工程与人体工学/GBT+16252-2023.pdf"
+      ]
+    },
+    {
+      "id": "q19_ambiguous",
+      "category": "模棱两可",
+      "question": "办公椅设计需要考虑哪些人体尺寸？",
+      "expected_answer": "需要综合多类资料：GB/T 3326—2016 给出椅类主要尺寸（座高、座深、扶手高等）；GB/T 10000—2023 提供成年人坐姿尺寸百分位数（坐高、膝高、小腿加足高等）。",
+      "expected_sources": [
+        "设计规范与标准/3326-2016-gbt-cd-300.pdf",
+        "人机工程与人体工学/GBT+10000-2023.pdf"
+      ]
+    },
+    {
+      "id": "q20_ambiguous",
+      "category": "模棱两可",
+      "question": "产品外壳材料选 ABS 还是聚碳酸酯（PC）更好？",
+      "expected_answer": "没有唯一答案，需要综合对比：手册资料会给出两类材料的性能特点（PC 透明、耐冲击、无定形；ABS 加工性好、性价比高），应根据透明度、强度、成本、加工条件等具体需求判断。",
+      "expected_sources": ["材料与加工工艺/实用工程塑料手册 (张玉龙,张文栋,严晓峰) (z-library.sk, 1lib.sk, z-lib.sk).pdf"]
+    }
+  ]
+}

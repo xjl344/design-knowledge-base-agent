@@ -1,0 +1,20 @@
+# Verified as wheel-installable with Python 3.14 on Windows (2026-08-17).
+# Install CUDA Torch first with scripts/Install-CudaTorch.ps1.
+langchain-core==1.5.5
+langchain-openai==1.5.1
+langchain-chroma==1.1.0
+langchain-text-splitters==1.1.2
+langchain-huggingface==1.2.2
+langgraph==1.2.11
+langsmith==0.11.0
+chromadb==1.5.9
+gradio==6.24.0
+pymupdf==1.28.2
+# OCR fallback in ingest.py for PDFs whose text layer is unusable (garbled).
+# Bundles PP-OCR Chinese models; onnxruntime is already a dependency.
+rapidocr_onnxruntime==1.2.3
+sentence-transformers==5.7.0
+ddgs==9.15.0
+python-dotenv==1.2.3
+pytest==9.1.1
+tqdm==4.70.0

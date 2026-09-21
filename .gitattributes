@@ -1,0 +1,19 @@
+# Normalise line endings in the repository. The working copy is Windows but
+# CI and reviewers may be on Linux; without this, every checkout rewrites
+# line endings and produced noisy, unreviewable diffs.
+* text=auto eol=lf
+
+# PowerShell scripts are consumed by Windows PowerShell, which tolerates LF.
+*.ps1 text eol=lf
+
+# Binary-ish artefacts that must never be line-ending converted.
+*.sqlite3 binary
+*.bin binary
+*.pdf binary
+*.png binary
+*.jpg binary
+
+# Fixture and result JSON is compared byte-wise by hash in the harness, so it
+# must not be rewritten on checkout.
+tests/fixtures/*.json text eol=lf
+data/*.json text eol=lf

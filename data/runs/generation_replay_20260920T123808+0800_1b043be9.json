@@ -1,0 +1,138 @@
+{
+  "experiment": "generation-replay",
+  "run_id": "20260920T123808+0800_1b043be9",
+  "started_at": "2026-09-20T12:38:08.906925+08:00",
+  "finished_at": "2026-09-20T12:38:33.795594+08:00",
+  "model": "gpt-5.6",
+  "snapshot": "E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl",
+  "snapshot_sha256": "775fcd83a7dfdb3518b728091d4a6810160e37e9313bceaaa809f2bd2c0cfbf6",
+  "evaluation": "E:\\设计知识库助手\\data\\generation_eval.golden.json",
+  "evaluation_sha256": "c08ef5ee68d2cd5277be38d14420c379e4f24ea10423b952fe48cd1a871848f7",
+  "prompt_version": "generator-v2-20260919-r2",
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 24.687,
+  "summary": {
+    "total": 1,
+    "completed": 1,
+    "generation_success_rate": 1.0,
+    "status_counts": {
+      "completed": 1
+    },
+    "provider_timeout_rate": 0.0,
+    "provider_error_rate": 0.0,
+    "generation_latency_seconds": {
+      "p50": 24.669,
+      "max": 24.669
+    },
+    "citation_status_counts": {},
+    "citation_metric_sample_size": 0,
+    "citation_validity_rate": null,
+    "citation_id_usage_ratio_mean": null,
+    "span_metric_sample_size": 0,
+    "answer_span_recall_mean": null,
+    "malformed_output_count": 0,
+    "malformed_output_question_ids": [],
+    "sanitization_rule_counts": {},
+    "refusal_correctness_rate": null,
+    "ambiguity_safety_rate": 1.0
+  },
+  "rows": [
+    {
+      "question_id": "q17_ambiguous",
+      "question": "设计儿童座椅时，座面高度应该怎么确定？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 92.314,
+        "document_count": 10
+      },
+      "answer": "设计儿童座椅时，当前资料无法确认一个适用于儿童的统一座面高度或计算公式。\n\n可依据以下原则进行确定：\n\n- 儿童属于具有特殊使用要求的人群，设计时应充分考虑其特殊要求。[L5]\n- 人体测量资料列出了“小腿加足高（腘高）”这一坐姿测量项目，可将其作为儿童座面高度设计时需要关注的人体尺寸；但现有资料未明确给出儿童样本、适用年龄、百分位或座面高度计算方法。[L3]\n- [L4]中的“小腿加足高（腘高）”数据为333～429 mm，但当前资料无法确认这些数据是否专门针对儿童，因此不能直接作为儿童座椅尺寸推荐。\n- GB/T 3326—2016给出的座高400～440 mm、软面最大座高460 mm，是一般椅凳的尺寸规定，不能无条件套用于儿童座椅。[L2]\n\n有限推导：儿童座面高度应结合目标年龄段儿童的腘高及穿鞋、坐垫下沉等因素进行验证，使座面高度与目标儿童腿部尺寸匹配；具体数值和计算方法仍需补充儿童人体测量数据或相关儿童座椅标准确认。",
+      "raw_answer": "设计儿童座椅时，当前资料无法确认一个适用于儿童的统一座面高度或计算公式。\n\n可依据以下原则进行确定：\n\n- 儿童属于具有特殊使用要求的人群，设计时应充分考虑其特殊要求。[L5]\n- 人体测量资料列出了“小腿加足高（腘高）”这一坐姿测量项目，可将其作为儿童座面高度设计时需要关注的人体尺寸；但现有资料未明确给出儿童样本、适用年龄、百分位或座面高度计算方法。[L3]\n- [L4]中的“小腿加足高（腘高）”数据为333～429 mm，但当前资料无法确认这些数据是否专门针对儿童，因此不能直接作为儿童座椅尺寸推荐。\n- GB/T 3326—2016给出的座高400～440 mm、软面最大座高460 mm，是一般椅凳的尺寸规定，不能无条件套用于儿童座椅。[L2]\n\n有限推导：儿童座面高度应结合目标年龄段儿童的腘高及穿鞋、坐垫下沉等因素进行验证，使座面高度与目标儿童腿部尺寸匹配；具体数值和计算方法仍需补充儿童人体测量数据或相关儿童座椅标准确认。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 24.669,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": 0.8,
+        "expected_answer_spans": [
+          {
+            "id": "q17-s1",
+            "text": "没有儿童座椅座高标准的直接条文",
+            "matched": false,
+            "source": ""
+          },
+          {
+            "id": "q17-s2",
+            "text": "400mm~440mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q17-s3",
+            "text": "按目标年龄段百分位数推算",
+            "matched": true,
+            "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 0.667,
+        "span_metric_applicable": false,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf",
+          "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "08_设计决策/General_Design/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": true,
+        "answer_length": 420,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 420,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    }
+  ]
+}

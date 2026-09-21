@@ -1,0 +1,15 @@
+﻿{
+    "strategy":  "F",
+    "collection":  "design_knowledge_f",
+    "source_dir":  "E:\\设计知识库助手\\data\\documents\\设计知识库",
+    "persist_dir":  "E:\\设计知识库助手\\data\\chunking_experiments\\F",
+    "document_count":  1333,
+    "file_count":  61,
+    "chunk_statistics":  {
+                             "chunk_count":  3404,
+                             "mean_chars":  653.95,
+                             "p95_chars":  800
+                         },
+    "created_at":  "2026-09-06T02:36:16.6443899Z",
+    "embedding_model_path":  null
+}

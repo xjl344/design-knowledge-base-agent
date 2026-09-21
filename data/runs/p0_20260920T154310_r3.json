@@ -1,0 +1,1277 @@
+{
+  "experiment": "generation-replay",
+  "run_id": "20260920T155243+0800_340b3e09",
+  "started_at": "2026-09-20T15:52:43.621659+08:00",
+  "finished_at": "2026-09-20T16:00:02.253155+08:00",
+  "model": "gpt-5.6",
+  "snapshot": "E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl",
+  "snapshot_sha256": "775fcd83a7dfdb3518b728091d4a6810160e37e9313bceaaa809f2bd2c0cfbf6",
+  "evaluation": "E:\\设计知识库助手\\data\\generation_eval.v2.json",
+  "evaluation_sha256": "bfe80fdc0112539bfaf0991b5cdb2c74bf06fe7c32e2fad1c49f105292b4055f",
+  "prompt_version": "generator-v2-20260919-r2",
+  "audit_version": "soft-audit-preclean-v2",
+  "evaluation_version": 2,
+  "repetition_index": 3,
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 438.413,
+  "summary": {
+    "total": 12,
+    "completed": 9,
+    "generation_success_rate": 0.75,
+    "status_counts": {
+      "completed": 9,
+      "provider_timeout": 3
+    },
+    "provider_timeout_rate": 0.25,
+    "provider_error_rate": 0.0,
+    "generation_latency_seconds": {
+      "p50": 23.643,
+      "p95": 50.598,
+      "max": 50.598
+    },
+    "citation_status_counts": {
+      "pass": 8
+    },
+    "citation_metric_sample_size": 8,
+    "citation_validity_rate": 1.0,
+    "citation_id_usage_ratio_mean": 0.231,
+    "span_metric_sample_size": 8,
+    "answer_span_recall_mean": 1.0,
+    "required_term_recall_mean": 1.0,
+    "required_term_metric_sample_size": 8,
+    "malformed_output_count": 0,
+    "malformed_output_question_ids": [],
+    "sanitization_rule_counts": {},
+    "refusal_correctness_rate": 1.0,
+    "ambiguity_safety_rate": null
+  },
+  "rows": [
+    {
+      "question_id": "q01_hit",
+      "question": "按照国家标准 GB/T 3326—2016，椅凳类家具的座高标准（座面高度）是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 99.873,
+        "document_count": 7
+      },
+      "answer": "按照 GB/T 3326—2016，椅凳类家具的座高（座面高度）标准为 **400～440 mm**；软面座椅的最大座高为 **460 mm（包括下沉量）**。[L1]",
+      "raw_answer": "按照 GB/T 3326—2016，椅凳类家具的座高（座面高度）标准为 **400～440 mm**；软面座椅的最大座高为 **460 mm（包括下沉量）**。[L1]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 23.643,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "q01-s1",
+            "text": "400mm~440mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q01-s2",
+            "text": "软面最大座高为460mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "400mm~440mm",
+              "400 mm~440 mm",
+              "400～440 mm"
+            ],
+            "matched": true
+          },
+          {
+            "alternatives": [
+              "460mm",
+              "460 mm"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 84,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 84,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q02_hit",
+      "question": "GB/T 3326—2016 中桌面高的标准值是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 91.077,
+        "document_count": 5
+      },
+      "answer": "GB/T 3326—2016规定，桌面高 H 为 **680～760 mm**；如有特殊要求或合同约定，可另行明示。[L1]",
+      "raw_answer": "GB/T 3326—2016规定，桌面高 H 为 **680～760 mm**；如有特殊要求或合同约定，可另行明示。[L1]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 36.459,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "q02-s1",
+            "text": "680mm~760mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "680mm~760mm",
+              "680 mm~760 mm",
+              "680～760 mm"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 62,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 62,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q03_hit",
+      "question": "GB/T 3326—2016 对扶手椅的扶手内宽、座深、扶手高分别有什么尺寸要求？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 80.51,
+        "document_count": 7
+      },
+      "answer": "GB/T 3326—2016 对扶手椅的尺寸要求为：\n\n- **扶手内宽（B2）**：≥480 mm  \n- **座深（T1）**：400～480 mm  \n- **扶手高（H2）**：200～250 mm【L1】",
+      "raw_answer": "GB/T 3326—2016 对扶手椅的尺寸要求为：\n\n- **扶手内宽（B2）**：≥480 mm  \n- **座深（T1）**：400～480 mm  \n- **扶手高（H2）**：200～250 mm【L1】",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 50.598,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "q03-s1",
+            "text": "扶手内宽不小于480mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q03-s2",
+            "text": "座深400mm~480mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "480mm",
+              "480 mm"
+            ],
+            "matched": true
+          },
+          {
+            "alternatives": [
+              "400mm~480mm",
+              "400 mm~480 mm",
+              "400～480 mm"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 107,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 107,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q04_hit",
+      "question": "GB/T 3326—2016 对靠背椅的座前宽和座深有什么要求？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 87.717,
+        "document_count": 7
+      },
+      "answer": "根据 GB/T 3326—2016，靠背椅的尺寸要求为：\n\n- **座前宽 B3：≥400 mm**\n- **座深 T1：340～460 mm** [L1]",
+      "raw_answer": "根据 GB/T 3326—2016，靠背椅的尺寸要求为：\n\n- **座前宽 B3：≥400 mm**\n- **座深 T1：340～460 mm** [L1]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 46.776,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "q04-s1",
+            "text": "座前宽不小于400mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q04-s2",
+            "text": "座深340mm~460mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "400mm",
+              "400 mm"
+            ],
+            "matched": true
+          },
+          {
+            "alternatives": [
+              "340mm~460mm",
+              "340 mm~460 mm",
+              "340～460 mm"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 78,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 78,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q05_hit",
+      "question": "GB/T 3326—2016 中方凳、圆凳的凳面尺寸要求是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 80.961,
+        "document_count": 7
+      },
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 60.03,
+      "error": "Request timed out.",
+      "error_type": "provider_timeout",
+      "attempt_count": 1,
+      "generation_status": "provider_timeout",
+      "answer_status": "fallback",
+      "generation_success": false,
+      "provider_error_type": "provider_timeout",
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [],
+        "invalid_citations": [],
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.0,
+        "expected_answer_spans": [
+          {
+            "id": "q05-s1",
+            "text": "凳面宽不小于300mm",
+            "matched": false,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "300mm",
+              "300 mm"
+            ],
+            "matched": false
+          }
+        ],
+        "required_term_recall": 0.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [],
+        "source_coverage": 0.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 33,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "source_not_cited",
+            "expected_sources": [
+              "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+            ]
+          }
+        ],
+        "model_error": "Request timed out.",
+        "raw_answer_length": 33,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": false
+      },
+      "status": "provider_timeout"
+    },
+    {
+      "question_id": "q06_hit",
+      "question": "GB/T 26158—2010《中国未成年人人体尺寸》的适用范围是什么？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 83.597,
+        "document_count": 10
+      },
+      "answer": "GB/T 26158—2010适用于以下范围：\n\n- 未成年人用品的设计与生产；\n- 与未成年人相关设施的设计和安全防护。\n\n该标准针对4岁至17岁未成年人，规定了72项人体尺寸及其11个百分位数。[L1]",
+      "raw_answer": "GB/T 26158—2010适用于以下范围：\n\n- 未成年人用品的设计与生产；\n- 与未成年人相关设施的设计和安全防护。\n\n该标准针对4岁至17岁未成年人，规定了72项人体尺寸及其11个百分位数。[L1]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 12.349,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "q06-s1",
+            "text": "4岁~17岁",
+            "matched": true,
+            "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "q06-s2",
+            "text": "72项人体尺寸",
+            "matched": true,
+            "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "4岁~17岁",
+              "4岁至17岁",
+              "4岁到17岁"
+            ],
+            "matched": true
+          },
+          {
+            "alternatives": [
+              "72项人体尺寸",
+              "72项",
+              "72 个"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 103,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 103,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q07_hit",
+      "question": "GB/T 10000—2023《中国成年人人体尺寸》代替了哪些标准？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "evidence_count": 4,
+      "retrieval_timing": {
+        "retrieval_seconds": 59.163,
+        "document_count": 4
+      },
+      "answer": "GB/T 10000—2023《中国成年人人体尺寸》代替了：\n\n- GB/T 10000—1988\n- GB/T 13547—1992\n\n[L1]",
+      "raw_answer": "GB/T 10000—2023《中国成年人人体尺寸》代替了：\n\n- GB/T 10000—1988\n- GB/T 13547—1992\n\n[L1]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 16.817,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.25,
+        "expected_answer_spans": [
+          {
+            "id": "q07-s1",
+            "text": "GB/T 10000—1988",
+            "matched": true,
+            "source": "人机工程与人体工学/GBT+10000-2023.pdf"
+          },
+          {
+            "id": "q07-s2",
+            "text": "GB/T 13547—1992",
+            "matched": true,
+            "source": "人机工程与人体工学/GBT+10000-2023.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "GB/T 10000—1988",
+              "GB/T 10000-1988",
+              "10000—1988"
+            ],
+            "matched": true
+          },
+          {
+            "alternatives": [
+              "GB/T 13547—1992",
+              "GB/T 13547-1992",
+              "13547—1992"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "人机工程与人体工学/GBT+10000-2023.pdf"
+        ],
+        "cited_sources": [
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 73,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 73,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q08_hit",
+      "question": "GB/T 10000—2023 的人体尺寸统计数据基于什么调查？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 58.372,
+        "document_count": 10
+      },
+      "answer": "GB/T 10000—2023 的人体尺寸统计数据基于 **2014年至2018年开展的全国成年人人体尺寸调查**。[L1]",
+      "raw_answer": "GB/T 10000—2023 的人体尺寸统计数据基于 **2014年至2018年开展的全国成年人人体尺寸调查**。[L1]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 14.37,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "q08-s1",
+            "text": "2014年至2018年",
+            "matched": true,
+            "source": "人机工程与人体工学/GBT+10000-2023.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "2014年至2018年",
+              "2014年到2018年",
+              "2014~2018"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "人机工程与人体工学/GBT+10000-2023.pdf"
+        ],
+        "cited_sources": [
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 62,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 62,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q09_hit",
+      "question": "闻邦椿《产品设计方法学》一书的主题是什么？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 97.957,
+        "document_count": 10
+      },
+      "answer": "闻邦椿《产品设计方法学》一书的主题，是从方法学角度研究产品设计的基本理论、方法、关键问题和核心内容，重点讨论产品的顶层设计与系统化设计。[L5]\n\n全书围绕产品设计的四个阶段展开：调研、规划、实施和检验，并涉及用户需求、产品环境、产品风险、设计目标、设计流程、功能设计、性能设计以及设计质量评估等内容。[L3][L5]",
+      "raw_answer": "闻邦椿《产品设计方法学》一书的主题，是从方法学角度研究产品设计的基本理论、方法、关键问题和核心内容，重点讨论产品的顶层设计与系统化设计。[L5]\n\n全书围绕产品设计的四个阶段展开：调研、规划、实施和检验，并涉及用户需求、产品环境、产品风险、设计目标、设计流程、功能设计、性能设计以及设计质量评估等内容。[L3][L5]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 34.725,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L3",
+          "L5"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.4,
+        "expected_answer_spans": [
+          {
+            "id": "q09-s1",
+            "text": "顶层设计与系统化设计",
+            "matched": true,
+            "source": "产品设计方法"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "顶层设计"
+            ],
+            "matched": true
+          },
+          {
+            "alternatives": [
+              "系统化设计",
+              "系统设计",
+              "系统化"
+            ],
+            "matched": true
+          }
+        ],
+        "required_term_recall": 1.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "cited_sources": [
+          "08_设计决策/General_Design/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 159,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 159,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q10_hit",
+      "question": "《产品设计方法学》中列举了哪些产品设计方法？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 93.002,
+        "document_count": 10
+      },
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 60.04,
+      "error": "Request timed out.",
+      "error_type": "provider_timeout",
+      "attempt_count": 1,
+      "generation_status": "provider_timeout",
+      "answer_status": "fallback",
+      "generation_success": false,
+      "provider_error_type": "provider_timeout",
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [],
+        "invalid_citations": [],
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.0,
+        "expected_answer_spans": [
+          {
+            "id": "q10-s1",
+            "text": "优化设计",
+            "matched": false,
+            "source": "产品设计方法"
+          },
+          {
+            "id": "q10-s2",
+            "text": "人机工程设计",
+            "matched": false,
+            "source": "产品设计方法"
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [
+          {
+            "alternatives": [
+              "优化设计"
+            ],
+            "matched": false
+          },
+          {
+            "alternatives": [
+              "人机工程设计",
+              "人机工程"
+            ],
+            "matched": false
+          }
+        ],
+        "required_term_recall": 0.0,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "cited_sources": [],
+        "source_coverage": 0.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 33,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "source_not_cited",
+            "expected_sources": [
+              "产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+            ]
+          }
+        ],
+        "model_error": "Request timed out.",
+        "raw_answer_length": 33,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": false
+      },
+      "status": "provider_timeout"
+    },
+    {
+      "question_id": "q12_miss",
+      "question": "2025年产品设计领域有哪些新趋势？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 106.189,
+        "document_count": 10
+      },
+      "answer": "严格依据现有资料，**当前资料无法确认“2025年”产品设计领域的专门趋势或年度排名**。资料讨论的是产品设计的总体发展方向，可归纳为：\n\n- **智能化设计持续深化**：通过智能方法优化产品性能参数和工作过程，并提升产品使用性能、质量及经济效益。[L4]\n- **状态监测与预测性管理加强**：设计重点包括设备工况智能检测，并利用监测数据指导生产、计划检修以及备件和物流管理。[L2]\n- **可靠性与寿命设计更受重视**：可靠性指标被置于与产品性能、成本和开发周期同等重要的位置。[L2]\n- **可视化、虚拟现实与协同设计融合**：可视化设计用于检验和优化产品，并可能与虚拟现实、网络技术、并行工程和异地协同设计结合。[L3]\n- **综合评价方法更加复杂化**：产品质量评价正从简单求和、加权求和，发展到模糊综合评价、灰色系统评价和人工神经网络等方法。[L5]\n- **系统化与多目标优化取向增强**：产品设计被视为涉及全生命周期、全部功能性能的多目标、多约束复杂系统，需要在限定范围内进行综合优化。[L1][L4]\n\n以上关于“2025年”的部分只能视为基于资料所述发展方向的有限推导，**不是资料对2025年的直接结论**。",
+      "raw_answer": "严格依据现有资料，**当前资料无法确认“2025年”产品设计领域的专门趋势或年度排名**。资料讨论的是产品设计的总体发展方向，可归纳为：\n\n- **智能化设计持续深化**：通过智能方法优化产品性能参数和工作过程，并提升产品使用性能、质量及经济效益。[L4]\n- **状态监测与预测性管理加强**：设计重点包括设备工况智能检测，并利用监测数据指导生产、计划检修以及备件和物流管理。[L2]\n- **可靠性与寿命设计更受重视**：可靠性指标被置于与产品性能、成本和开发周期同等重要的位置。[L2]\n- **可视化、虚拟现实与协同设计融合**：可视化设计用于检验和优化产品，并可能与虚拟现实、网络技术、并行工程和异地协同设计结合。[L3]\n- **综合评价方法更加复杂化**：产品质量评价正从简单求和、加权求和，发展到模糊综合评价、灰色系统评价和人工神经网络等方法。[L5]\n- **系统化与多目标优化取向增强**：产品设计被视为涉及全生命周期、全部功能性能的多目标、多约束复杂系统，需要在限定范围内进行综合优化。[L1][L4]\n\n以上关于“2025年”的部分只能视为基于资料所述发展方向的有限推导，**不是资料对2025年的直接结论**。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 22.546,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": 1.0,
+        "expected_answer_spans": [
+          {
+            "id": "q12-s1",
+            "text": "无法从本地资料中找到",
+            "matched": false,
+            "source": ""
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [
+          {
+            "alternatives": [
+              "无法确认",
+              "无法从本地资料中找到",
+              "本地资料没有"
+            ],
+            "matched": true
+          }
+        ],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": false,
+        "expected_sources": [],
+        "cited_sources": [
+          "08_设计决策/General_Design/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "2025年",
+          "2025年"
+        ],
+        "unsupported_number_count": 2,
+        "unsupported_claim_count": 2,
+        "refusal_correctness": true,
+        "ambiguity_safety": null,
+        "answer_length": 518,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "2025年",
+              "2025年"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 518,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "q17_ambiguous",
+      "question": "设计儿童座椅时，座面高度应该怎么确定？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 92.314,
+        "document_count": 10
+      },
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 60.027,
+      "error": "Request timed out.",
+      "error_type": "provider_timeout",
+      "attempt_count": 1,
+      "generation_status": "provider_timeout",
+      "answer_status": "fallback",
+      "generation_success": false,
+      "provider_error_type": "provider_timeout",
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [],
+        "invalid_citations": [],
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": 0.0,
+        "expected_answer_spans": [
+          {
+            "id": "q17-s1",
+            "text": "没有儿童座椅座高标准的直接条文",
+            "matched": false,
+            "source": ""
+          },
+          {
+            "id": "q17-s2",
+            "text": "400mm~440mm",
+            "matched": false,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q17-s3",
+            "text": "按目标年龄段百分位数推算",
+            "matched": false,
+            "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [
+          {
+            "alternatives": [
+              "儿童",
+              "儿童座椅"
+            ],
+            "matched": false
+          },
+          {
+            "alternatives": [
+              "不能直接",
+              "不能简单",
+              "不应直接",
+              "无法直接",
+              "不能套用"
+            ],
+            "matched": false
+          },
+          {
+            "alternatives": [
+              "百分位",
+              "年龄段"
+            ],
+            "matched": false
+          }
+        ],
+        "span_metric_applicable": false,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf",
+          "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [],
+        "source_coverage": 0.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": false,
+        "answer_length": 33,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "source_not_cited",
+            "expected_sources": [
+              "设计规范与标准/3326-2016-gbt-cd-300.pdf",
+              "人机工程与人体工学/26158-2010-gbt-e-300.pdf"
+            ]
+          }
+        ],
+        "model_error": "Request timed out.",
+        "raw_answer_length": 33,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": false
+      },
+      "status": "provider_timeout"
+    }
+  ]
+}

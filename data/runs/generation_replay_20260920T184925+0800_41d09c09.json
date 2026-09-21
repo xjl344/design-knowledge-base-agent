@@ -1,0 +1,289 @@
+{
+  "experiment": "generation-replay",
+  "run_id": "20260920T184925+0800_41d09c09",
+  "started_at": "2026-09-20T18:49:25.037282+08:00",
+  "finished_at": "2026-09-20T18:49:25.253408+08:00",
+  "model": "gpt-5.6",
+  "snapshot": "E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl",
+  "snapshot_sha256": "775fcd83a7dfdb3518b728091d4a6810160e37e9313bceaaa809f2bd2c0cfbf6",
+  "evaluation": "E:\\设计知识库助手\\data\\generation_eval.v2.json",
+  "evaluation_sha256": "bfe80fdc0112539bfaf0991b5cdb2c74bf06fe7c32e2fad1c49f105292b4055f",
+  "prompt_version": "generator-v2-20260919-r2",
+  "audit_version": "soft-audit-preclean-v2",
+  "evaluation_version": 2,
+  "repetition_index": 1,
+  "llm_timeout_seconds": 60,
+  "generation_max_retries": 0,
+  "retrieval_calls": 0,
+  "dry_run": true,
+  "elapsed_seconds": 0.019,
+  "summary": {
+    "total": 12,
+    "completed": 0,
+    "generation_success_rate": 0.0,
+    "status_counts": {
+      "ready": 12
+    },
+    "provider_timeout_rate": 0.0,
+    "provider_error_rate": 0.0,
+    "generation_latency_seconds": {
+      "p50": null,
+      "p95": null,
+      "max": null
+    },
+    "citation_status_counts": {},
+    "citation_metric_sample_size": 0,
+    "citation_validity_rate": null,
+    "citation_id_usage_ratio_mean": null,
+    "span_metric_sample_size": 0,
+    "answer_span_recall_mean": null,
+    "required_term_recall_mean": null,
+    "required_term_metric_sample_size": 0,
+    "malformed_output_count": 0,
+    "malformed_output_question_ids": [],
+    "sanitization_rule_counts": {},
+    "refusal_correctness_rate": null,
+    "ambiguity_safety_rate": null
+  },
+  "rows": [
+    {
+      "question_id": "q01_hit",
+      "question": "按照国家标准 GB/T 3326—2016，椅凳类家具的座高标准（座面高度）是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 99.873,
+        "document_count": 7
+      },
+      "status": "ready",
+      "context_chars": 2949,
+      "audit": {}
+    },
+    {
+      "question_id": "q02_hit",
+      "question": "GB/T 3326—2016 中桌面高的标准值是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 91.077,
+        "document_count": 5
+      },
+      "status": "ready",
+      "context_chars": 3128,
+      "audit": {}
+    },
+    {
+      "question_id": "q03_hit",
+      "question": "GB/T 3326—2016 对扶手椅的扶手内宽、座深、扶手高分别有什么尺寸要求？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 80.51,
+        "document_count": 7
+      },
+      "status": "ready",
+      "context_chars": 3012,
+      "audit": {}
+    },
+    {
+      "question_id": "q04_hit",
+      "question": "GB/T 3326—2016 对靠背椅的座前宽和座深有什么要求？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 87.717,
+        "document_count": 7
+      },
+      "status": "ready",
+      "context_chars": 3582,
+      "audit": {}
+    },
+    {
+      "question_id": "q05_hit",
+      "question": "GB/T 3326—2016 中方凳、圆凳的凳面尺寸要求是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 80.961,
+        "document_count": 7
+      },
+      "status": "ready",
+      "context_chars": 2864,
+      "audit": {}
+    },
+    {
+      "question_id": "q06_hit",
+      "question": "GB/T 26158—2010《中国未成年人人体尺寸》的适用范围是什么？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 83.597,
+        "document_count": 10
+      },
+      "status": "ready",
+      "context_chars": 4092,
+      "audit": {}
+    },
+    {
+      "question_id": "q07_hit",
+      "question": "GB/T 10000—2023《中国成年人人体尺寸》代替了哪些标准？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4"
+      ],
+      "evidence_count": 4,
+      "retrieval_timing": {
+        "retrieval_seconds": 59.163,
+        "document_count": 4
+      },
+      "status": "ready",
+      "context_chars": 2382,
+      "audit": {}
+    },
+    {
+      "question_id": "q08_hit",
+      "question": "GB/T 10000—2023 的人体尺寸统计数据基于什么调查？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 58.372,
+        "document_count": 10
+      },
+      "status": "ready",
+      "context_chars": 4511,
+      "audit": {}
+    },
+    {
+      "question_id": "q09_hit",
+      "question": "闻邦椿《产品设计方法学》一书的主题是什么？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 97.957,
+        "document_count": 10
+      },
+      "status": "ready",
+      "context_chars": 4061,
+      "audit": {}
+    },
+    {
+      "question_id": "q10_hit",
+      "question": "《产品设计方法学》中列举了哪些产品设计方法？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 93.002,
+        "document_count": 10
+      },
+      "status": "ready",
+      "context_chars": 4406,
+      "audit": {}
+    },
+    {
+      "question_id": "q12_miss",
+      "question": "2025年产品设计领域有哪些新趋势？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 106.189,
+        "document_count": 10
+      },
+      "status": "ready",
+      "context_chars": 4075,
+      "audit": {}
+    },
+    {
+      "question_id": "q17_ambiguous",
+      "question": "设计儿童座椅时，座面高度应该怎么确定？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 92.314,
+        "document_count": 10
+      },
+      "status": "ready",
+      "context_chars": 2470,
+      "audit": {}
+    }
+  ]
+}

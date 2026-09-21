@@ -1,0 +1,76 @@
+{
+  "experiment": "generation-replay",
+  "model": "gpt-5.6",
+  "snapshot": ".\\data\\frozen_retrieval_cases.jsonl",
+  "evaluation": ".\\data\\generation_eval.json",
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 28.782,
+  "rows": [
+    {
+      "question_id": "q10_hit",
+      "question": "《产品设计方法学》中列举了哪些产品设计方法？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 93.002,
+        "document_count": 10
+      },
+      "answer": "《产品设计方法学》中列举的产品设计方法包括：\n\n- 普适设计方法、TRIZ发明解决问题、概念设计、创新设计、顶层设计、系统化设计、QFD功能质量配置设计。\n- 三次设计、公理化设计、综合设计、绿色设计、和谐设计、系统设计、功能设计、性能设计、全功能全性能设计。\n- 方案设计、初步设计、参数设计、结构设计、机构设计、传动系统设计、驱动系统设计、监测系统设计、控制系统设计、诊断系统设计。\n- 动态设计、运动学设计、动力学设计、振动设计、摩擦学设计、疲劳强度设计、可靠性设计、工艺设计、精度设计、容差设计、试验设计。\n- 工业造型设计、稳健设计、优化设计、优势设计、模块化设计、快速反应设计、变型设计、网络设计、智能设计、机电一体化设计。\n- CAE、数字化设计、专家系统设计、虚拟设计、可视化设计、人机工程设计、有限元设计、价值工程设计、并行设计、协同设计。\n- 相似性设计、柔性化设计、反求工程设计、多学科交叉融合设计、控制器设计、模糊设计、详细设计、施工设计、神经网络设计、基础设计、集成设计。\n- 全生命周期优化设计、边界元设计、工装设计、程序设计、缩短生产周期设计、标准化设计、通用化设计、鲁棒性设计、静强度设计、六西格玛设计法、服务设计。[L1][L3]\n\n资料还指出，书中列举的设计理论与方法有70余种；这些方法并非完全对等，有些方法还涵盖其他方法。[L3][L4]",
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 28.782,
+      "error": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1",
+          "L3",
+          "L4"
+        ],
+        "invalid_citations": [],
+        "citation_validity": true,
+        "expected_answer_spans": [
+          {
+            "id": "q10-s1",
+            "text": "优化设计",
+            "matched": true,
+            "source": "产品设计方法"
+          },
+          {
+            "id": "q10-s2",
+            "text": "人机工程设计",
+            "matched": true,
+            "source": "产品设计方法"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "expected_sources": [
+          "产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "cited_sources": [
+          "08_设计决策/General_Design/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "answer_length": 589,
+        "warnings": [],
+        "model_error": null
+      },
+      "status": "completed"
+    }
+  ]
+}

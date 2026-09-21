@@ -1,0 +1,59 @@
+# ---- Secrets ----
+.env
+.env.local
+# Backups of .env carry the same credentials as .env itself.  Listing only
+# `.env` let `.env.bak.timeout60` (created when changing LLM_TIMEOUT_SECONDS)
+# sail straight past the ignore rule.
+.env.*
+!.env.example
+*.key
+*.pem
+
+# ---- Caches / build artefacts ----
+.cache/
+.tmp/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+# A damaged .git is quarantined under this name when it has to be rebuilt
+# rather than deleted in place; it is not part of the working tree.
+.git_broken_*/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# ---- Vector stores (rebuildable from data/documents via ingest.py) ----
+data/chroma_db/
+data/test_chroma_db/
+data/.test_chroma_db.*/
+data/gradio_tmp/
+
+# Chunking-experiment vector stores: 3 x ~58 MB binaries that are rebuildable
+# from the tracked chunking_experiment.json + ingest_manifest.json in each
+# strategy directory. Those two JSON files ARE tracked, so the experiment
+# remains reproducible without the blobs.
+data/chunking_experiments/*/chroma.sqlite3
+data/chunking_experiments/*/[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*/
+
+# Chunking experiment runner scratch output (ad-hoc probes, not the
+# experiment itself).  The three strategy directories keep their
+# chunking_experiment.json / ingest_manifest.json, which are tracked.
+data/chunking_experiments/*/local_agent_eval*.json
+data/chunking_experiments/**/gradio_tmp/
+
+# ---- Logs ----
+logs/
+
+# ---- Workspace-local assistant data ----
+.workbuddy-ai/
+
+# ---- Large / non-source assets ----
+# Source documents are the user's own reference library and are large
+# (100 MB+). They stay on disk; the repository tracks the ingest manifest
+# instead so a fresh clone can rebuild the vector store.
+data/documents/
+
+# Frozen retrieval snapshot is a 20 MB derived artefact. Keep it out of the
+# repository; regenerate with scripts/Create-FrozenRetrievalSnapshot.ps1.
+data/frozen_retrieval_cases.jsonl

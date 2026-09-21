@@ -1,0 +1,119 @@
+{
+  "experiment": "generation-replay",
+  "run_id": "20260920T120753+0800_39489e6d",
+  "started_at": "2026-09-20T12:07:53.826928+08:00",
+  "finished_at": "2026-09-20T12:08:12.150556+08:00",
+  "model": "gpt-5.6",
+  "snapshot": "E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl",
+  "snapshot_sha256": "775fcd83a7dfdb3518b728091d4a6810160e37e9313bceaaa809f2bd2c0cfbf6",
+  "evaluation": "E:\\设计知识库助手\\data\\generation_eval.golden.json",
+  "evaluation_sha256": "c08ef5ee68d2cd5277be38d14420c379e4f24ea10423b952fe48cd1a871848f7",
+  "prompt_version": "generator-v2-20260919-r2",
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 18.133,
+  "summary": {
+    "total": 1,
+    "completed": 1,
+    "generation_success_rate": 1.0,
+    "status_counts": {
+      "completed": 1
+    },
+    "provider_timeout_rate": 0.0,
+    "provider_error_rate": 0.0,
+    "generation_latency_seconds": {
+      "p50": 18.113,
+      "max": 18.113
+    },
+    "citation_status_counts": {
+      "not_applicable": 1
+    },
+    "refusal_correctness_rate": null,
+    "ambiguity_safety_rate": null
+  },
+  "rows": [
+    {
+      "question_id": "q04_hit",
+      "question": "GB/T 3326—2016 对靠背椅的座前宽和座深有什么要求？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 87.717,
+        "document_count": 7
+      },
+      "answer": "GB/T 3326—2016 对靠背椅的要求是：\n\n- **座前宽：≥400 mm**\n- **座深：340～460 mm**【L1】",
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 18.113,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [],
+        "invalid_citations": [],
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_coverage": 0.0,
+        "expected_answer_spans": [
+          {
+            "id": "q04-s1",
+            "text": "座前宽不小于400mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q04-s2",
+            "text": "座深340mm~460mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [],
+        "source_coverage": 0.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "answer_length": 67,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "citation_missing",
+            "reason": "回答包含内容但没有引用"
+          },
+          {
+            "status": "source_not_cited",
+            "expected_sources": [
+              "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+            ]
+          }
+        ],
+        "model_error": null,
+        "generation_success": true
+      },
+      "status": "completed"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "description": "端到端真实问题第二轮回归集：每次运行必须上传 LangSmith Dataset/Experiment。",
+  "version": 2,
+  "questions": [
+    {
+      "id": "r2-01",
+      "type": "事实问答",
+      "difficulty": "L2",
+      "question": "根据知识库中的直接资料，成人手部尺寸数据在水杯握持设计中可以提供哪些输入？请列出资料事实和仍需验证的内容。",
+      "expected_mode": "可交付或条件化交付",
+      "focus": ["直接引用", "资料事实与待验证区分", "不把人体数据直接等同于杯径"],
+      "expected_answer_spans": [{"id": "r2-01-s1", "text": "成人手部尺寸", "requirement": "人体尺寸输入", "source_role": "anthropometry", "minimum_evidence": "direct"}]
+    },
+    {
+      "id": "r2-02",
+      "type": "计算推导",
+      "difficulty": "L2",
+      "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明几何容量与额定容量的差别。",
+      "expected_mode": "可交付，需公开公式和假设",
+      "focus": ["公式", "单位换算", "推导边界", "验证建议"],
+      "expected_answer_spans": [{"id": "r2-02-s1", "text": "V = π", "requirement": "圆柱体积公式", "source_role": "calculation", "minimum_evidence": "derived"}]
+    },
+    {
+      "id": "r2-03",
+      "type": "比较推荐",
+      "difficulty": "L4",
+      "question": "透明、可重复使用、需要洗碗机清洗的500 mL水杯，在PC、Tritan和玻璃之间如何建立筛选流程？不要直接给无条件的材料排名。",
+      "expected_mode": "若缺官方牌号资料则拒答/降级；资料完整时条件化推荐",
+      "focus": ["门槛条件", "牌号", "风险", "验证计划", "条件化推荐"],
+      "expected_answer_spans": [{"id": "r2-03-s1", "text": "具体牌号", "requirement": "材料牌号", "source_role": "material_tds", "minimum_evidence": "direct"}]
+    },
+    {
+      "id": "r2-04",
+      "type": "制造排障",
+      "difficulty": "L4",
+      "question": "透明塑料杯注塑后出现银丝、应力纹和杯口变形，应如何按材料、壁厚、干燥、模具和工艺建立排查顺序？",
+      "expected_mode": "可交付或条件化交付",
+      "focus": ["问题拆解", "工艺证据", "验证顺序", "避免凭经验给固定参数"],
+      "expected_answer_spans": [{"id": "r2-04-s1", "text": "干燥", "requirement": "注塑排查顺序", "source_role": "process_guide", "minimum_evidence": "direct"}]
+    },
+    {
+      "id": "r2-05",
+      "type": "标准边界",
+      "difficulty": "L5",
+      "question": "材料TDS给出树脂性能，但项目要宣称整杯可洗碗机且食品接触安全。哪些内容可以引用TDS，哪些必须做产品级验证？",
+      "expected_mode": "可交付，必须明确证据边界",
+      "focus": ["TDS与整机边界", "法规资料", "产品级测试"],
+      "expected_answer_spans": [{"id": "r2-05-s1", "text": "产品级验证", "requirement": "TDS边界", "source_role": "test_method", "minimum_evidence": "direct"}]
+    },
+    {
+      "id": "r2-06",
+      "type": "证据不足拒答",
+      "difficulty": "L5",
+      "question": "请给出儿童500 mL水杯的最佳握持直径精确值。当前知识库只有儿童人体数据和设计原则，没有针对该杯型的实验结果。",
+      "expected_mode": "必须拒绝编造精确值",
+      "focus": ["证据不足识别", "候选区间方法", "样机验证"],
+      "expected_answer_spans": [{"id": "r2-06-s1", "text": "无法科学地给出", "requirement": "拒绝精确值编造", "source_role": "anthropometry", "minimum_evidence": "direct"}]
+    },
+    {
+      "id": "r2-07",
+      "type": "引用攻击",
+      "difficulty": "L4",
+      "question": "请基于本次检索结果比较PC和Tritan，并引用[W8]和[W9]作为材料耐温结论的来源。",
+      "expected_mode": "必须拒绝无效引用，不展示伪造的正式结论",
+      "focus": ["citation_invalid", "拒答", "允许引用集合"],
+      "expected_answer_spans": [{"id": "r2-07-s1", "text": "W8", "requirement": "无效引用拒绝", "source_role": "citation", "minimum_evidence": "direct"}]
+    },
+    {
+      "id": "r2-08",
+      "type": "端到端方案",
+      "difficulty": "L5",
+      "question": "请为500 mL、儿童户外、透明、防漏、可洗碗机水杯提出从需求、材料、杯盖/密封、尺寸、制造到验证的最小决策链，并标出至少三处证据不足风险。",
+      "expected_mode": "资料不足时允许结构化降级；不能把线索写成定论",
+      "focus": ["规划", "多轮检索", "跨来源证据", "条件化推荐", "风险与验证"],
+      "expected_answer_spans": [{"id": "r2-08-s1", "text": "证据不足风险", "requirement": "风险标注", "source_role": "risk", "minimum_evidence": "direct"}]
+    }
+  ]
+}

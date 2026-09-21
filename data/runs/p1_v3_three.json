@@ -1,0 +1,405 @@
+{
+  "experiment": "generation-replay-p0-matrix",
+  "run_count": 3,
+  "repetition_indices": [
+    1,
+    2,
+    3
+  ],
+  "source_files": [
+    "E:\\设计知识库助手\\data\\runs\\p1_full_v3.json",
+    "E:\\设计知识库助手\\data\\runs\\p1_full_v3_r2.json",
+    "E:\\设计知识库助手\\data\\runs\\p1_full_v3_r3.json"
+  ],
+  "model": "gpt-5.6",
+  "snapshot_sha256": "775fcd83a7dfdb3518b728091d4a6810160e37e9313bceaaa809f2bd2c0cfbf6",
+  "evaluation_sha256": "8171c7c6e8a7cea971abcff245aaeb35372c3aa866706be83d075a6dca975882",
+  "prompt_version": "generator-v2-20260919-r2",
+  "audit_version": "soft-audit-behaviour-v3",
+  "generation_max_retries": 0,
+  "retrieval_calls": 0,
+  "total_question_runs": 36,
+  "completed_question_runs": 22,
+  "generation_success_rate": 0.611,
+  "first_try_success_count": 22,
+  "retried_success_count": 0,
+  "retried_success_question_ids": [],
+  "provider_error_rate": 0.389,
+  "provider_failure_rate": 0.389,
+  "provider_timeout_rate": 0.389,
+  "provider_rate_limit_rate": 0.0,
+  "provider_hard_error_rate": 0.0,
+  "status_counts": {
+    "completed": 22,
+    "provider_timeout": 14
+  },
+  "provider_stability_gate_threshold": 0.1,
+  "provider_timeout_gate_passed": false,
+  "provider_hard_error_gate_passed": true,
+  "provider_stability_gate_passed": false,
+  "generation_latency_seconds": {
+    "p50": 7.476,
+    "p95": 17.485,
+    "max": 33.451
+  },
+  "per_attempt_latency_seconds": {
+    "p50": 7.472,
+    "p95": 17.484,
+    "max": 33.45,
+    "sample_size": 22
+  },
+  "latency_ceiling_seconds": 60,
+  "latency_headroom_seconds": 26.55,
+  "answer_span_recall_mean": 0.944,
+  "span_metric_sample_size": 18,
+  "required_term_recall_mean": 0.972,
+  "required_term_metric_sample_size": 18,
+  "citation_validity_rate": 1.0,
+  "citation_id_usage_ratio_mean": 0.253,
+  "source_coverage_mean": 1.0,
+  "citation_metric_sample_size": 18,
+  "unsupported_number_count_mean": 0.182,
+  "unsupported_number_metric_sample_size": 22,
+  "answer_length_mean": 167.136,
+  "answer_length_metric_sample_size": 22,
+  "refusal_correctness_rate": 1.0,
+  "refusal_metric_sample_size": 2,
+  "ambiguity_safety_rate": 1.0,
+  "ambiguity_metric_sample_size": 2,
+  "per_question": {
+    "q01_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q02_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q03_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q04_hit": {
+      "runs": 3,
+      "completed": 1,
+      "statuses": [
+        "provider_timeout",
+        "provider_timeout",
+        "completed"
+      ],
+      "success_rate": 0.333,
+      "required_term_recall_mean": 1.0
+    },
+    "q05_hit": {
+      "runs": 3,
+      "completed": 1,
+      "statuses": [
+        "provider_timeout",
+        "completed",
+        "provider_timeout"
+      ],
+      "success_rate": 0.333,
+      "required_term_recall_mean": 1.0
+    },
+    "q06_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 0.833
+    },
+    "q07_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q08_hit": {
+      "runs": 3,
+      "completed": 0,
+      "statuses": [
+        "provider_timeout",
+        "provider_timeout",
+        "provider_timeout"
+      ],
+      "success_rate": 0.0,
+      "required_term_recall_mean": null
+    },
+    "q09_hit": {
+      "runs": 3,
+      "completed": 1,
+      "statuses": [
+        "provider_timeout",
+        "provider_timeout",
+        "completed"
+      ],
+      "success_rate": 0.333,
+      "required_term_recall_mean": 1.0
+    },
+    "q10_hit": {
+      "runs": 3,
+      "completed": 0,
+      "statuses": [
+        "provider_timeout",
+        "provider_timeout",
+        "provider_timeout"
+      ],
+      "success_rate": 0.0,
+      "required_term_recall_mean": null
+    },
+    "q12_miss": {
+      "runs": 3,
+      "completed": 2,
+      "statuses": [
+        "completed",
+        "completed",
+        "provider_timeout"
+      ],
+      "success_rate": 0.667,
+      "required_term_recall_mean": null
+    },
+    "q17_ambiguous": {
+      "runs": 3,
+      "completed": 2,
+      "statuses": [
+        "completed",
+        "completed",
+        "provider_timeout"
+      ],
+      "success_rate": 0.667,
+      "required_term_recall_mean": null
+    }
+  },
+  "slice_report": {
+    "slice_file": "E:\\设计知识库助手\\data\\generation_eval_slices.v1.json",
+    "excluded_question_ids": [
+      "q12_miss",
+      "q17_ambiguous"
+    ],
+    "flaky_detection": {
+      "refusal_correctness": {
+        "metric": "refusal_correctness",
+        "flaky_question_ids": [
+          "q12_miss"
+        ],
+        "details": [
+          {
+            "question_id": "q12_miss",
+            "verdicts": [
+              true,
+              true,
+              false
+            ],
+            "flip_pairs": 2,
+            "total_pairs": 3,
+            "flip_share": 0.667
+          }
+        ],
+        "note": "同一系统多次运行中判定翻转的题。这些题不进入回归判定的分母，否则一个不稳定的指标会被当成改进或退步。"
+      },
+      "ambiguity_safety": {
+        "metric": "ambiguity_safety",
+        "flaky_question_ids": [
+          "q17_ambiguous"
+        ],
+        "details": [
+          {
+            "question_id": "q17_ambiguous",
+            "verdicts": [
+              true,
+              true,
+              false
+            ],
+            "flip_pairs": 2,
+            "total_pairs": 3,
+            "flip_share": 0.667
+          }
+        ],
+        "note": "同一系统多次运行中判定翻转的题。这些题不进入回归判定的分母，否则一个不稳定的指标会被当成改进或退步。"
+      }
+    },
+    "slice_breakdown": {
+      "case_type:required_term_recall": {
+        "fact_enumeration": {
+          "sample_size": 12,
+          "question_count": 4,
+          "mean": 0.542,
+          "question_ids": [
+            "q06_hit",
+            "q07_hit",
+            "q09_hit",
+            "q10_hit"
+          ]
+        },
+        "fact_numeric": {
+          "sample_size": 18,
+          "question_count": 6,
+          "mean": 0.611,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q03_hit",
+            "q04_hit",
+            "q05_hit",
+            "q08_hit"
+          ]
+        }
+      },
+      "case_type:citation_validity": {
+        "fact_enumeration": {
+          "sample_size": 7,
+          "question_count": 3,
+          "mean": 1.0,
+          "question_ids": [
+            "q06_hit",
+            "q07_hit",
+            "q09_hit"
+          ]
+        },
+        "fact_numeric": {
+          "sample_size": 11,
+          "question_count": 5,
+          "mean": 1.0,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q03_hit",
+            "q04_hit",
+            "q05_hit"
+          ]
+        }
+      },
+      "case_type:refusal_correctness": {
+        "refusal": {
+          "sample_size": 3,
+          "question_count": 0,
+          "mean": 0.667,
+          "question_ids": []
+        }
+      },
+      "case_type:ambiguity_safety": {
+        "ambiguous": {
+          "sample_size": 3,
+          "question_count": 0,
+          "mean": 0.667,
+          "question_ids": []
+        }
+      },
+      "risk_level:required_term_recall": {
+        "low": {
+          "sample_size": 12,
+          "question_count": 4,
+          "mean": 0.583,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q05_hit",
+            "q08_hit"
+          ]
+        },
+        "medium": {
+          "sample_size": 18,
+          "question_count": 6,
+          "mean": 0.583,
+          "question_ids": [
+            "q03_hit",
+            "q04_hit",
+            "q06_hit",
+            "q07_hit",
+            "q09_hit",
+            "q10_hit"
+          ]
+        }
+      },
+      "risk_level:citation_validity": {
+        "low": {
+          "sample_size": 7,
+          "question_count": 3,
+          "mean": 1.0,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q05_hit"
+          ]
+        },
+        "medium": {
+          "sample_size": 11,
+          "question_count": 5,
+          "mean": 1.0,
+          "question_ids": [
+            "q03_hit",
+            "q04_hit",
+            "q06_hit",
+            "q07_hit",
+            "q09_hit"
+          ]
+        }
+      },
+      "risk_level:refusal_correctness": {
+        "high": {
+          "sample_size": 3,
+          "question_count": 0,
+          "mean": 0.667,
+          "question_ids": []
+        }
+      },
+      "risk_level:ambiguity_safety": {
+        "high": {
+          "sample_size": 3,
+          "question_count": 0,
+          "mean": 0.667,
+          "question_ids": []
+        }
+      }
+    },
+    "group_gate": null,
+    "note": "样本量小（12 题），任何单题翻转都会显著改变百分比；因此每个切片都带 sample_size，且 flaky 题不进入回归分母。"
+  },
+  "run_comparability": {
+    "comparable": false,
+    "tolerance": 0.1,
+    "unstable_metrics": [
+      {
+        "metric": "answer_span_recall_mean",
+        "values": [
+          1.0,
+          0.833,
+          1.0
+        ],
+        "spread": 0.167,
+        "tolerance": 0.1
+      }
+    ],
+    "verdict": "同配置多次运行差异超出容差，不应对这些指标出趋势结论"
+  }
+}

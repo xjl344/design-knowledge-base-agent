@@ -1,0 +1,66 @@
+name: offline-evaluation-tests
+
+# Only the tests that need neither a model nor a vector store.  The evaluation
+# logic is deliberately separable from the model SDK, so most of it can be
+# verified on a bare checkout -- see docs/architecture.md for the split, and
+# tests/test_eval_dependency_surface.py for the guard that keeps it that way.
+#
+# Tests requiring Chroma, Torch or a live model are excluded on purpose: they
+# would make the job slow, need secrets, and fail for reasons unrelated to the
+# change under review.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      # langchain-core is the only third-party import in this set: the
+      # frozen-evidence tests build ``Document`` objects to check that retrieval
+      # metadata is carried through.  Nothing here calls a model.
+      - name: Install minimal dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest langchain-core==1.5.5
+
+      - name: Run offline evaluation tests
+        run: |
+          python -m pytest \
+            tests/test_frozen_generation.py \
+            tests/test_generation_slices_and_gates.py \
+            tests/test_aggregate_slice_report.py \
+            tests/test_eval_report.py \
+            tests/test_replay_fixtures.py \
+            tests/test_generation_replay_aggregate.py \
+            tests/test_config_timeouts.py \
+            tests/test_eval_dependency_surface.py \
+            -q
+
+      - name: Verify the aggregator runs without the model SDK
+        # The aggregator is pure arithmetic over recorded runs.  If it ever
+        # starts importing the SDK again, it becomes unusable for offline
+        # analysis -- and this step is what notices.
+        run: |
+          python aggregate_generation_replays.py \
+            data/runs/p1_full_v3.json data/runs/p1_full_v3_r2.json \
+            --output /tmp/agg.json --report /tmp/report.md \
+            --slices data/generation_eval_slices.v1.json \
+            --evaluation data/generation_eval.v2.json
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generation-report
+          path: /tmp/report.md
+          if-no-files-found: ignore

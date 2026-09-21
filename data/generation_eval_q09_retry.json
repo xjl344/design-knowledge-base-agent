@@ -1,0 +1,68 @@
+{
+  "experiment": "generation-replay",
+  "model": "gpt-5.6",
+  "snapshot": ".\\data\\frozen_retrieval_cases.jsonl",
+  "evaluation": ".\\data\\generation_eval.json",
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 15.007,
+  "rows": [
+    {
+      "question_id": "q09_hit",
+      "question": "闻邦椿《产品设计方法学》一书的主题是什么？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 97.957,
+        "document_count": 10
+      },
+      "answer": "闻邦椿《产品设计方法学》主要研究产品设计方法学的基本理论、方法及关键问题，重点讨论产品的顶层设计与系统化设计。[L5]\n\n其主题还包括产品设计的四个阶段：调研、规划、实施和检验。其中，调研包括用户需求、产品环境和产品风险调研；规划包括设计目标、思想、环境、内容、流程、方法及质量检验等方面。[L5]",
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 15.007,
+      "error": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L5"
+        ],
+        "invalid_citations": [],
+        "citation_validity": true,
+        "expected_answer_spans": [
+          {
+            "id": "q09-s1",
+            "text": "顶层设计与系统化设计",
+            "matched": true,
+            "source": "产品设计方法"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "expected_sources": [
+          "产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "cited_sources": [
+          "08_设计决策/General_Design/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "answer_length": 149,
+        "warnings": [],
+        "model_error": null
+      },
+      "status": "completed"
+    }
+  ]
+}

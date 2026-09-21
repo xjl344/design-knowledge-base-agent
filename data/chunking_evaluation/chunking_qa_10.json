@@ -1,0 +1,16 @@
+{
+  "description": "设计知识库分块策略纯检索对照集（10题）",
+  "version": 1,
+  "questions": [
+    {"id":"k01","category":"人体工学综合","question":"面向6至12岁儿童设计500 mL单手水杯，如何结合儿童手部尺寸、握持稳定性、容量和防倾倒要求确定首轮样机的关键尺寸与验证项目？","expected_sources":["儿童手部尺寸与握力研究_中国儿童_2020.pdf","水杯尺寸推导规则.md","26158-2010-gbt-e-300.pdf"]},
+    {"id":"k02","category":"人体工学综合","question":"中国成年人手部尺寸用于水杯握持设计时，GB/T 10000—2023和GB/T 16252—2023应如何分工？若数据口径不同如何记录？","expected_sources":["GBT+10000-2023.pdf","GBT+16252-2023.pdf"]},
+    {"id":"k03","category":"材料对比推荐","question":"透明、可重复使用、需要洗碗机清洗的500 mL水杯，在PC、Tritan和玻璃之间如何筛选？请给出门槛项、比较项和验证顺序。","expected_sources":["PC与Tritan选择规则.md","玻璃与塑料选择规则.md","水杯材料选择规则.md","GB_4806.7-2023.pdf"]},
+    {"id":"k04","category":"材料对比推荐","question":"低成本、轻量、非透明的儿童水杯在PP和Tritan之间如何决策？若PP加厚达到刚性，哪些下游指标会受影响？","expected_sources":["PP与Tritan选择规则.md","水杯材料选择规则.md","LyondellBasell_PP_3486-01_TDS.pdf","Eastman_Tritan_TX1001_TDS_Official_Page.txt"]},
+    {"id":"k05","category":"尺寸计算推导","question":"直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。","expected_sources":["水杯尺寸推导规则.md"]},
+    {"id":"k06","category":"尺寸计算推导","question":"锥台杯上下端内径70 mm和60 mm、有效液高100 mm，如何计算理想容量？复杂曲面如何改变方法？","expected_sources":["水杯尺寸推导规则.md"]},
+    {"id":"k07","category":"制造工艺验证","question":"透明Tritan杯体注塑时，如何从干燥、壁厚、圆角、浇口排气到残余应力建立DFM清单？","expected_sources":["水杯注塑设计规则.md","Eastman_Tritan_Processing_Mold_Design_Guidelines.pdf","Eastman_Tritan_Drying_Extrusion_Processing_Guide.pdf"]},
+    {"id":"k08","category":"制造工艺验证","question":"要把‘防漏’写成可执行验证协议，必须明确哪些姿态、温度、压力、时间、装液量、样件状态和寿命条件？","expected_sources":["水杯密封设计规则.md","水杯设计验证规则.md"]},
+    {"id":"k09","category":"标准冲突与证据边界","question":"儿童水杯尺寸同时检索到GB/T 3326—2016、GB/T 26158—2010和儿童手部研究，如何判断适用层级并避免把椅子座高迁移成杯子握持直径？","expected_sources":["3326-2016-gbt-cd-300.pdf","26158-2010-gbt-e-300.pdf","儿童手部尺寸与握力研究_中国儿童_2020.pdf"]},
+    {"id":"k10","category":"证据不足与拒答","question":"用户要求给出‘儿童500 mL水杯最佳握持直径精确值’，但知识库只有人体数据和设计原则，Agent应如何回答？","expected_sources":["儿童手部尺寸与握力研究_中国儿童_2020.pdf","水杯尺寸推导规则.md"]}
+  ]
+}

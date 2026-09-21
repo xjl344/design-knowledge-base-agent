@@ -1,0 +1,145 @@
+{
+  "description": "生成评测的分切片定义。与 generation_eval.v2.json 分离：契约描述「期望什么」属于评测输入，切片描述「这题属于哪一类」属于实验设计，两者的变更节奏不同。",
+  "version": 1,
+  "case_type_values": [
+    "fact_numeric",
+    "fact_enumeration",
+    "refusal",
+    "ambiguous"
+  ],
+  "risk_level_values": ["low", "medium", "high"],
+  "slices": [
+    {
+      "id": "q01_hit",
+      "case_type": "fact_numeric",
+      "risk_level": "low",
+      "slice_tags": ["gbt", "dimension", "single_span"],
+      "flaky": false,
+      "notes": "单值答案（座高 400~440mm 与软面 460mm），有明确标准出处。"
+    },
+    {
+      "id": "q02_hit",
+      "case_type": "fact_numeric",
+      "risk_level": "low",
+      "slice_tags": ["gbt", "dimension", "single_span"],
+      "flaky": false,
+      "notes": "单值答案（桌面高），结构同 q01，可作为数值抽取的稳定对照。"
+    },
+    {
+      "id": "q03_hit",
+      "case_type": "fact_numeric",
+      "risk_level": "medium",
+      "slice_tags": ["gbt", "dimension", "multi_span"],
+      "flaky": false,
+      "notes": "三个并列尺寸，需完整枚举；漏一项即扣分。"
+    },
+    {
+      "id": "q04_hit",
+      "case_type": "fact_numeric",
+      "risk_level": "medium",
+      "slice_tags": ["gbt", "dimension", "multi_span", "regressed_once"],
+      "flaky": false,
+      "notes": "曾因（T1）标签字符污染 span 匹配被判 0.5，预清洗层上线后修复。保留在数据集里作为该修复的哨兵题。"
+    },
+    {
+      "id": "q05_hit",
+      "case_type": "fact_numeric",
+      "risk_level": "low",
+      "slice_tags": ["gbt", "dimension", "single_span"],
+      "flaky": false,
+      "notes": "凳面尺寸，单值。注意本题在多次运行中出现过 60s 卡死，属 provider 侧问题而非答错。"
+    },
+    {
+      "id": "q06_hit",
+      "case_type": "fact_enumeration",
+      "risk_level": "medium",
+      "slice_tags": ["gbt", "scope", "multi_span"],
+      "flaky": false,
+      "notes": "适用范围 + 项数，需同时给出两个事实。"
+    },
+    {
+      "id": "q07_hit",
+      "case_type": "fact_enumeration",
+      "risk_level": "medium",
+      "slice_tags": ["gbt", "standard_id", "multi_span"],
+      "flaky": false,
+      "notes": "两个被代替的标准号，破折号（—）与连字符（-）混用，考察标准号保真度。"
+    },
+    {
+      "id": "q08_hit",
+      "case_type": "fact_numeric",
+      "risk_level": "low",
+      "slice_tags": ["gbt", "time_range", "single_span"],
+      "flaky": false,
+      "notes": "年份区间，考察时间表述归一化。"
+    },
+    {
+      "id": "q09_hit",
+      "case_type": "fact_enumeration",
+      "risk_level": "medium",
+      "slice_tags": ["book", "topic", "semantic_span"],
+      "flaky": false,
+      "notes": "书名主题，属概念性 span 而非逐字引用；曾因标注过严（要求连续串）被判错，已改为两个独立 span。"
+    },
+    {
+      "id": "q10_hit",
+      "case_type": "fact_enumeration",
+      "risk_level": "medium",
+      "slice_tags": ["book", "enumeration", "length_sensitive"],
+      "flaky": false,
+      "notes": "列举多种设计方法，答案易过长（曾达 606 字符，触发 answer_too_long 告警）。"
+    },
+    {
+      "id": "q12_miss",
+      "case_type": "refusal",
+      "risk_level": "high",
+      "slice_tags": ["insufficient_context", "policy"],
+      "flaky": false,
+      "notes": "证据包不含 2025 年资料，正确行为是明确拒答。高风险：错答即为幻觉。citation 类指标对此题不适用。"
+    },
+    {
+      "id": "q17_ambiguous",
+      "case_type": "ambiguous",
+      "risk_level": "high",
+      "slice_tags": ["partial_evidence", "policy", "reworded_twice"],
+      "flaky": false,
+      "notes": "证据部分支持（有通用尺寸与人体测量项，无儿童专用条文）。正确行为是拒绝直接套用并给出推算路径。该题曾因关键词词表缺陷在两次运行中判定相反（已修，见 AUDIT_VERSION v3），暂不标 flaky——修复后 7/7 判定一致。"
+    }
+  ],
+  "metric_groups": {
+    "retrieval": {
+      "description": "冻结组：提示词改动不应影响这些指标，delta 必须为 0。",
+      "metrics": ["retrieval_calls"],
+      "allowed_change": 0.0,
+      "enforcement": "hard"
+    },
+    "usability": {
+      "description": "系统可用性：越低越好。",
+      "metrics": [
+        "provider_timeout_rate",
+        "provider_hard_error_rate",
+        "failed_attempt_count_total"
+      ],
+      "direction": "lower_is_better",
+      "enforcement": "hard"
+    },
+    "quality": {
+      "description": "回答质量：实验组，允许波动但有下限。",
+      "metrics": ["answer_span_recall_mean", "required_term_recall_mean"],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    },
+    "safety": {
+      "description": "安全行为：拒答与歧义处理，高风险切片单独卡。",
+      "metrics": ["refusal_correctness_rate", "ambiguity_safety_rate"],
+      "allowed_change": 0.0,
+      "enforcement": "hard"
+    },
+    "citation": {
+      "description": "引用质量：仅事实题参与统计。",
+      "metrics": ["citation_validity_rate", "citation_id_usage_ratio_mean"],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    }
+  }
+}

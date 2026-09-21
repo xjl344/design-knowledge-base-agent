@@ -1,0 +1,18 @@
+{
+  "description": "冻结检索证据上的最小生成评测集。expected_answer_spans 绑定语义片段，不绑定 chunk_id。",
+  "version": 1,
+  "cases": [
+    {"id": "q01_hit", "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"], "expected_answer_spans": [{"id": "q01-s1", "text": "400mm~440mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}, {"id": "q01-s2", "text": "软面最大座高为460mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}]},
+    {"id": "q02_hit", "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"], "expected_answer_spans": [{"id": "q02-s1", "text": "680mm~760mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}]},
+    {"id": "q03_hit", "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"], "expected_answer_spans": [{"id": "q03-s1", "text": "扶手内宽不小于480mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}, {"id": "q03-s2", "text": "座深400mm~480mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}]},
+    {"id": "q04_hit", "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"], "expected_answer_spans": [{"id": "q04-s1", "text": "座前宽不小于400mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}, {"id": "q04-s2", "text": "座深340mm~460mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}]},
+    {"id": "q05_hit", "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf"], "expected_answer_spans": [{"id": "q05-s1", "text": "凳面宽不小于300mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}]},
+    {"id": "q06_hit", "expected_sources": ["人机工程与人体工学/26158-2010-gbt-e-300.pdf"], "expected_answer_spans": [{"id": "q06-s1", "text": "4岁~17岁", "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"}, {"id": "q06-s2", "text": "72项人体尺寸", "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"}]},
+    {"id": "q07_hit", "expected_sources": ["人机工程与人体工学/GBT+10000-2023.pdf"], "expected_answer_spans": [{"id": "q07-s1", "text": "GB/T 10000—1988", "source": "人机工程与人体工学/GBT+10000-2023.pdf"}, {"id": "q07-s2", "text": "GB/T 13547—1992", "source": "人机工程与人体工学/GBT+10000-2023.pdf"}]},
+    {"id": "q08_hit", "expected_sources": ["人机工程与人体工学/GBT+10000-2023.pdf"], "expected_answer_spans": [{"id": "q08-s1", "text": "2014年至2018年", "source": "人机工程与人体工学/GBT+10000-2023.pdf"}]},
+    {"id": "q09_hit", "expected_sources": ["产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"], "expected_answer_spans": [{"id": "q09-s1", "text": "顶层设计与系统化设计", "source": "产品设计方法"}]},
+    {"id": "q10_hit", "expected_sources": ["产品设计方法/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"], "expected_answer_spans": [{"id": "q10-s1", "text": "优化设计", "source": "产品设计方法"}, {"id": "q10-s2", "text": "人机工程设计", "source": "产品设计方法"}]},
+    {"id": "q12_miss", "expected_sources": [], "expected_answer_spans": [{"id": "q12-s1", "text": "无法从本地资料中找到", "source": ""}]},
+    {"id": "q17_ambiguous", "expected_sources": ["设计规范与标准/3326-2016-gbt-cd-300.pdf", "人机工程与人体工学/26158-2010-gbt-e-300.pdf"], "expected_answer_spans": [{"id": "q17-s1", "text": "没有儿童座椅座高标准的直接条文", "source": ""}, {"id": "q17-s2", "text": "400mm~440mm", "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"}, {"id": "q17-s3", "text": "按目标年龄段百分位数推算", "source": "人机工程与人体工学/26158-2010-gbt-e-300.pdf"}]}
+  ]
+}

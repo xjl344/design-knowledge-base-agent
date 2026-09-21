@@ -1,0 +1,11 @@
+{
+  "description": "通用设计决策专项评测集，不绑定具体产品或材料",
+  "questions": [
+    {"id": "decision_compare", "category": "comparison", "question": "比较两个方案在成本、可靠性和可维护性方面的差异，并给出推荐。"},
+    {"id": "decision_process", "category": "multi_step", "question": "一个新产品从概念到量产需要关注哪些设计与工艺问题？"},
+    {"id": "decision_standard", "category": "scope", "question": "某项标准的适用范围、关键要求和使用限制是什么？"},
+    {"id": "decision_missing", "category": "missing_evidence", "question": "在缺少关键性能数据的情况下，如何选择更合适的设计方案？"},
+    {"id": "decision_conflict", "category": "conflict", "question": "两份资料对同一指标给出了不同数值，应如何判断和使用？"},
+    {"id": "decision_assumption", "category": "assumption", "question": "请基于明确的用户目标和约束，提出一个可验证的设计建议。"}
+  ]
+}

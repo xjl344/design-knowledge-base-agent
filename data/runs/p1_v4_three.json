@@ -1,0 +1,374 @@
+{
+  "experiment": "generation-replay-p0-matrix",
+  "run_count": 3,
+  "repetition_indices": [
+    1,
+    2,
+    3
+  ],
+  "source_files": [
+    "E:\\设计知识库助手\\data\\runs\\p1_full_v4_r1.json",
+    "E:\\设计知识库助手\\data\\runs\\p1_full_v4_r2.json",
+    "E:\\设计知识库助手\\data\\runs\\p1_full_v4_r3.json"
+  ],
+  "model": "gpt-5.6",
+  "snapshot_sha256": "775fcd83a7dfdb3518b728091d4a6810160e37e9313bceaaa809f2bd2c0cfbf6",
+  "evaluation_sha256": "8171c7c6e8a7cea971abcff245aaeb35372c3aa866706be83d075a6dca975882",
+  "prompt_version": "generator-v2-20260919-r2",
+  "audit_version": "soft-audit-behaviour-v4",
+  "generation_max_retries": 0,
+  "retrieval_calls": 0,
+  "total_question_runs": 36,
+  "completed_question_runs": 36,
+  "generation_success_rate": 1.0,
+  "first_try_success_count": 36,
+  "retried_success_count": 0,
+  "retried_success_question_ids": [],
+  "provider_error_rate": 0.0,
+  "provider_failure_rate": 0.0,
+  "provider_timeout_rate": 0.0,
+  "provider_rate_limit_rate": 0.0,
+  "provider_hard_error_rate": 0.0,
+  "status_counts": {
+    "completed": 36
+  },
+  "provider_stability_gate_threshold": 0.1,
+  "provider_timeout_gate_passed": true,
+  "provider_hard_error_gate_passed": true,
+  "provider_stability_gate_passed": true,
+  "generation_latency_seconds": {
+    "p50": 51.175,
+    "p95": 104.151,
+    "max": 148.37
+  },
+  "per_attempt_latency_seconds": {
+    "p50": 51.174,
+    "p95": 104.151,
+    "max": 148.369,
+    "sample_size": 36
+  },
+  "latency_ceiling_seconds": 180,
+  "latency_headroom_seconds": 31.631,
+  "answer_span_recall_mean": 0.967,
+  "span_metric_sample_size": 30,
+  "required_term_recall_mean": 0.983,
+  "required_term_metric_sample_size": 30,
+  "citation_validity_rate": 1.0,
+  "citation_id_usage_ratio_mean": 0.252,
+  "source_coverage_mean": 1.0,
+  "citation_metric_sample_size": 30,
+  "unsupported_number_count_mean": 0.083,
+  "unsupported_number_metric_sample_size": 36,
+  "answer_length_mean": 205.139,
+  "answer_length_metric_sample_size": 36,
+  "refusal_correctness_rate": 1.0,
+  "refusal_metric_sample_size": 3,
+  "ambiguity_safety_rate": 1.0,
+  "ambiguity_metric_sample_size": 3,
+  "per_question": {
+    "q01_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q02_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q03_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q04_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q05_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q06_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 0.833
+    },
+    "q07_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q08_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q09_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q10_hit": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": 1.0
+    },
+    "q12_miss": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": null
+    },
+    "q17_ambiguous": {
+      "runs": 3,
+      "completed": 3,
+      "statuses": [
+        "completed",
+        "completed",
+        "completed"
+      ],
+      "success_rate": 1.0,
+      "required_term_recall_mean": null
+    }
+  },
+  "slice_report": {
+    "slice_file": "E:\\设计知识库助手\\data\\generation_eval_slices.v1.json",
+    "excluded_question_ids": [],
+    "flaky_detection": {
+      "refusal_correctness": {
+        "metric": "refusal_correctness",
+        "flaky_question_ids": [],
+        "details": [],
+        "note": "同一系统多次运行中判定翻转的题。这些题不进入回归判定的分母，否则一个不稳定的指标会被当成改进或退步。"
+      },
+      "ambiguity_safety": {
+        "metric": "ambiguity_safety",
+        "flaky_question_ids": [],
+        "details": [],
+        "note": "同一系统多次运行中判定翻转的题。这些题不进入回归判定的分母，否则一个不稳定的指标会被当成改进或退步。"
+      }
+    },
+    "slice_breakdown": {
+      "case_type:required_term_recall": {
+        "fact_enumeration": {
+          "sample_size": 12,
+          "question_count": 4,
+          "mean": 0.958,
+          "question_ids": [
+            "q06_hit",
+            "q07_hit",
+            "q09_hit",
+            "q10_hit"
+          ]
+        },
+        "fact_numeric": {
+          "sample_size": 18,
+          "question_count": 6,
+          "mean": 1.0,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q03_hit",
+            "q04_hit",
+            "q05_hit",
+            "q08_hit"
+          ]
+        }
+      },
+      "case_type:citation_validity": {
+        "fact_enumeration": {
+          "sample_size": 12,
+          "question_count": 4,
+          "mean": 1.0,
+          "question_ids": [
+            "q06_hit",
+            "q07_hit",
+            "q09_hit",
+            "q10_hit"
+          ]
+        },
+        "fact_numeric": {
+          "sample_size": 18,
+          "question_count": 6,
+          "mean": 1.0,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q03_hit",
+            "q04_hit",
+            "q05_hit",
+            "q08_hit"
+          ]
+        }
+      },
+      "case_type:refusal_correctness": {
+        "refusal": {
+          "sample_size": 3,
+          "question_count": 1,
+          "mean": 1.0,
+          "question_ids": [
+            "q12_miss"
+          ]
+        }
+      },
+      "case_type:ambiguity_safety": {
+        "ambiguous": {
+          "sample_size": 3,
+          "question_count": 1,
+          "mean": 1.0,
+          "question_ids": [
+            "q17_ambiguous"
+          ]
+        }
+      },
+      "risk_level:required_term_recall": {
+        "low": {
+          "sample_size": 12,
+          "question_count": 4,
+          "mean": 1.0,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q05_hit",
+            "q08_hit"
+          ]
+        },
+        "medium": {
+          "sample_size": 18,
+          "question_count": 6,
+          "mean": 0.972,
+          "question_ids": [
+            "q03_hit",
+            "q04_hit",
+            "q06_hit",
+            "q07_hit",
+            "q09_hit",
+            "q10_hit"
+          ]
+        }
+      },
+      "risk_level:citation_validity": {
+        "low": {
+          "sample_size": 12,
+          "question_count": 4,
+          "mean": 1.0,
+          "question_ids": [
+            "q01_hit",
+            "q02_hit",
+            "q05_hit",
+            "q08_hit"
+          ]
+        },
+        "medium": {
+          "sample_size": 18,
+          "question_count": 6,
+          "mean": 1.0,
+          "question_ids": [
+            "q03_hit",
+            "q04_hit",
+            "q06_hit",
+            "q07_hit",
+            "q09_hit",
+            "q10_hit"
+          ]
+        }
+      },
+      "risk_level:refusal_correctness": {
+        "high": {
+          "sample_size": 3,
+          "question_count": 1,
+          "mean": 1.0,
+          "question_ids": [
+            "q12_miss"
+          ]
+        }
+      },
+      "risk_level:ambiguity_safety": {
+        "high": {
+          "sample_size": 3,
+          "question_count": 1,
+          "mean": 1.0,
+          "question_ids": [
+            "q17_ambiguous"
+          ]
+        }
+      }
+    },
+    "group_gate": null,
+    "note": "样本量小（12 题），任何单题翻转都会显著改变百分比；因此每个切片都带 sample_size，且 flaky 题不进入回归分母。"
+  },
+  "run_comparability": {
+    "comparable": true,
+    "tolerance": 0.1,
+    "unstable_metrics": [],
+    "verdict": "同配置多次运行的差异在容差内，可作为对照"
+  }
+}

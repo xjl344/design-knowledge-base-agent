@@ -1,0 +1,75 @@
+{
+  "experiment": "generation-replay",
+  "model": "gpt-5.6",
+  "snapshot": "data\\frozen_retrieval_cases.jsonl",
+  "evaluation": "data\\generation_eval.json",
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 7.315,
+  "rows": [
+    {
+      "question_id": "q01_hit",
+      "question": "按照国家标准 GB/T 3326—2016，椅凳类家具的座高标准（座面高度）是多少？",
+      "snapshot_id": "2fbc7ddd75805006",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5"
+      ],
+      "evidence_count": 5,
+      "retrieval_timing": {
+        "retrieval_seconds": 99.873,
+        "document_count": 7
+      },
+      "answer": "按照 GB/T 3326—2016，椅凳类家具的座高（H1，即座面中轴线前部最高点至地面的距离）标准为 **400～440 mm**；软面座椅的最大座高为 **460 mm（包括下沉量）**。[L1][L2]",
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 7.314,
+      "error": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "used_citations": [
+          "L1",
+          "L2"
+        ],
+        "invalid_citations": [],
+        "citation_validity": true,
+        "expected_answer_spans": [
+          {
+            "id": "q01-s1",
+            "text": "400mm~440mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "q01-s2",
+            "text": "软面最大座高为460mm",
+            "matched": true,
+            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "expected_sources": [
+          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "answer_length": 104,
+        "warnings": [],
+        "model_error": null
+      },
+      "status": "completed"
+    }
+  ]
+}
