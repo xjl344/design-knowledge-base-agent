@@ -340,6 +340,11 @@ def evaluate_group_gates(
         results[group_name] = {
             "declared": declared,
             "metrics": details,
+            # Carried through so a reader of the result can see what was
+            # measured but deliberately not gated, and why.  Dropping them here
+            # made "kept out of the gate on purpose" indistinguishable from
+            # "forgotten".
+            "diagnostics": list(definition.get("diagnostics") or []),
             "passed": group_ok,
         }
         overall = overall and group_ok

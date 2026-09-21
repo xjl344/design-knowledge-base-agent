@@ -490,6 +490,30 @@ def render_gate(payload: dict[str, Any]) -> list[str]:
         "两个独立判据，必须同时成立：**是否允许动**（未声明的组一步都不许动，"
         "改进也不行——那说明改动没被限定在声明的范围内）和**动了多少**"
         "（已声明的组须落在容差内）。",
+    ]
+
+    # Metrics that are measured and reported but deliberately not gated.  Without
+    # this list, "kept out of the gate" reads as "forgotten", and the next person
+    # either re-adds it (bringing back the false alarm) or loses the signal.
+    diagnostics = [
+        (group_name, item)
+        for group_name, result in (gate.get("groups") or {}).items()
+        for item in (result.get("diagnostics") or [])
+    ]
+    if diagnostics:
+        lines += [
+            "",
+            "以下指标**只报不卡**（不进闸门），原因随附：",
+            "",
+            "| 指标组 | 指标 | 为什么不卡 |",
+            "| --- | --- | --- |",
+        ]
+        for group_name, item in diagnostics:
+            lines.append(
+                f"| {group_name} | `{item.get('metric')}` | {item.get('reason') or '—'} |"
+            )
+
+    lines += [
         "",
         "> 基线必须覆盖同一批运行。若基线的运行条数与本次不同，"
         "任何依赖数据量的指标（如引用编号使用率）都会因分母变化而移动，"

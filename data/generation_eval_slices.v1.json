@@ -138,7 +138,13 @@
     },
     "citation": {
       "description": "引用质量：仅事实题参与统计。",
-      "metrics": ["citation_validity_rate", "citation_id_usage_ratio_mean"],
+      "metrics": ["citation_validity_rate"],
+      "diagnostics": [
+        {
+          "metric": "citation_id_usage_ratio_mean",
+          "reason": "用到的引用 / 允许的引用。允许数 = 证据条数，所以证据变多时分母机械变大、比值必然下降——实测证据上限从 5 放宽到 9~20 条时该指标 0.767 → 0.307，那是分母效应不是引用退化。跨证据条数不可比，故只报不卡。"
+        }
+      ],
       "allowed_change": 0.05,
       "enforcement": "gate"
     }

@@ -390,6 +390,64 @@ def test_hop_recall_mean_is_in_the_comparability_keys():
     assert "hop_recall_mean" in MULTIHOP_METRICS
 
 
+# --- a metric that moves with its denominator must not be gated -----------
+
+
+def test_citation_usage_ratio_is_not_gated():
+    """It is "used / allowed", and "allowed" is the evidence count.
+
+    So the ratio falls whenever more evidence is supplied, for reasons that have
+    nothing to do with citation quality: measured across arms of one experiment
+    it went 0.767 -> 0.307 purely because the cap rose from 5 to 9-20 items.
+    Gating it reports a breach on every comparison that changes the evidence
+    volume, which is exactly the false alarm that trains people to ignore gates.
+    """
+    from src.generation_gates import evaluate_group_gates
+
+    for path in (
+        ROOT / "data" / "generation_eval_slices.v1.json",
+        ROOT / "data" / "generation_eval_slices.multihop.v1.json",
+    ):
+        groups = json.loads(path.read_text(encoding="utf-8"))["metric_groups"]
+        citation = groups["citation"]
+        assert "citation_id_usage_ratio_mean" not in citation["metrics"], (
+            f"{path.name}: 该指标跨证据条数不可比，不能进闸门"
+        )
+
+        # And prove the gate really ignores it: a large move must not breach.
+        result = evaluate_group_gates(
+            groups,
+            {"citation_id_usage_ratio_mean": {"baseline": 0.767, "current": 0.307, "delta": -0.46}},
+            declared_changes=[],
+        )
+        assert result["groups"]["citation"]["passed"] is True, (
+            f"{path.name}: 分母效应仍被判成违规"
+        )
+
+
+def test_gated_diagnostics_are_explained():
+    """A metric kept out of the gate must say why, or it looks like an oversight."""
+    for path in (
+        ROOT / "data" / "generation_eval_slices.v1.json",
+        ROOT / "data" / "generation_eval_slices.multihop.v1.json",
+    ):
+        groups = json.loads(path.read_text(encoding="utf-8"))["metric_groups"]
+        for name, definition in groups.items():
+            for item in definition.get("diagnostics") or []:
+                assert item.get("metric"), f"{path.name}/{name}: diagnostics 缺少 metric"
+                assert len(str(item.get("reason") or "")) > 20, (
+                    f"{path.name}/{name}/{item.get('metric')}: diagnostics 缺少理由说明"
+                )
+
+
+def test_the_usage_ratio_is_still_measured():
+    """Not gated does not mean not measured -- it stays a reported diagnostic."""
+    from src.gates_runner import CITATION_METRICS
+
+    # It is still aggregated; it just is not compared against a tolerance.
+    assert "citation_id_usage_ratio_mean" in CITATION_METRICS
+
+
 # --- the builder's guard --------------------------------------------------
 
 

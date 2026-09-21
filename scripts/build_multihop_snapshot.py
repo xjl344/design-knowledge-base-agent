@@ -66,6 +66,25 @@ SPEC_VERSION = "multihop-specs.v1"
 # evidence for the last hop entirely.
 TRUNCATION_POINT = 5
 
+# `citation_id_usage_ratio_mean` is "citations used / citations allowed", and
+# "allowed" is exactly the number of evidence items.  So the denominator grows
+# with the evidence count and the ratio falls for reasons that have nothing to
+# do with citation quality: measured across arms of one experiment it went
+# 0.767 -> 0.307 purely because the evidence cap rose from 5 to 9-20 items.
+#
+# Gating on it therefore reports a breach on every comparison that changes how
+# much evidence is supplied.  It stays measured and reported -- it is a useful
+# diagnostic -- but it must not be gated, because a metric that moves with the
+# denominator cannot say anything about the system.
+CITATION_USAGE_DIAGNOSTIC = {
+    "metric": "citation_id_usage_ratio_mean",
+    "reason": (
+        "用到的引用 / 允许的引用。允许数 = 证据条数，所以证据变多时分母机械变大、"
+        "比值必然下降——实测证据上限从 5 放宽到 9~20 条时该指标 0.767 → 0.307，"
+        "那是分母效应不是引用退化。跨证据条数不可比，故只报不卡。"
+    ),
+}
+
 
 def _fail(message: str) -> None:
     raise SystemExit(f"[build_multihop_snapshot] {message}")
@@ -359,7 +378,10 @@ def build_slices(specs: list[dict[str, Any]]) -> dict[str, Any]:
                 "enforcement": "gate",
             },
             "citation": {
-                "metrics": ["citation_validity_rate", "citation_id_usage_ratio_mean"],
+                # `citation_id_usage_ratio_mean` is deliberately NOT gated; see
+                # CITATION_USAGE_DIAGNOSTIC_REASON.
+                "metrics": ["citation_validity_rate"],
+                "diagnostics": [CITATION_USAGE_DIAGNOSTIC],
                 "allowed_change": 0.05,
                 "enforcement": "gate",
             },
