@@ -293,6 +293,27 @@ def test_undeclared_group_scope_rule_is_stated():
     assert "改进也不行" in gate
 
 
+def test_gate_section_warns_that_baselines_must_cover_the_same_runs():
+    """A run-count mismatch fakes a breach on any volume-dependent metric.
+
+    Measured: citation_id_usage_ratio_mean is 0.225/0.225/0.305 across three
+    identical runs.  Comparing a two-run subset (0.225) against the three-run
+    baseline (0.252) made the gate report an out-of-scope citation breach —
+    a denominator effect, not a regression.  A reader who only sees the table
+    would take that breach at face value, so the caveat ships with it.
+    """
+    text = render_report(_payload(slice_report=_slice_report(
+        group_gate={
+            "declared_changes": ["quality"],
+            "all_groups_passed": False,
+            "groups": {"citation": {"declared": False, "passed": False, "metrics": []}},
+        },
+    )))
+    gate = text.split("## 闸门结论")[1].split("## 附录 A")[0]
+    assert "基线必须覆盖同一批运行" in gate
+    assert "分母" in gate
+
+
 def test_slice_appendix_reports_both_sample_size_and_question_count():
     text = render_report(_payload(slice_report=_slice_report()))
     appendix = text.split("## 附录 A：分切片明细")[1].split("## 附录 B")[0]
