@@ -19,6 +19,7 @@ if str(ROOT) not in sys.path:
 from src.frozen_evidence import (  # noqa: E402
     AUDIT_VERSION,
     build_evidence_pack,
+    declared_facts_lost_to_truncation,
     load_cases,
 )
 from src.generator_v2 import (  # noqa: E402
@@ -166,6 +167,14 @@ def summarize_rows(rows: list[dict]) -> dict:
         return round(ordered[index], 3)
 
     required_values = [audit["required_term_recall"] for audit in audits if audit.get("required_term_recall") is not None]
+    # Facts the character budget cut away.  Counted across every row, including
+    # failed ones: the damage is to the evidence, which happened regardless of
+    # whether the call then succeeded.
+    truncation_lost = [
+        (str(row.get("question_id")), fact)
+        for row in rows
+        for fact in (row.get("truncation_lost_facts") or [])
+    ]
     # Multi-hop coverage is only defined for questions that declare hops, so the
     # applicable flag decides the denominator -- same rule as the citation and
     # span metrics above.  Without it, single-hop rows would report "not
@@ -209,6 +218,15 @@ def summarize_rows(rows: list[dict]) -> dict:
         "hop_metric_sample_size": len(hop_values),
         "numeric_citation_coverage_mean": _mean(numeric_citation_values),
         "numeric_citation_metric_sample_size": len(numeric_citation_values),
+        # Non-zero means the configured budget removed evidence the contract
+        # scores against, so the metrics below are measuring a damaged context.
+        # It is reported rather than raised because a small budget may be a
+        # deliberate latency trade; it must simply never be silent.
+        "truncation_lost_fact_count": len(truncation_lost),
+        "truncation_lost_fact_question_ids": sorted({qid for qid, _ in truncation_lost}),
+        "truncation_lost_fact_details": [
+            {"question_id": qid, **fact} for qid, fact in truncation_lost[:10]
+        ],
         "malformed_output_count": len(sanitized_rows),
         "malformed_output_question_ids": [row.get("question_id") for row in sanitized_rows],
         "sanitization_rule_counts": sanitization_rule_counts,
@@ -239,12 +257,23 @@ async def run(args: argparse.Namespace) -> dict:
             max_items=args.max_evidence,
             max_chars_per_item=args.max_chars_per_item,
         )
+        # A truncating budget can cut away the very fact this question is scored
+        # on, and the row would still report success -- the drop would read as a
+        # model regression instead of a configuration error.  Checked per row so
+        # the run says which questions it damaged, not just that it did.
+        lost_facts = declared_facts_lost_to_truncation(
+            cases[question_id],
+            spec,
+            max_items=args.max_evidence,
+            max_chars_per_item=args.max_chars_per_item,
+        )
         row = {
             "question_id": question_id,
             "question": pack.question,
             "snapshot_id": pack.snapshot_id,
             "allowed_citations": list(pack.allowed_citations),
             "evidence_count": len(pack.items),
+            "truncation_lost_facts": lost_facts,
             "retrieval_timing": cases[question_id].retrieval_timing,
         }
         if args.dry_run:
@@ -312,8 +341,19 @@ def main() -> int:
     parser.add_argument(
         "--max-chars-per-item",
         type=int,
-        default=None,
-        help="每条证据的字符上限；省略表示不截断（保持历史运行的含义不变）",
+        default=600,
+        help=(
+            "每条证据的字符上限。默认 600 由实测事实深度得出：单跳 12 题的评分事实最深在 "
+            "536 字符处，600 下预检零丢失、逐题指标零差异；多跳题可传 300（其实测最深 154）。"
+            "无论取何值，运行都会报出被切掉的契约事实，不会静默降级。"
+            "延迟收益未坐实（provider 漂移达 2.3 倍），故不以此为由调小预算。"
+            "用 --no-truncate 关闭预算。"
+        ),
+    )
+    parser.add_argument(
+        "--no-truncate",
+        action="store_true",
+        help="关闭字符预算（保持与历史运行完全一致的行为）",
     )
     parser.add_argument("--question-id", action="append", default=[])
     parser.add_argument("--dry-run", action="store_true")
@@ -328,6 +368,8 @@ def main() -> int:
         ),
     )
     args = parser.parse_args()
+    if args.no_truncate:
+        args.max_chars_per_item = None
     args.run_id = make_run_id()
     args.started_at = datetime.now().astimezone().isoformat()
     snapshot_path = Path(args.snapshot).resolve()

@@ -666,6 +666,91 @@ def build_evidence_pack(
     )
 
 
+def _declared_fact_groups(spec: dict[str, Any]) -> list[dict[str, Any]]:
+    """Every fact the contract declares, as a labelled set of alternatives.
+
+    A group is satisfied when *any* of its alternatives appears, matching how
+    ``soft_audit`` treats required terms, so this cannot report a loss where the
+    evaluator would have accepted the evidence.
+    """
+    groups: list[dict[str, Any]] = []
+
+    def add(label: str, alternatives: list[str]) -> None:
+        cleaned = [str(item) for item in alternatives if str(item or "").strip()]
+        if cleaned:
+            groups.append({"label": label, "alternatives": cleaned})
+
+    for index, span in enumerate(spec.get("expected_answer_spans") or [], 1):
+        text = span.get("text") if isinstance(span, dict) else span
+        add(f"span:{index}", [str(text)] if text else [])
+    for index, group in enumerate(spec.get("required_terms") or [], 1):
+        if isinstance(group, dict):
+            values: list[str] = []
+            for key in ("negation", "object"):
+                values.extend(str(item) for item in (group.get(key) or []))
+            add(f"term:{index}", values)
+        elif isinstance(group, str):
+            add(f"term:{index}", [group])
+        else:
+            add(f"term:{index}", [str(item) for item in group])
+    for hop in spec.get("required_hops") or []:
+        if not isinstance(hop, dict):
+            continue
+        hop_id = str(hop.get("hop_id") or "?")
+        add(f"hop:{hop_id}:span", [str(hop.get("expected_span") or "")])
+        for index, group in enumerate(hop.get("required_terms") or [], 1):
+            alternatives = (
+                [group] if isinstance(group, str)
+                else [str(item) for item in group]
+            )
+            add(f"hop:{hop_id}:term:{index}", alternatives)
+    return groups
+
+
+def declared_facts_lost_to_truncation(
+    case: FrozenRetrievalCase,
+    spec: dict[str, Any],
+    *,
+    max_items: int,
+    max_chars_per_item: int | None,
+) -> list[dict[str, Any]]:
+    """Declared facts the character budget removed from the evidence.
+
+    A truncating budget can silently cut away the very fact a question is
+    scored on: at 300 characters the single-hop set lost q10, whose facts sit
+    up to 536 characters into their chunk.  The run still reported success, so
+    the drop looked like a model regression rather than a configuration error.
+
+    This makes that visible at run time.  Only facts present in the
+    *untruncated* pack are reported: a fact absent from both was never in this
+    evidence to begin with (a concept-shaped span, say), and blaming the budget
+    for it would be wrong.
+
+    ``max_chars_per_item=None`` disables truncation, so nothing can be lost and
+    the full pack is not built.
+    """
+    if max_chars_per_item is None:
+        return []
+    full = build_evidence_pack(case, max_items=max_items, max_chars_per_item=None)
+    truncated = build_evidence_pack(
+        case, max_items=max_items, max_chars_per_item=max_chars_per_item
+    )
+    full_text = _normalise_text("\n".join(item.page_content for item in full.items))
+    truncated_text = _normalise_text("\n".join(item.page_content for item in truncated.items))
+
+    lost: list[dict[str, Any]] = []
+    for group in _declared_fact_groups(spec):
+        if any(_normalise_text(alt) in truncated_text for alt in group["alternatives"]):
+            continue
+        if any(_normalise_text(alt) in full_text for alt in group["alternatives"]):
+            lost.append({
+                "fact": group["label"],
+                "alternatives": group["alternatives"][:3],
+                "reason": "truncated_away",
+            })
+    return lost
+
+
 def soft_audit(
     answer: str,
     pack: EvidencePack,

@@ -862,3 +862,111 @@ def test_coverage_is_applicable_for_an_answered_fact_question():
     audit = soft_audit("座高为 400mm~440mm。[L1]", build_evidence_pack(make_case()))
     assert audit["numeric_claim_citation_coverage"] == 1.0
     assert audit["numeric_citation_metric_applicable"] is True
+
+
+# --- truncation preflight -------------------------------------------------
+# A truncating budget can cut away the fact a question is scored on while the
+# row still reports success, so the drop reads as a model regression rather
+# than a configuration error.  These pin the check that makes it visible.
+
+
+def _budget_case():
+    """A chunk whose scored fact sits past a 100-character budget."""
+    document = FrozenDocument.from_document(
+        Document(
+            page_content="填" * 300 + " 目标值 999",
+            metadata={
+                "source": "标准/甲.pdf",
+                "title": "测试标准",
+                "chunk_id": "chunk-deep",
+                "content_hash": "hash-deep",
+                "retrieval_evidence_status": "direct",
+            },
+        ),
+        1,
+    )
+    return FrozenRetrievalCase(
+        question_id="q-budget",
+        question="目标值是多少？",
+        retrieval_snapshot_id="snapshot-budget",
+        retrieval_config={"top_k": 10},
+        index_fingerprint={"count": 1},
+        documents=(document,),
+        retrieval_profile={},
+        retrieval_timing={"retrieval_seconds": 1.0},
+    )
+
+
+def test_a_fact_cut_by_the_budget_is_reported():
+    from src.frozen_evidence import declared_facts_lost_to_truncation
+
+    spec = {"expected_answer_spans": [{"id": "s1", "text": "999"}]}
+    lost = declared_facts_lost_to_truncation(
+        _budget_case(), spec, max_items=5, max_chars_per_item=100
+    )
+    assert len(lost) == 1
+    assert lost[0]["fact"] == "span:1"
+    assert lost[0]["reason"] == "truncated_away"
+
+
+def test_a_budget_that_keeps_the_fact_reports_nothing():
+    from src.frozen_evidence import declared_facts_lost_to_truncation
+
+    spec = {"expected_answer_spans": [{"id": "s1", "text": "999"}]}
+    assert declared_facts_lost_to_truncation(
+        _budget_case(), spec, max_items=5, max_chars_per_item=400
+    ) == []
+
+
+def test_a_fact_absent_from_the_full_pack_is_not_blamed_on_the_budget():
+    """A concept-shaped span was never in the evidence to begin with."""
+    from src.frozen_evidence import declared_facts_lost_to_truncation
+
+    spec = {"expected_answer_spans": [{"id": "s1", "text": "这段文字从来就不在证据里"}]}
+    assert declared_facts_lost_to_truncation(
+        _budget_case(), spec, max_items=5, max_chars_per_item=100
+    ) == []
+
+
+def test_no_budget_means_nothing_can_be_lost():
+    from src.frozen_evidence import declared_facts_lost_to_truncation
+
+    spec = {"expected_answer_spans": [{"id": "s1", "text": "999"}]}
+    assert declared_facts_lost_to_truncation(
+        _budget_case(), spec, max_items=5, max_chars_per_item=None
+    ) == []
+
+
+def test_the_default_budget_loses_nothing_on_either_question_set():
+    """Guards the default itself.
+
+    600 was chosen because the single-hop set's deepest fact sits at 536
+    characters.  If a question is added whose facts sit deeper, the default
+    silently starts damaging the evidence -- this fails instead.
+    """
+    from src.frozen_evidence import declared_facts_lost_to_truncation, load_cases
+
+    repo_root = Path(__file__).resolve().parent.parent
+    for snapshot_name, contract_name, max_items, budget in (
+        ("frozen_retrieval_cases.jsonl", "generation_eval.v2.json", 5, 600),
+        ("frozen_multihop_cases.jsonl", "generation_eval.multihop.v1.json", 99, 300),
+    ):
+        cases = load_cases(repo_root / "data" / snapshot_name)
+        specs = {
+            str(case["id"]): case
+            for case in json.loads(
+                (repo_root / "data" / contract_name).read_text(encoding="utf-8")
+            )["cases"]
+        }
+        damaged = {
+            question_id: declared_facts_lost_to_truncation(
+                cases[question_id], spec, max_items=max_items, max_chars_per_item=budget
+            )
+            for question_id, spec in specs.items()
+            if question_id in cases
+        }
+        damaged = {key: value for key, value in damaged.items() if value}
+        assert not damaged, (
+            f"{snapshot_name} 在预算 {budget} 下被切掉了评分所需的事实：{damaged}。"
+            "要么调大预算，要么重新实测事实深度。"
+        )
