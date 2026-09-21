@@ -45,6 +45,14 @@ QUALITY_METRICS = (
     "required_term_recall_mean",
 )
 
+# Multi-hop coverage is its own group because it answers a different question:
+# not "were the required facts present" but "was every hop's fact present".
+# A single-hop run reports no hop metric at all, so the gate reads ``None`` and
+# records the group as having no baseline rather than as a breach.
+MULTIHOP_METRICS = (
+    "hop_recall_mean",
+)
+
 CITATION_METRICS = (
     "citation_validity_rate",
     "citation_id_usage_ratio_mean",
@@ -121,8 +129,14 @@ def build_slice_report(
 
     slice_breakdown = {}
     for dimension in ("case_type", "risk_level"):
+        # This list is the reason a metric can be gated but never broken down:
+        # anything absent here is invisible per slice, and a group whose only
+        # metric is absent silently reports "no change".  Keep it in step with
+        # QUALITY_METRICS / MULTIHOP_METRICS / CITATION_METRICS / safety.
         for metric, applicable_key in (
+            ("answer_span_recall", "span_metric_applicable"),
             ("required_term_recall", None),
+            ("hop_recall", "hop_metric_applicable"),
             ("citation_validity", "citation_metric_applicable"),
             ("refusal_correctness", None),
             ("ambiguity_safety", None),
@@ -142,7 +156,7 @@ def build_slice_report(
     if baseline_summary is not None and current_summary is not None:
         deltas: dict[str, dict[str, Any]] = {}
         for metric in (
-            *QUALITY_METRICS, *CITATION_METRICS, *USABILITY_METRICS,
+            *QUALITY_METRICS, *MULTIHOP_METRICS, *CITATION_METRICS, *USABILITY_METRICS,
             "refusal_correctness_rate", "ambiguity_safety_rate",
         ):
             base = baseline_summary.get(metric)
@@ -161,6 +175,7 @@ def build_slice_report(
             declared_changes=list(declared_changes or []),
         )
 
+    question_total = len(slices["by_id"])
     return {
         "slice_file": str(Path(slices_path).resolve()),
         "excluded_question_ids": sorted(excluded),
@@ -168,7 +183,9 @@ def build_slice_report(
         "slice_breakdown": slice_breakdown,
         "group_gate": gate,
         "note": (
-            "样本量小（12 题），任何单题翻转都会显著改变百分比；"
+            # Derived, not written down: this said "12 题" while the multi-hop
+            # set has 6, so the caution would have described the wrong sample.
+            f"样本量小（{question_total} 题），任何单题翻转都会显著改变百分比；"
             "因此每个切片都带 sample_size，且 flaky 题不进入回归分母。"
         ),
     }
@@ -214,7 +231,7 @@ def paired_comparison(
 def comparability_report(
     run_summaries: list[dict[str, Any]],
     *,
-    keys: tuple[str, ...] = (*QUALITY_METRICS, *CITATION_METRICS),
+    keys: tuple[str, ...] = (*QUALITY_METRICS, *MULTIHOP_METRICS, *CITATION_METRICS),
     tolerance: float = 0.10,
 ) -> dict[str, Any]:
     """Check that repeated runs of one configuration agree before trending."""
@@ -224,6 +241,7 @@ def comparability_report(
 
 
 __all__ = [
+    "MULTIHOP_METRICS",
     "SliceError",
     "build_slice_report",
     "comparability_report",

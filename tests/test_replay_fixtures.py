@@ -26,6 +26,24 @@ def load_fixtures() -> list[dict]:
     return payload["fixtures"]
 
 
+def load_fixture_cases() -> dict:
+    """Every case the fixtures refer to, across all recorded snapshots.
+
+    The single-hop and composite multi-hop cases live in separate snapshot
+    files.  Reading only the first (as an earlier version did) made every
+    multi-hop fixture fail with a KeyError rather than replaying.
+    """
+    from src.frozen_evidence import load_cases
+
+    payload = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
+    paths = payload.get("snapshots") or [str(ROOT / "data" / "frozen_retrieval_cases.jsonl")]
+    cases: dict = {}
+    for path in paths:
+        for question_id, case in load_cases(Path(path)).items():
+            cases.setdefault(question_id, case)
+    return cases
+
+
 @pytest.fixture(scope="module")
 def fixtures() -> list[dict]:
     return load_fixtures()
@@ -56,6 +74,19 @@ def test_fixtures_cover_refusal_and_ambiguity_cases(fixtures):
     assert any("ambiguous" in qid for qid in ids), "no ambiguous case"
 
 
+def test_fixtures_cover_multi_hop_questions(fixtures):
+    """The v5 hop rule needs offline coverage, not just the single-hop rules.
+
+    This coverage did silently vanish once: the exporter loaded cases from one
+    snapshot, so every composite row was dropped and the fixture set contained
+    no multi-hop question at all while still reporting success.
+    """
+    multi_hop = [f for f in fixtures if (f.get("expected") or {}).get("required_hops")]
+    assert multi_hop, "fixture 集失去了多跳覆盖；导出时是否只给了一个快照？"
+    for fixture in multi_hop:
+        assert fixture["recorded_audit"].get("hop_recall") is not None or fixture["status"] != "completed"
+
+
 @pytest.mark.parametrize("fixture_id", [f["fixture_id"] for f in load_fixtures()])
 def test_replay_reproduces_recorded_audit(fixture_id):
     """Re-audit the recorded answer and match the recorded scores."""
@@ -65,7 +96,7 @@ def test_replay_reproduces_recorded_audit(fixture_id):
     if fixture["status"] != "completed":
         pytest.skip("provider failure rows carry a fallback string, not a model answer")
 
-    cases = load_cases(ROOT / "data" / "frozen_retrieval_cases.jsonl")
+    cases = load_fixture_cases()
     pack = build_evidence_pack(cases[fixture["question_id"]], max_items=5)
     expected = fixture["expected"]
     audit = soft_audit(
@@ -76,6 +107,9 @@ def test_replay_reproduces_recorded_audit(fixture_id):
         required_terms=expected["required_terms"],
         refusal_requirements=expected["refusal_requirements"],
         ambiguity_requirements=expected["ambiguity_requirements"],
+        # Single-hop fixtures carry no hops; the empty default reproduces their
+        # recorded (absent) hop verdict exactly.
+        required_hops=expected.get("required_hops", []),
     )
     recorded = fixture["recorded_audit"]
     for key, value in recorded.items():
@@ -195,8 +229,8 @@ def test_exporter_rejects_runs_from_an_older_audit_version(tmp_path):
     with pytest.raises(SystemExit, match="AUDIT_VERSION"):
         exporter.export(
             [stale],
-            snapshot=ROOT / "data" / "frozen_retrieval_cases.jsonl",
-            evaluation=ROOT / "data" / "generation_eval.v2.json",
+            snapshots=[ROOT / "data" / "frozen_retrieval_cases.jsonl"],
+            evaluations=[ROOT / "data" / "generation_eval.v2.json"],
         )
 
 
@@ -224,8 +258,8 @@ def test_exporter_rejects_runs_without_an_audit_version(tmp_path):
     with pytest.raises(SystemExit, match="AUDIT_VERSION"):
         exporter.export(
             [untagged],
-            snapshot=ROOT / "data" / "frozen_retrieval_cases.jsonl",
-            evaluation=ROOT / "data" / "generation_eval.v2.json",
+            snapshots=[ROOT / "data" / "frozen_retrieval_cases.jsonl"],
+            evaluations=[ROOT / "data" / "generation_eval.v2.json"],
         )
 
 
@@ -254,8 +288,8 @@ def test_exporter_records_the_source_run_for_traceability(tmp_path):
     )
     payload = exporter.export(
         [good],
-        snapshot=ROOT / "data" / "frozen_retrieval_cases.jsonl",
-        evaluation=ROOT / "data" / "generation_eval.v2.json",
+        snapshots=[ROOT / "data" / "frozen_retrieval_cases.jsonl"],
+        evaluations=[ROOT / "data" / "generation_eval.v2.json"],
         # This test asserts on the exact set derived from the input run, so the
         # coverage synthesizer must stay out of the way.  Its own behaviour is
         # covered by test_failure_coverage_is_synthesized_when_no_run_fails.
@@ -302,8 +336,8 @@ def test_failure_coverage_is_synthesized_when_no_run_fails(tmp_path):
     )
     payload = exporter.export(
         [healthy],
-        snapshot=ROOT / "data" / "frozen_retrieval_cases.jsonl",
-        evaluation=ROOT / "data" / "generation_eval.v2.json",
+        snapshots=[ROOT / "data" / "frozen_retrieval_cases.jsonl"],
+        evaluations=[ROOT / "data" / "generation_eval.v2.json"],
     )
     synthesized = [f for f in payload["fixtures"] if f["status"] != "completed"]
     assert synthesized, "failure coverage vanished when the provider was healthy"

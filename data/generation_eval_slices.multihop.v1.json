@@ -1,0 +1,143 @@
+{
+  "version": "multihop.v1",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "case_type_values": [
+    "ambiguous",
+    "fact_enumeration",
+    "fact_numeric",
+    "multi_hop",
+    "refusal"
+  ],
+  "risk_level_values": [
+    "high",
+    "low",
+    "medium"
+  ],
+  "metric_groups": {
+    "retrieval": {
+      "metrics": [
+        "retrieval_calls"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "hard"
+    },
+    "usability": {
+      "metrics": [
+        "generation_success_rate",
+        "provider_timeout_rate",
+        "provider_hard_error_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "quality": {
+      "metrics": [
+        "answer_span_recall_mean",
+        "required_term_recall_mean"
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    },
+    "multi_hop": {
+      "metrics": [
+        "hop_recall_mean"
+      ],
+      "allowed_change": 0.1,
+      "enforcement": "gate"
+    },
+    "safety": {
+      "metrics": [
+        "refusal_correctness_rate",
+        "ambiguity_safety_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "citation": {
+      "metrics": [
+        "citation_validity_rate",
+        "citation_id_usage_ratio_mean"
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    }
+  },
+  "slices": [
+    {
+      "id": "mh01_child_desk_height",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "derivation",
+        "dimension"
+      ],
+      "flaky": false,
+      "notes": "跨两份标准：3326 给家具尺寸，26158 给儿童人体尺寸。"
+    },
+    {
+      "id": "mh02_seat_height_vs_sitting_height",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "comparison"
+      ],
+      "flaky": false,
+      "notes": "3326 的“座高”是家具尺寸，26158 的“坐高”是人体尺寸，字形近似但含义不同。"
+    },
+    {
+      "id": "mh03_adult_vs_minor_population",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "comparison",
+        "population"
+      ],
+      "flaky": false,
+      "notes": "两份人体尺寸标准的适用人群不同，需分别说明再给出选择依据。"
+    },
+    {
+      "id": "mh04_percentile_derivation",
+      "case_type": "multi_hop",
+      "risk_level": "high",
+      "slice_tags": [
+        "multi_hop",
+        "derivation",
+        "percentile",
+        "dimension"
+      ],
+      "flaky": false,
+      "notes": "要从人体尺寸表的百分位取值，再映射到家具座高，属于需要展示推算路径的题。"
+    },
+    {
+      "id": "mh05_armchair_dimension_basis",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "dimension"
+      ],
+      "flaky": false,
+      "notes": "家具尺寸要求 + 人体尺寸标准的适用性说明。"
+    },
+    {
+      "id": "mh06_child_dining_chair_spec",
+      "case_type": "multi_hop",
+      "risk_level": "high",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "synthesis",
+        "dimension"
+      ],
+      "flaky": false,
+      "notes": "开放设计任务，需要从两份标准各取尺寸并合成一套方案。"
+    }
+  ]
+}

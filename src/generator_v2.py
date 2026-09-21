@@ -211,6 +211,7 @@ async def generate_from_pack(
     required_terms: Iterable[Iterable[str]] = (),
     refusal_requirements: Iterable[Iterable[str]] = (),
     ambiguity_requirements: Iterable[Iterable[str]] = (),
+    required_hops: Iterable[Any] = (),
     max_retries: int = GENERATOR_MAX_RETRIES,
 ) -> GenerationResult:
     """Generate from a pack, optionally retrying transient provider failures.
@@ -272,6 +273,7 @@ async def generate_from_pack(
         required_terms,
         refusal_requirements,
         ambiguity_requirements,
+        required_hops,
     )
     if error is not None:
         # The answer is a canned fallback, not something the model produced.
@@ -294,6 +296,7 @@ async def generate_from_pack(
             "required_term_recall",
             "refusal_correctness",
             "ambiguity_safety",
+            "hop_recall",
             "unsupported_number_count",
             "unsupported_claim_count",
             "answer_length",
@@ -303,6 +306,7 @@ async def generate_from_pack(
                 audit[key] = None
         audit["citation_metric_applicable"] = False
         audit["span_metric_applicable"] = False
+        audit["hop_metric_applicable"] = False
         audit["warnings"] = list(audit.get("warnings") or []) + [
             {
                 "status": "not_audited",

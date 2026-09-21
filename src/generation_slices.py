@@ -31,6 +31,10 @@ CASE_TYPE_VALUES = frozenset({
     "fact_enumeration",  # answer is a list of facts / names / topics
     "refusal",           # context cannot support an answer; refusing is correct
     "ambiguous",         # context partially supports; scoping the answer is correct
+    # Answer requires facts from more than one document, so a single-chunk
+    # answer cannot be complete however well it is written.  Added together
+    # with the composite snapshot builder; see scripts/build_multihop_snapshot.py.
+    "multi_hop",
 })
 
 RISK_LEVEL_VALUES = frozenset({"low", "medium", "high"})

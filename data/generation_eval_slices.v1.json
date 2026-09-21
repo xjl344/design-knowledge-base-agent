@@ -5,7 +5,8 @@
     "fact_numeric",
     "fact_enumeration",
     "refusal",
-    "ambiguous"
+    "ambiguous",
+    "multi_hop"
   ],
   "risk_level_values": ["low", "medium", "high"],
   "slices": [

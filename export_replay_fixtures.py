@@ -55,6 +55,11 @@ AUDIT_FIELDS = (
     "unsupported_number_count",
     "refusal_correctness",
     "ambiguity_safety",
+    # Multi-hop coverage.  Without these a replay would reproduce every field
+    # except the one the v5 rule introduced, so the new rule would have no
+    # offline regression coverage at all.
+    "hop_recall",
+    "hop_metric_applicable",
     "answer_length",
 )
 
@@ -157,12 +162,25 @@ def _synthesize_failure_fixtures(
 def export(
     run_paths: list[Path],
     *,
-    snapshot: Path,
-    evaluation: Path,
+    snapshots: list[Path],
+    evaluations: list[Path],
     ensure_failure_coverage: bool = True,
 ) -> dict[str, Any]:
-    cases = load_cases(snapshot)
-    spec_by_id = _golden_by_id(json.loads(evaluation.read_text(encoding="utf-8")))
+    # Cases and their expectations can live in more than one file: the original
+    # single-hop set and the composite multi-hop set are separate snapshots
+    # *and* separate contracts, and a fixture exported from one cannot cover the
+    # other.  Loading only the first silently dropped every multi-hop row, which
+    # would have left the v5 hop rule with no offline regression coverage.
+    cases: dict[str, Any] = {}
+    for snapshot in snapshots:
+        for question_id, case in load_cases(snapshot).items():
+            cases.setdefault(question_id, case)
+    spec_by_id: dict[str, dict[str, Any]] = {}
+    for evaluation in evaluations:
+        for question_id, spec in _golden_by_id(
+            json.loads(evaluation.read_text(encoding="utf-8"))
+        ).items():
+            spec_by_id.setdefault(question_id, spec)
     fixtures: list[dict[str, Any]] = []
     seen: set[tuple[str, str]] = set()
     skipped: list[tuple[str, str]] = []
@@ -211,6 +229,10 @@ def export(
                         "required_terms": spec.get("required_terms", []),
                         "refusal_requirements": spec.get("refusal_requirements", []),
                         "ambiguity_requirements": spec.get("ambiguity_requirements", []),
+                        # Carried so the replay reproduces hop_recall.  Absent
+                        # for single-hop contracts, where an empty list is the
+                        # correct input and yields no hop verdict.
+                        "required_hops": spec.get("required_hops", []),
                     },
                     # Recorded audit values act as the regression baseline. A
                     # change here means the evaluator changed behaviour.
@@ -262,8 +284,8 @@ def export(
         "audit_version": AUDIT_VERSION,
         "source_runs": [str(path.resolve()) for path in run_paths],
         "skipped_runs": [name for name, _ in skipped],
-        "snapshot": str(snapshot.resolve()),
-        "evaluation": str(evaluation.resolve()),
+        "snapshots": [str(path.resolve()) for path in snapshots],
+        "evaluations": [str(path.resolve()) for path in evaluations],
         "fixture_count": len(fixtures),
         "fixtures": fixtures,
     }
@@ -274,22 +296,37 @@ def main() -> int:
     parser.add_argument("--runs", nargs="+", type=Path, required=True)
     parser.add_argument(
         "--snapshot",
+        nargs="+",
         type=Path,
-        default=ROOT / "data" / "frozen_retrieval_cases.jsonl",
+        # Single-hop and composite multi-hop cases live in separate files; pass
+        # both to cover both, or the multi-hop rows are silently dropped.
+        default=[
+            ROOT / "data" / "frozen_retrieval_cases.jsonl",
+            ROOT / "data" / "frozen_multihop_cases.jsonl",
+        ],
     )
     parser.add_argument(
         "--evaluation",
+        nargs="+",
         type=Path,
         # v2 is the contract that actually carries required_terms /
         # refusal_requirements / ambiguity_requirements. The older
         # generation_eval.json lacks them, which silently turns
         # required_term_recall into None instead of failing loudly.
-        default=ROOT / "data" / "generation_eval.v2.json",
+        default=[
+            ROOT / "data" / "generation_eval.v2.json",
+            ROOT / "data" / "generation_eval.multihop.v1.json",
+        ],
     )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
-    payload = export(args.runs, snapshot=args.snapshot, evaluation=args.evaluation)
+    snapshots = [path for path in args.snapshot if path.exists()]
+    evaluations = [path for path in args.evaluation if path.exists()]
+    if not snapshots or not evaluations:
+        raise SystemExit(f"快照或契约文件不存在：{args.snapshot} / {args.evaluation}")
+
+    payload = export(args.runs, snapshots=snapshots, evaluations=evaluations)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"

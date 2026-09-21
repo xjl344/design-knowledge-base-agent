@@ -336,10 +336,12 @@ def test_audit_version_is_bumped_for_the_new_rule():
     v4: an unanswered question no longer yields a failed behaviour verdict, and
     citation applicability is decided from the contract rather than from the
     verdict that happened to be reached.
+
+    v5: multi-hop questions gain per-hop coverage (``hop_recall``).
     """
     from src.frozen_evidence import AUDIT_VERSION
 
-    assert AUDIT_VERSION == "soft-audit-behaviour-v4"
+    assert AUDIT_VERSION == "soft-audit-behaviour-v5"
 
 
 def test_no_question_specific_branch_remains_in_the_audit():

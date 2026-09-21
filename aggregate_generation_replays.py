@@ -136,6 +136,10 @@ def aggregate(paths: list[Path]) -> dict[str, Any]:
         float(audit["ambiguity_safety"])
         for audit in audits if audit.get("ambiguity_safety") is not None
     ]
+    # Multi-hop coverage applies only to questions that declare hops.  Filtering
+    # on the applicable flag (not on "not None") keeps single-hop rows, which
+    # report no hop verdict at all, out of the denominator.
+    hop_values = audit_values("hop_recall", "hop_metric_applicable")
 
     by_question: dict[str, dict[str, Any]] = {}
     for row in rows:
@@ -262,6 +266,11 @@ def aggregate(paths: list[Path]) -> dict[str, Any]:
         "refusal_metric_sample_size": len(refusal_values),
         "ambiguity_safety_rate": mean(ambiguity_values),
         "ambiguity_metric_sample_size": len(ambiguity_values),
+        # Multi-hop coverage: the denominator is the number of multi-hop
+        # questions answered, not the run size.  Zero for a single-hop-only run,
+        # which is why the sample size ships beside it.
+        "hop_recall_mean": mean(hop_values),
+        "hop_metric_sample_size": len(hop_values),
         "per_question": by_question,
     }
 

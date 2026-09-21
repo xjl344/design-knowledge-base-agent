@@ -512,7 +512,9 @@ def render_slice_appendix(slice_report: dict[str, Any]) -> list[str]:
 
     lines: list[str] = []
     metric_labels = {
+        "answer_span_recall": "答案 span 召回",
         "required_term_recall": "必需词召回",
+        "hop_recall": "多跳覆盖率",
         "citation_validity": "引用合法率",
         "refusal_correctness": "拒答正确率",
         "ambiguity_safety": "歧义处理正确率",
@@ -540,10 +542,24 @@ def render_slice_appendix(slice_report: dict[str, Any]) -> list[str]:
                 )
             lines.append("")
 
+    # The "one question moves it by N points" caution depends on the sample, so
+    # it is computed rather than written down: the sentence used to say 8 points,
+    # which is 1/12 and therefore wrong for any other question count.
+    question_totals = [
+        entry.get("question_count")
+        for grouped in breakdown.values()
+        for entry in (grouped or {}).values()
+        if isinstance(entry, dict) and entry.get("question_count")
+    ]
     lines += [
         "样本数与题数是两个独立判据：前者是均值背后的观测权重（多轮会累加），",
-        "后者是涉及的题目个数（去重）。12 题的规模下单题翻转即可移动 8 个百分点，",
-        "所以任一切片读出的差异都要先看它的 sample_size。",
+        "后者是涉及的题目个数（去重）。"
+        + (
+            f"本题集下单题翻转即可移动约 {round(100 / max(question_totals))} 个百分点，"
+            if question_totals else
+            "小题集下单题翻转即可显著移动百分比，"
+        )
+        + "所以任一切片读出的差异都要先看它的 sample_size。",
         "",
     ]
     return lines

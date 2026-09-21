@@ -34,7 +34,9 @@ if TYPE_CHECKING:  # pragma: no cover - import-time only
 #   v4 -> an unanswered question yields no behaviour verdict instead of a
 #         failed one, and citation applicability is decided from the contract
 #         rather than from whether a verdict was produced
-AUDIT_VERSION = "soft-audit-behaviour-v4"
+#   v5 -> multi-hop questions gain per-hop coverage (``hop_recall``); a hop is
+#         scored on its own required terms so one hop cannot carry another
+AUDIT_VERSION = "soft-audit-behaviour-v5"
 
 
 # Text substituted when the provider failed to produce an answer.  It lives
@@ -489,6 +491,7 @@ def soft_audit(
     required_terms: Iterable[Any] = (),
     refusal_requirements: Iterable[Any] = (),
     ambiguity_requirements: Iterable[Any] = (),
+    required_hops: Iterable[Any] = (),
 ) -> dict[str, Any]:
     """Perform non-blocking, deterministic answer checks."""
     answer = str(answer or "")
@@ -644,6 +647,62 @@ def soft_audit(
     ) or refusal_correctness is not None or ambiguity_safety is not None
     citation_metric_applicable = not is_boundary_question
 
+    # --- multi-hop coverage -------------------------------------------------
+    # A multi-hop answer is drawn from several documents at once, so "did the
+    # answer contain the expected spans" is not enough: it can quote the right
+    # numbers while silently dropping a whole hop.  Each hop is therefore
+    # scored on its own required terms, with the same predicate as
+    # ``required_terms`` applied per hop instead of pooled -- otherwise one
+    # hop's terms would satisfy another hop's check and every answer would look
+    # complete.
+    #
+    # This measures whether a hop's fact was brought out.  It deliberately does
+    # NOT judge whether the reasoning joining the hops is sound: judging
+    # reasoning from a word list is exactly what made ``ambiguity_safety``
+    # untrustworthy before v3, where the same behaviour scored 0 or 1 depending
+    # on the wording.  Repeating that here would produce an equally unusable
+    # number, so hop reasoning is left unmeasured rather than measured badly.
+    hop_results: list[dict[str, Any]] = []
+    for hop in required_hops:
+        if not isinstance(hop, dict):
+            continue
+        hop_term_results = _match_groups(hop.get("required_terms") or [])
+        hop_span = str(hop.get("expected_span") or "")
+        span_matched = _span_matches(hop_span, answer) if hop_span else None
+        # A hop with declared terms must match all of them; a hop with a
+        # declared span must also bring that span out.  ``span_matched is not
+        # False`` keeps hops that declare no span judgeable on terms alone.
+        terms_matched = bool(hop_term_results) and all(
+            item["matched"] for item in hop_term_results
+        )
+        hop_results.append({
+            "hop_id": str(hop.get("hop_id") or ""),
+            "from_question": str(hop.get("from_question") or ""),
+            "source_chunk_id": str(hop.get("source_chunk_id") or ""),
+            "expected_span": hop_span,
+            "span_matched": span_matched,
+            "terms": hop_term_results,
+            "matched": terms_matched and span_matched is not False,
+        })
+    hop_recall: float | None = None
+    hop_metric_applicable = False
+    # Applicability is decided from the *contract*, not from whether a verdict
+    # was reached.  Declaring `required_hops` is itself the statement that this
+    # is a multi-hop question; a question that additionally declares a refusal
+    # or ambiguity requirement is exercising policy instead, and a refusal
+    # cannot cover hops by construction.
+    #
+    # Reusing `is_boundary_question` here would be wrong: part of that flag
+    # comes from a word-list verdict that fires for any question without
+    # declared sources, so a plain factual answer would be classed as a
+    # boundary question and silently lose its hop score.
+    declares_boundary = bool(refusal_requirement_results or ambiguity_requirement_results)
+    if hop_results and answer_present and not declares_boundary:
+        hop_recall = round(
+            sum(1 for item in hop_results if item["matched"]) / len(hop_results), 3
+        )
+        hop_metric_applicable = True
+
     return {
         "allowed_citations": sorted(allowed, key=lambda value: (value[0], int(value[1:]))),
         "used_citations": used,
@@ -672,6 +731,9 @@ def soft_audit(
         "unsupported_claim_count": len(invalid) + len(unsupported_numbers),
         "refusal_correctness": refusal_correctness,
         "ambiguity_safety": ambiguity_safety,
+        "hop_results": hop_results,
+        "hop_recall": hop_recall,
+        "hop_metric_applicable": hop_metric_applicable,
         "answer_length": len(answer),
         "length_limit_exceeded": length_limit_exceeded,
         "warnings": warnings,

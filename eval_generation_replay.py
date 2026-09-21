@@ -68,9 +68,20 @@ def _warn_on_thin_contract(path: Path, cases: list[dict]) -> None:
     )
 
 
-def load_evaluation_version(path: Path) -> int:
+def load_evaluation_version(path: Path) -> int | str:
+    """Read the contract version, tolerating a non-numeric one.
+
+    Every contract so far uses an integer, but assuming that turned a future
+    string version into a crash deep inside run-metadata assembly rather than a
+    clear error at load time.  The value is only ever recorded and compared for
+    equality, so passing the raw value through is safe and honest.
+    """
     payload = json.loads(path.read_text(encoding="utf-8"))
-    return int(payload.get("version", 1))
+    raw = payload.get("version", 1)
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return str(raw)
 
 
 def file_sha256(path: Path) -> str:
@@ -155,6 +166,11 @@ def summarize_rows(rows: list[dict]) -> dict:
         return round(ordered[index], 3)
 
     required_values = [audit["required_term_recall"] for audit in audits if audit.get("required_term_recall") is not None]
+    # Multi-hop coverage is only defined for questions that declare hops, so the
+    # applicable flag decides the denominator -- same rule as the citation and
+    # span metrics above.  Without it, single-hop rows would report "not
+    # applicable" as a zero and drag every multi-hop mean down.
+    hop_values = _values("hop_recall", applicable_key="hop_metric_applicable")
 
     return {
         "total": len(rows),
@@ -181,6 +197,8 @@ def summarize_rows(rows: list[dict]) -> dict:
         "answer_span_recall_mean": _mean(span_values),
         "required_term_recall_mean": _mean(required_values),
         "required_term_metric_sample_size": len(required_values),
+        "hop_recall_mean": _mean(hop_values),
+        "hop_metric_sample_size": len(hop_values),
         "malformed_output_count": len(sanitized_rows),
         "malformed_output_question_ids": [row.get("question_id") for row in sanitized_rows],
         "sanitization_rule_counts": sanitization_rule_counts,
@@ -225,6 +243,10 @@ async def run(args: argparse.Namespace) -> dict:
                 required_terms=spec.get("required_terms", []),
                 refusal_requirements=spec.get("refusal_requirements", []),
                 ambiguity_requirements=spec.get("ambiguity_requirements", []),
+                # Absent for single-hop contracts, which is why the default is
+                # an empty tuple rather than a required argument: the same
+                # harness has to serve both sets.
+                required_hops=spec.get("required_hops", []),
                 max_retries=int(args.max_retries),
             )
             row.update(result.as_dict())
@@ -249,6 +271,11 @@ async def run(args: argparse.Namespace) -> dict:
         # retry count states whether a failed call was ever retried.
         "llm_timeout_seconds": int(settings.llm_timeout_seconds),
         "generation_max_retries": int(args.max_retries),
+        # The evidence cap is the one parameter that distinguishes the two arms
+        # of the multi-hop experiment, so it has to travel with the run.  It was
+        # absent, which made a 5-item run and an all-items run indistinguishable
+        # in their metadata.
+        "max_evidence": int(args.max_evidence),
         "retrieval_calls": 0,
         "dry_run": bool(args.dry_run),
         "elapsed_seconds": round(time.perf_counter() - started, 3),
