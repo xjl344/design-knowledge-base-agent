@@ -1,0 +1,1331 @@
+{
+  "experiment": "generation-replay",
+  "run_id": "20260921T175451+0800_62fba197",
+  "started_at": "2026-09-21T17:54:51.248967+08:00",
+  "finished_at": "2026-09-21T17:59:26.046536+08:00",
+  "model": "gpt-5.6",
+  "snapshot": "E:\\设计知识库助手\\data\\frozen_multihop_cases.jsonl",
+  "snapshot_sha256": "2673d173f2886b0e2b13a29f41097aa75ddde86cbc41bfd39081b320afe2e40d",
+  "evaluation": "E:\\设计知识库助手\\data\\generation_eval.multihop.v1.json",
+  "evaluation_sha256": "e995e8173e271959fa2b3c8feadf03c1965adb9b3c4d824ef43123db97af4170",
+  "prompt_version": "generator-v2-20260919-r2",
+  "audit_version": "soft-audit-behaviour-v5",
+  "evaluation_version": 1,
+  "repetition_index": 1,
+  "llm_timeout_seconds": 180,
+  "generation_max_retries": 0,
+  "max_evidence": 99,
+  "max_chars_per_item": 300,
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 274.569,
+  "summary": {
+    "total": 6,
+    "completed": 6,
+    "generation_success_rate": 1.0,
+    "status_counts": {
+      "completed": 6
+    },
+    "provider_timeout_rate": 0.0,
+    "provider_error_rate": 0.0,
+    "generation_latency_seconds": {
+      "p50": 39.369,
+      "p95": 74.637,
+      "max": 74.637
+    },
+    "citation_status_counts": {
+      "pass": 6
+    },
+    "citation_metric_sample_size": 6,
+    "citation_validity_rate": 1.0,
+    "citation_id_usage_ratio_mean": 0.399,
+    "span_metric_sample_size": 6,
+    "answer_span_recall_mean": 0.945,
+    "required_term_recall_mean": null,
+    "required_term_metric_sample_size": 0,
+    "hop_recall_mean": 0.778,
+    "hop_metric_sample_size": 6,
+    "malformed_output_count": 0,
+    "malformed_output_question_ids": [],
+    "sanitization_rule_counts": {},
+    "first_try_success_count": 6,
+    "retried_success_count": 0,
+    "retried_success_question_ids": [],
+    "failed_attempt_count_total": 0,
+    "refusal_correctness_rate": null,
+    "ambiguity_safety_rate": null
+  },
+  "rows": [
+    {
+      "question_id": "mh01_child_desk_height",
+      "question": "设计儿童学习桌时，桌面高应如何确定？请结合 GB/T 3326—2016 的桌面高与座高配合高差要求，以及 GB/T 26158—2010 中未成年人的人体尺寸数据，说明取值依据。",
+      "snapshot_id": "5c9486adf612e421",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17"
+      ],
+      "evidence_count": 17,
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 17
+      },
+      "answer": "桌面高不宜只按年龄或身高直接确定，应先确定目标儿童群体的年龄、性别及拟覆盖的百分位，再建立“座高—桌面高”的配合关系。GB/T 26158—2010覆盖4～17岁未成年人，按年龄组、性别提供72项人体尺寸及11个百分位数数据。[L8][L10]\n\n- **标准配合约束**：GB/T 3326—2016规定桌面高 \\(H\\) 为680～760 mm、座高 \\(H_1\\) 为400～440 mm，桌面与座面的配合高差 \\(H-H_1\\) 为250～320 mm；软面最大座高为460 mm（含下沉量）。[L1]\n- **人体尺寸取值**：优先从相应年龄、性别和百分位表中选取坐姿腘高、坐姿膝高、坐姿肘高等数据；这些项目分别列为坐姿测量项目30、29、27。[L7] 未成年人差异较大，例如4～6岁女子身高P1～P99为957～1271 mm，而13～15岁男子为1412～1816 mm，说明不宜采用单一固定高度覆盖全部儿童。[L16][L15]\n- **设计计算（有限推导，并非标准原文）**：先依据目标人群的坐姿腘高确定适配座高 \\(H_1\\)，再按  \n  \\[\n  H=H_1+(250\\sim320)\\text{ mm}\n  \\]\n  形成桌面高度范围；同时用坐姿膝高校核桌下净空，并用坐姿肘高评价书写姿态。\n\n若计算所得儿童桌高度低于680 mm，则它不满足GB/T 3326—2016表2的一般桌面高范围；标准允许在有特殊要求或合同要求时，由供需双方在合同中明示其他尺寸。[L1] 当前资料未给出各年龄、性别完整的坐姿腘高和坐姿肘高对应表，因此无法确认某一年龄段的唯一桌面高度；宜采用分档或可调方案，但具体档位仍需依据完整百分位数据确定。",
+      "raw_answer": "桌面高不宜只按年龄或身高直接确定，应先确定目标儿童群体的年龄、性别及拟覆盖的百分位，再建立“座高—桌面高”的配合关系。GB/T 26158—2010覆盖4～17岁未成年人，按年龄组、性别提供72项人体尺寸及11个百分位数数据。[L8][L10]\n\n- **标准配合约束**：GB/T 3326—2016规定桌面高 \\(H\\) 为680～760 mm、座高 \\(H_1\\) 为400～440 mm，桌面与座面的配合高差 \\(H-H_1\\) 为250～320 mm；软面最大座高为460 mm（含下沉量）。[L1]\n- **人体尺寸取值**：优先从相应年龄、性别和百分位表中选取坐姿腘高、坐姿膝高、坐姿肘高等数据；这些项目分别列为坐姿测量项目30、29、27。[L7] 未成年人差异较大，例如4～6岁女子身高P1～P99为957～1271 mm，而13～15岁男子为1412～1816 mm，说明不宜采用单一固定高度覆盖全部儿童。[L16][L15]\n- **设计计算（有限推导，并非标准原文）**：先依据目标人群的坐姿腘高确定适配座高 \\(H_1\\)，再按  \n  \\[\n  H=H_1+(250\\sim320)\\text{ mm}\n  \\]\n  形成桌面高度范围；同时用坐姿膝高校核桌下净空，并用坐姿肘高评价书写姿态。\n\n若计算所得儿童桌高度低于680 mm，则它不满足GB/T 3326—2016表2的一般桌面高范围；标准允许在有特殊要求或合同要求时，由供需双方在合同中明示其他尺寸。[L1] 当前资料未给出各年龄、性别完整的坐姿腘高和坐姿肘高对应表，因此无法确认某一年龄段的唯一桌面高度；宜采用分档或可调方案，但具体档位仍需依据完整百分位数据确定。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 39.369,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17"
+        ],
+        "used_citations": [
+          "L1",
+          "L7",
+          "L8",
+          "L10",
+          "L15",
+          "L16"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.353,
+        "expected_answer_spans": [
+          {
+            "id": "mh01_child_desk_height-h1",
+            "text": "680~760",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "mh01_child_desk_height-h2",
+            "text": "坐高",
+            "matched": false,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "mh01_child_desk_height-h3",
+            "text": "4岁~17岁",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 0.667,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "26158",
+          "0"
+        ],
+        "unsupported_number_count": 2,
+        "unsupported_claim_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q01_hit",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "expected_span": "680~760",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "680~760"
+                ],
+                "hits": [
+                  "680~760"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "400~440"
+                ],
+                "hits": [
+                  "400~440"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "250~320"
+                ],
+                "hits": [
+                  "250~320"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q01_hit",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "expected_span": "坐高",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "坐高"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          },
+          {
+            "hop_id": "h3",
+            "from_question": "q06_hit",
+            "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+            "expected_span": "4岁~17岁",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "未成年人"
+                ],
+                "hits": [
+                  "未成年人"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "4岁~17岁",
+                  "4岁至17岁"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": 0.333,
+        "hop_metric_applicable": true,
+        "answer_length": 726,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "26158",
+              "0"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 726,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 39.364
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "mh02_seat_height_vs_sitting_height",
+      "question": "GB/T 3326—2016 规定的座高与 GB/T 26158—2010 给出的坐高分别是什么？两者含义不同在哪里，设计中应如何配合使用？",
+      "snapshot_id": "5c9486adf612e421",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17"
+      ],
+      "evidence_count": 17,
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 17
+      },
+      "answer": "- **GB/T 3326—2016 的“座高”**是椅子产品的尺寸指标，指地面至椅凳座面的高度。该标准规定一般座高为 **400～440 mm**；软面座的最大座高为 **460 mm（包括下沉量）**。[L1]  \n- **GB/T 26158—2010 的“坐高”**是人体测量项目，不是椅子的尺寸。该标准针对 **4～17岁未成年人**，按年龄、性别给出72项人体尺寸及11个百分位数。[L8] 资料中“坐高”以毫米列出，例如某组数据为758～924 mm等，但当前摘录未提供该组数据对应的完整年龄、性别和百分位表头，不能据此确定单一设计值。[L3]\n\n**含义差异：**\n\n1. **对象不同**：座高描述家具；坐高描述人体。  \n2. **用途不同**：座高用于确定椅子的结构和成品尺寸；坐高用于描述人体坐姿时的垂直尺度。  \n3. **不能直接等同或相减**：坐高不是“合适座高”，座高也不能代表使用者的坐高。\n\n**设计中的配合使用：**\n\n- 先以 GB/T 3326 的座高范围作为椅子产品尺寸约束，并考虑软垫下沉量。[L1]  \n- 再按目标使用者的年龄、性别和人体尺寸百分位，从 GB/T 26158 的相应表格选取坐高等数据进行人体适配分析；该标准明确适用于未成年人用品及相关设施设计。[L8]  \n- 这是有限设计推导：坐高主要可用于校核坐姿上部空间、视线或靠背相关布置；但仅凭当前资料无法确认具体座高应如何由某一坐高百分位计算，也无法确认某个年龄组的最终推荐值。",
+      "raw_answer": "- **GB/T 3326—2016 的“座高”**是椅子产品的尺寸指标，指地面至椅凳座面的高度。该标准规定一般座高为 **400～440 mm**；软面座的最大座高为 **460 mm（包括下沉量）**。[L1]  \n- **GB/T 26158—2010 的“坐高”**是人体测量项目，不是椅子的尺寸。该标准针对 **4～17岁未成年人**，按年龄、性别给出72项人体尺寸及11个百分位数。[L8] 资料中“坐高”以毫米列出，例如某组数据为758～924 mm等，但当前摘录未提供该组数据对应的完整年龄、性别和百分位表头，不能据此确定单一设计值。[L3]\n\n**含义差异：**\n\n1. **对象不同**：座高描述家具；坐高描述人体。  \n2. **用途不同**：座高用于确定椅子的结构和成品尺寸；坐高用于描述人体坐姿时的垂直尺度。  \n3. **不能直接等同或相减**：坐高不是“合适座高”，座高也不能代表使用者的坐高。\n\n**设计中的配合使用：**\n\n- 先以 GB/T 3326 的座高范围作为椅子产品尺寸约束，并考虑软垫下沉量。[L1]  \n- 再按目标使用者的年龄、性别和人体尺寸百分位，从 GB/T 26158 的相应表格选取坐高等数据进行人体适配分析；该标准明确适用于未成年人用品及相关设施设计。[L8]  \n- 这是有限设计推导：坐高主要可用于校核坐姿上部空间、视线或靠背相关布置；但仅凭当前资料无法确认具体座高应如何由某一坐高百分位计算，也无法确认某个年龄组的最终推荐值。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 74.637,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17"
+        ],
+        "used_citations": [
+          "L1",
+          "L3",
+          "L8"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.176,
+        "expected_answer_spans": [
+          {
+            "id": "mh02_seat_height_vs_sitting_height-h1",
+            "text": "400~440",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "mh02_seat_height_vs_sitting_height-h2",
+            "text": "坐高",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "mh02_seat_height_vs_sitting_height-h3",
+            "text": "4岁~17岁",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "26158",
+          "26158"
+        ],
+        "unsupported_number_count": 2,
+        "unsupported_claim_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q01_hit",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "expected_span": "400~440",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "400~440"
+                ],
+                "hits": [
+                  "400~440"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "460"
+                ],
+                "hits": [
+                  "460"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q01_hit",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "expected_span": "坐高",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "坐高"
+                ],
+                "hits": [
+                  "坐高"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h3",
+            "from_question": "q06_hit",
+            "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+            "expected_span": "4岁~17岁",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "未成年人"
+                ],
+                "hits": [
+                  "未成年人"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "4岁~17岁",
+                  "4岁至17岁"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": 0.667,
+        "hop_metric_applicable": true,
+        "answer_length": 646,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "26158",
+              "26158"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 646,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 74.635
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "mh03_adult_vs_minor_population",
+      "question": "GB/T 10000—2023 与 GB/T 26158—2010 分别覆盖哪个人群？在家具尺寸设计中，何时应使用哪一份标准？",
+      "snapshot_id": "222e09f4b2bf4c9d",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20"
+      ],
+      "evidence_count": 20,
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 20
+      },
+      "answer": "- **GB/T 10000—2023**覆盖我国**成年人人体尺寸**，包括静态人体尺寸和用于工作空间设计的人体功能尺寸，适用于成人消费用品、家居、建筑及相关操作空间等设计。[L3]\n\n- **GB/T 26158—2010**覆盖**4岁～17岁未成年人**，提供未成年人的人体尺寸百分位数，适用于未成年人用品、相关设施及安全防护设计。[L11][L13]\n\n家具尺寸设计的选用原则是：\n\n1. **主要使用者为成年人**（如成人住宅家具、成人办公家具），使用 **GB/T 10000—2023** 的相应年龄、性别和百分位数据。[L3][L4][L5]\n2. **主要使用者为儿童或青少年**，使用 **GB/T 26158—2010**，并按具体年龄段、性别及百分位数选取数据。[L11][L16][L17][L18][L19][L20]\n3. **家具面向未成年人和成年人共同使用**时，两份标准均可能涉及；但当前资料没有明确规定混合人群家具应如何组合或确定最终尺寸，因此具体取值方法当前资料无法确认。",
+      "raw_answer": "- **GB/T 10000—2023**覆盖我国**成年人人体尺寸**，包括静态人体尺寸和用于工作空间设计的人体功能尺寸，适用于成人消费用品、家居、建筑及相关操作空间等设计。[L3]\n\n- **GB/T 26158—2010**覆盖**4岁～17岁未成年人**，提供未成年人的人体尺寸百分位数，适用于未成年人用品、相关设施及安全防护设计。[L11][L13]\n\n家具尺寸设计的选用原则是：\n\n1. **主要使用者为成年人**（如成人住宅家具、成人办公家具），使用 **GB/T 10000—2023** 的相应年龄、性别和百分位数据。[L3][L4][L5]\n2. **主要使用者为儿童或青少年**，使用 **GB/T 26158—2010**，并按具体年龄段、性别及百分位数选取数据。[L11][L16][L17][L18][L19][L20]\n3. **家具面向未成年人和成年人共同使用**时，两份标准均可能涉及；但当前资料没有明确规定混合人群家具应如何组合或确定最终尺寸，因此具体取值方法当前资料无法确认。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 42.552,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17",
+          "L18",
+          "L19",
+          "L20"
+        ],
+        "used_citations": [
+          "L3",
+          "L4",
+          "L5",
+          "L11",
+          "L13",
+          "L16",
+          "L17",
+          "L18",
+          "L19",
+          "L20"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.5,
+        "expected_answer_spans": [
+          {
+            "id": "mh03_adult_vs_minor_population-h1",
+            "text": "成年人人体尺寸",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+          },
+          {
+            "id": "mh03_adult_vs_minor_population-h2",
+            "text": "4岁~17岁",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "26158",
+          "26158",
+          "0"
+        ],
+        "unsupported_number_count": 3,
+        "unsupported_claim_count": 3,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q08_hit",
+            "source_chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
+            "expected_span": "成年人人体尺寸",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "成年人"
+                ],
+                "hits": [
+                  "成年人"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q06_hit",
+            "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+            "expected_span": "4岁~17岁",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "未成年人"
+                ],
+                "hits": [
+                  "未成年人"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "4岁~17岁",
+                  "4岁至17岁"
+                ],
+                "hits": [
+                  "4岁~17岁",
+                  "4岁至17岁"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          }
+        ],
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "answer_length": 457,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "26158",
+              "26158",
+              "0"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 457,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 42.551
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "mh04_percentile_derivation",
+      "question": "依据 GB/T 26158—2010 的坐高百分位数据，推算儿童椅座高的合理区间，并说明应取哪个百分位及理由。",
+      "snapshot_id": "5c9486adf612e421",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17"
+      ],
+      "evidence_count": 17,
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 17
+      },
+      "answer": "- **当前资料无法确认一个儿童椅座高的具体合理区间。**GB/T 26158—2010覆盖4岁～17岁未成年人，并按年龄、性别提供72项人体尺寸的11个百分位数。[L8][L10]但现有证据仅显示部分“坐高”数据，未完整呈现对应的年龄、性别、百分位及目标儿童群体，因此不能据此形成可复核的座高范围。[L3][L4]\n\n- **坐高不能直接等同于椅座高。**现有资料没有给出“坐高—椅座高”的换算关系，也没有证明应采用某一固定比例。因此，直接用坐高百分位推算座高属于待验证方法，当前不能编造具体计算值。\n\n- **可作参照的家具标准值**是：一般座高为400～440 mm；软面椅的最大座高为460 mm（包括下沉量）。[L1]但该范围是桌、椅、凳类主要尺寸规定，资料没有明确其专用于儿童椅，也不能替代儿童人体尺寸校核。\n\n- **百分位选择：当前资料无法确认应取P几。**合理选择应至少根据目标年龄、性别、使用人群覆盖率和脚部支撑要求确定；这些选择依据未在现有证据中给出。若要完成设计，应补充目标儿童群体的完整坐姿下肢或腘高百分位数据，并以该数据而非单独坐高进行验证。坐姿测量项目中确实包含坐高、坐姿腘高、坐姿下肢长等项目。[L7]",
+      "raw_answer": "- **当前资料无法确认一个儿童椅座高的具体合理区间。**GB/T 26158—2010覆盖4岁～17岁未成年人，并按年龄、性别提供72项人体尺寸的11个百分位数。[L8][L10]但现有证据仅显示部分“坐高”数据，未完整呈现对应的年龄、性别、百分位及目标儿童群体，因此不能据此形成可复核的座高范围。[L3][L4]\n\n- **坐高不能直接等同于椅座高。**现有资料没有给出“坐高—椅座高”的换算关系，也没有证明应采用某一固定比例。因此，直接用坐高百分位推算座高属于待验证方法，当前不能编造具体计算值。\n\n- **可作参照的家具标准值**是：一般座高为400～440 mm；软面椅的最大座高为460 mm（包括下沉量）。[L1]但该范围是桌、椅、凳类主要尺寸规定，资料没有明确其专用于儿童椅，也不能替代儿童人体尺寸校核。\n\n- **百分位选择：当前资料无法确认应取P几。**合理选择应至少根据目标年龄、性别、使用人群覆盖率和脚部支撑要求确定；这些选择依据未在现有证据中给出。若要完成设计，应补充目标儿童群体的完整坐姿下肢或腘高百分位数据，并以该数据而非单独坐高进行验证。坐姿测量项目中确实包含坐高、坐姿腘高、坐姿下肢长等项目。[L7]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 32.535,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17"
+        ],
+        "used_citations": [
+          "L1",
+          "L3",
+          "L4",
+          "L7",
+          "L8",
+          "L10"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.353,
+        "expected_answer_spans": [
+          {
+            "id": "mh04_percentile_derivation-h1",
+            "text": "坐高",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "mh04_percentile_derivation-h2",
+            "text": "400~440",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "mh04_percentile_derivation-h3",
+            "text": "11个百分位数",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "26158"
+        ],
+        "unsupported_number_count": 1,
+        "unsupported_claim_count": 1,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q01_hit",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "expected_span": "坐高",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "坐高"
+                ],
+                "hits": [
+                  "坐高"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "758"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q01_hit",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "expected_span": "400~440",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "400~440"
+                ],
+                "hits": [
+                  "400~440"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h3",
+            "from_question": "q06_hit",
+            "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+            "expected_span": "11个百分位数",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "百分位"
+                ],
+                "hits": [
+                  "百分位"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          }
+        ],
+        "hop_recall": 0.667,
+        "hop_metric_applicable": true,
+        "answer_length": 517,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "26158"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 517,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 32.533
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "mh05_armchair_dimension_basis",
+      "question": "按 GB/T 3326—2016，扶手椅的扶手内宽与座深要求是多少？这些尺寸与人体尺寸标准如何关联？",
+      "snapshot_id": "672ea60c7b908d63",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17"
+      ],
+      "evidence_count": 17,
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 17
+      },
+      "answer": "- **扶手内宽 B₂：≥480 mm**；**座深 T₁：400～480 mm**。[L1]  \n  该表同时给出了扶手高、背长、座倾角和背倾角，但本题所问的两项分别是上述数值。\n\n- **与人体尺寸标准的关联：**  \n  GB/T 3326—2016给出的是椅子的产品尺寸要求；人体尺寸标准则按年龄、性别和百分位数提供人体测量数据。例如，GB/T 10000—2023列出坐高、坐姿两肘间宽、坐姿臀宽、坐姿臀—腘距等坐姿项目。[L5] GB/T 26158—2010针对4～17岁未成年人，并按年龄组提供人体尺寸的11个百分位数。[L8][L10]\n\n- **有限推导：**  \n  扶手内宽可与目标使用人群的“坐姿两肘间宽”进行宽度校核；座深可与“坐姿臀—腘距”进行深度校核。这是基于测量项目名称的设计关联推导，并非GB/T 3326—2016条文明确规定的换算关系。[L5]  \n  当前资料没有给出“480 mm、400～480 mm”对应的具体人体百分位数、适用人群或计算公式，因此无法确认这些家具尺寸是按哪个人体尺寸标准、百分位数或裕量确定的。",
+      "raw_answer": "- **扶手内宽 B₂：≥480 mm**；**座深 T₁：400～480 mm**。[L1]  \n  该表同时给出了扶手高、背长、座倾角和背倾角，但本题所问的两项分别是上述数值。\n\n- **与人体尺寸标准的关联：**  \n  GB/T 3326—2016给出的是椅子的产品尺寸要求；人体尺寸标准则按年龄、性别和百分位数提供人体测量数据。例如，GB/T 10000—2023列出坐高、坐姿两肘间宽、坐姿臀宽、坐姿臀—腘距等坐姿项目。[L5] GB/T 26158—2010针对4～17岁未成年人，并按年龄组提供人体尺寸的11个百分位数。[L8][L10]\n\n- **有限推导：**  \n  扶手内宽可与目标使用人群的“坐姿两肘间宽”进行宽度校核；座深可与“坐姿臀—腘距”进行深度校核。这是基于测量项目名称的设计关联推导，并非GB/T 3326—2016条文明确规定的换算关系。[L5]  \n  当前资料没有给出“480 mm、400～480 mm”对应的具体人体百分位数、适用人群或计算公式，因此无法确认这些家具尺寸是按哪个人体尺寸标准、百分位数或裕量确定的。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 55.575,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17"
+        ],
+        "used_citations": [
+          "L1",
+          "L5",
+          "L8",
+          "L10"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.235,
+        "expected_answer_spans": [
+          {
+            "id": "mh05_armchair_dimension_basis-h1",
+            "text": "≥480mm",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "mh05_armchair_dimension_basis-h2",
+            "text": "4岁~17岁",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "26158",
+          "0"
+        ],
+        "unsupported_number_count": 2,
+        "unsupported_claim_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q03_hit",
+            "source_chunk_id": "ca80df0dbd2bc1bffb31f49e1d366cfb45e5368b10858f2cec5ad3e7ac04e612",
+            "expected_span": "≥480mm",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "≥480"
+                ],
+                "hits": [
+                  "≥480"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "400mm~480mm"
+                ],
+                "hits": [
+                  "400mm~480mm"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q06_hit",
+            "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+            "expected_span": "4岁~17岁",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "未成年人"
+                ],
+                "hits": [
+                  "未成年人"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          }
+        ],
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "answer_length": 480,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "26158",
+              "0"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 480,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 55.574
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "mh06_child_dining_chair_spec",
+      "question": "设计一款儿童餐椅，请给出座高、座深与背倾角的完整尺寸方案，并说明每项尺寸的依据来源。",
+      "snapshot_id": "c5a6bebf3337c79d",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9"
+      ],
+      "evidence_count": 9,
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 9
+      },
+      "answer": "现有资料**无法确认适用于儿童餐椅的完整定尺寸方案**：证据仅给出一般桌、椅、凳及扶手椅尺寸，未提供儿童年龄、身高分组或儿童餐椅专用尺寸。\n\n如作为**待儿童人体数据和餐桌高度验证的初步方案**，可暂按以下范围设计：\n\n| 项目 | 初步尺寸方案 | 依据与限制 |\n|---|---:|---|\n| 座高 | 400～440 mm | GB/T 3326—2016给出的座高范围为400～440 mm；该条款未注明为儿童专用。[L1] |\n| 座深 | 400～480 mm | 标准对扶手椅规定座深为400～480 mm；座深定义为座面前沿中点至座面与背面相交线的距离。[L8][L2] |\n| 背倾角 | 95°～100° | 标准对扶手椅规定背倾角β为95°～100°；资料未说明该角度针对儿童餐椅。[L8] |\n\n因此，上述只能作为**通用扶手椅标准范围的移用参考**，不是经过儿童人体工程学验证的最终方案。现有资料虽列有坐高、膝高等人体测量项目，但给出的摘录未提供儿童对应数据及其与餐椅尺寸的匹配方法，当前资料无法据此推导儿童专用座高、座深和背倾角。[L3][L4][L5][L7]",
+      "raw_answer": "现有资料**无法确认适用于儿童餐椅的完整定尺寸方案**：证据仅给出一般桌、椅、凳及扶手椅尺寸，未提供儿童年龄、身高分组或儿童餐椅专用尺寸。\n\n如作为**待儿童人体数据和餐桌高度验证的初步方案**，可暂按以下范围设计：\n\n| 项目 | 初步尺寸方案 | 依据与限制 |\n|---|---:|---|\n| 座高 | 400～440 mm | GB/T 3326—2016给出的座高范围为400～440 mm；该条款未注明为儿童专用。[L1] |\n| 座深 | 400～480 mm | 标准对扶手椅规定座深为400～480 mm；座深定义为座面前沿中点至座面与背面相交线的距离。[L8][L2] |\n| 背倾角 | 95°～100° | 标准对扶手椅规定背倾角β为95°～100°；资料未说明该角度针对儿童餐椅。[L8] |\n\n因此，上述只能作为**通用扶手椅标准范围的移用参考**，不是经过儿童人体工程学验证的最终方案。现有资料虽列有坐高、膝高等人体测量项目，但给出的摘录未提供儿童对应数据及其与餐椅尺寸的匹配方法，当前资料无法据此推导儿童专用座高、座深和背倾角。[L3][L4][L5][L7]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 29.881,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9"
+        ],
+        "used_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L7",
+          "L8"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.778,
+        "expected_answer_spans": [
+          {
+            "id": "mh06_child_dining_chair_spec-h1",
+            "text": "400~440",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "mh06_child_dining_chair_spec-h2",
+            "text": "95°~100°",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "mh06_child_dining_chair_spec-h3",
+            "text": "坐高",
+            "matched": true,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 1.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q01_hit",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "expected_span": "400~440",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "400~440"
+                ],
+                "hits": [
+                  "400~440"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q03_hit",
+            "source_chunk_id": "ca80df0dbd2bc1bffb31f49e1d366cfb45e5368b10858f2cec5ad3e7ac04e612",
+            "expected_span": "95°~100°",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "400mm~480mm"
+                ],
+                "hits": [
+                  "400mm~480mm"
+                ],
+                "matched": true
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "95°~100°"
+                ],
+                "hits": [
+                  "95°~100°"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h3",
+            "from_question": "q01_hit",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "expected_span": "坐高",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "坐高"
+                ],
+                "hits": [
+                  "坐高"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          }
+        ],
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "answer_length": 497,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 497,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 29.88
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    }
+  ]
+}

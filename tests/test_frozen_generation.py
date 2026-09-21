@@ -687,3 +687,48 @@ class _StubChain:
 
     async def ainvoke(self, payload):
         return await self._model.ainvoke(payload)
+
+
+def test_a_hanging_call_is_bounded_by_the_hard_deadline(monkeypatch):
+    """The client's own timeout is not enough to bound a call.
+
+    Measured: one recorded attempt ran 9459 seconds against a 180-second
+    ``request_timeout``.  An HTTP timeout only fires when the socket goes quiet,
+    so a relay that trickles bytes keeps resetting it, and the row -- and the
+    run's timing data -- is lost.  ``asyncio.wait_for`` is enforced by the event
+    loop, so it holds whatever the transport does.
+    """
+    import asyncio
+    import time
+
+    from src import generator_v2
+
+    class HangingChain:
+        async def ainvoke(self, _payload):
+            await asyncio.sleep(60)
+            return "永远不会到达"
+
+    monkeypatch.setattr(generator_v2, "require_role_model", lambda _role: None)
+    monkeypatch.setattr(generator_v2, "_build_chain", lambda: _StubChain(HangingChain()))
+    monkeypatch.setattr(generator_v2, "_hard_deadline_seconds", lambda: 0.05)
+
+    pack = build_evidence_pack(make_case())
+    started = time.perf_counter()
+    result = asyncio.run(generator_v2.generate_from_pack(pack, max_retries=0))
+    elapsed = time.perf_counter() - started
+
+    assert elapsed < 10, f"挂死的调用没有被硬截止时间截断（耗时 {elapsed:.1f}s）"
+    assert result.generation_status == "provider_timeout"
+    assert result.answer_status == "fallback"
+
+
+def test_the_hard_deadline_exceeds_the_client_timeout():
+    """The deadline is a backstop, so the client's own error usually wins.
+
+    If the two were equal the backstop would fire first and the provider's
+    message -- the more useful diagnostic -- would be replaced by a generic one.
+    """
+    from config import settings
+    from src.generator_v2 import _hard_deadline_seconds
+
+    assert _hard_deadline_seconds() > float(settings.llm_timeout_seconds)

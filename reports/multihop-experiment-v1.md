@@ -1,15 +1,15 @@
-# 多跳能力实验（新链路）：证据上限 G1 vs G2
+# 多跳能力实验（新链路）：三臂对照
 
 **日期**：2026-09-21
 **对象**：新链路（`eval_generation_replay.py` → `src/generator_v2.py`），冻结证据包上生成
 **判定口径**：`soft-audit-behaviour-v5`
-**LangSmith**：dataset `design-kb-multihop-6`，experiments `…evidence5` / `…evidence-all`
+**LangSmith**：dataset `design-kb-multihop-6` + **3 个 experiment** 绑定其上
 
 ---
 
 ## 一、要回答的问题
 
-现有 12 道评测题里 **11 题是单跳事实抽取**，没有任何多跳题 —— 所以「多跳能力」既没实现，也没被测量。
+现有 12 道评测题里 **11 题是单跳事实抽取**，没有任何多跳题 —— 「多跳能力」既没实现，也没被测量。
 而检索侧已冻结，新题无法跑检索取证据。
 
 **待验证的假设**：多跳答不好，是因为**证据根本没进上下文**，还是**模型抓不住多个证据项**？
@@ -17,11 +17,15 @@
 已核实的事实：每题 `documents` 有 4~10 个 chunk，但 `build_evidence_pack(max_items=5)` **只取 5 个**
 → **38 个已冻结 chunk 一直被丢弃**。
 
-这个假设决定要不要改生成器：如果是前者，改配置即可；如果是后者，才需要改生成逻辑。
-
 ---
 
-## 二、实验设计
+## 二、三臂设计
+
+| 臂 | 证据条数 | 每条字符 | 意图 |
+|---|---|---|---|
+| **G1** | 5（默认） | 不截断 | 现状 |
+| **G2** | 全部（9~20） | 不截断 | 只加证据 → 覆盖率升，但上下文膨胀 |
+| **G3** | 全部（9~20） | **300** | 加证据同时压缩 → 目标：拿到 G2 的覆盖率、G1 的延迟 |
 
 ### 2.1 复合题：从已冻结 chunk 池化，不跑检索
 
@@ -33,160 +37,159 @@
 > 为什么必须有这道闸：chunk 是**为原问题**召回的，未必含新问题需要的事实。
 > 若放行，就会造出「证据里根本没有答案」的假题，把**检索缺失**误诊成**生成能力不足**。
 
-6 道题覆盖 4 个主题：
-
-| id | 主题 | 需跨的证据 |
-|---|---|---|
-| mh01 | 跨标准综合设计 | 3326 配合高差 + 26158 坐高 + 26158 适用范围 |
-| mh02 | 标准间对比 | 3326 座高 vs 26158 坐高 |
-| mh03 | 人群差异对比 | 10000 成年人 vs 26158 未成年人 |
-| mh04 | 百分位推算 | 26158 坐高百分位 + 3326 座高 |
-| mh05 | 跨标准 | 3326 扶手椅尺寸 + 26158 适用范围 |
-| mh06 | 设计任务综合 | 3326 座高/座深/背倾角 + 26158 坐高 |
+6 道题覆盖 4 个主题：跨标准综合设计 / 标准间对比 / 人群差异对比 / 百分位推算。
 
 ### 2.2 让截断真的咬住
 
 池化后按「来源题顺序 → 各题内 retrieval_rank」排列，于是**越晚出现的来源题，其证据在上下文里越靠后**。
-设计结果：**每题恰好有一跳落在第 5 位之后**（即被默认截断丢掉）。
+设计结果：**每题恰好有一跳落在第 5 位之后**（被默认截断丢掉）。
 
-| 题 | 被截断的跳 | 位置 | 池化 chunk 数 |
+没有这个设计，G1 与 G2 结果必然相同，对照就是空的。
+
+### 2.3 压缩预检：先测量再动手
+
+按字符预算截断后，**必需事实是否还在**：
+
+| 预算 | 上下文 | 相对不截断 | 丢失的跳 |
 |---|---|---|---|
-| mh01 | h3 | 8 | 17 |
-| mh02 | h3 | 8 | 17 |
-| mh03 | h2 | 11 | 20 |
-| mh04 | h3 | 8 | 17 |
-| mh05 | h2 | 8 | 17 |
-| mh06 | h2 | 8 | 9 |
+| 200 | 30859 | 41% | **0** |
+| **300** | **40162** | **54%** | **0** |
+| 400 | 48512 | 65% | 0 |
+| 不截断 | 74688 | 100% | 0 |
 
-没有这个设计，两臂结果必然相同，对照就是空的。
+选 300：砍掉 46% 上下文，零事实损失，且给事实周围留下可解读的上下文。
 
-### 2.3 新增指标 `hop_recall`
+> **截断发生在证据本身（`page_content`），不是在渲染提示词时。**
+> 审计用 `item.page_content` 判「无出处数字」；若只截断渲染文本，
+> 审计会把**模型从未看到**的尾部当作有出处 → 把模型不可能知道的数字判成有依据。
 
-`soft_audit(..., required_hops=())` 逐跳判定：该跳的**全部必需词组都命中**，且声明的片段也命中，才算该跳覆盖。
+### 2.4 新增指标 `hop_recall`
 
-两条刻意的约束：
-- **每跳独立判定**，不共用词池。否则一跳的词会满足另一跳的检查，任何答案都会看起来完整。
-- **只测「事实是否被带出」，不测「推理是否正确」**。用词表测推理会重演 v3 之前
-  `ambiguity_safety` 的缺陷 —— 同一语义行为因措辞不同被判反。
+逐跳判定：该跳的**全部必需词组都命中**，且声明的片段也命中，才算该跳覆盖。
+
+- **每跳独立判定**，不共用词池（否则一跳的词会满足另一跳的检查，指标恒为 1.0）
+- **只测「事实是否被带出」，不测「推理是否正确」**（用词表测推理会重演 v3 之前 `ambiguity_safety` 的缺陷）
 
 ---
 
 ## 三、结果
 
-### 3.1 两臂总览
+### 3.1 三臂总览
 
-| | G1（证据上限 5） | G2（用满全部） |
-|---|---|---|
-| 生成成功率 | **1.000** | 0.833 |
-| 超时率 | **0.000** | **0.167** |
-| `hop_recall` | 0.472 (n=6) | 0.767 (n=5) |
-| `answer_span_recall` | 0.528 | 0.933 |
-| 延迟 p50 / max | 53s / 55s | 77s / **182s** |
-| 墙钟 | 262s | 524s |
-
-### 3.2 配对比较（关键）
-
-⚠️ **G2 有一题超时，所以两臂的分母不同（n=6 vs n=5）**，直接比 0.472 与 0.767 是不公平的。
-在**共同完成的 5 题**上做配对比较：
-
-| 口径 | G1 | G2 |
-|---|---|---|
-| `hop_recall`（共同 5 题） | **0.433** | **0.767** |
-
-### 3.3 逐跳翻转
-
-| 题 | 跳 | 结果 |
-|---|---|---|
-| mh02 | h3 | F → T ✓（该跳在 G1 被截断） |
-| mh03 | h1 | F → T ✓ |
-| mh04 | h3 | F → T ✓（该跳在 G1 被截断） |
-| mh05 | h2 | F → T ✓（该跳在 G1 被截断） |
-| mh06 | h2 | F → T ✓（该跳在 G1 被截断） |
-| mh06 | h3 | T → F ✗（噪声） |
-
-**5 跳 F→T，1 跳 T→F。其中 4 跳正是被截断的那一跳。**
-
----
-
-## 四、结论
-
-### 4.1 主结论：瓶颈是「证据没进上下文」
-
-被截断的跳在放开上限后**几乎全部转为覆盖**（4/5）。这说明多跳答不好**主要不是模型抓不住**，
-而是**它根本没看到那部分证据**。
-
-**因此不需要改生成器**（不需要两阶段生成、不需要本地模型）。改证据装配即可。
-
-### 4.2 但代价是可用性：天花板再次被撞
-
-G2 的 mh01（17 chunk / 12831 字符）**卡在 182 s 超时**，超时率 16.7% > 10% 阈值。
-延迟 p50 从 53 s 升到 77 s，墙钟翻倍。
-
-> 这与 v4 那次「60 s 天花板」是同一类问题：**放宽上下文会推高延迟，而上限是硬的**。
-> 上一轮把上限从 60 s 提到 180 s；本轮 182 s 又刚好越过。
-
-### 4.3 分组闸门抓到 4 处，全部有效
-
-| 指标组 | 判定 | 指标 | 说明 |
+| | G1 | G2 | **G3** |
 |---|---|---|---|
-| usability | **违规**（out_of_scope） | `provider_timeout_rate` 0 → 0.167 | 可用性回归未被声明 |
-| quality | **违规**（beyond_tolerance） | `answer_span_recall_mean` 0.528 → 0.933（+0.405） | 声明了会动，但没声明幅度 |
-| multi_hop | **违规**（beyond_tolerance） | `hop_recall_mean` 0.472 → 0.767（+0.295） | 同上 |
-| citation | **违规**（out_of_scope） | `citation_id_usage_ratio_mean` 0.767 → 0.307（−0.46） | 见下方警告 |
+| 生成成功率 | 1.000 | 0.833 | **1.000** |
+| 超时率 | 0.000 | **0.167** | **0.000** |
+| `hop_recall` | 0.472 (n=6) | 0.767 (n=5) | **0.778 (n=6)** |
+| `answer_span_recall` | 0.528 | 0.933 | **0.945** |
+| 延迟 mean / max | 44s / 55s | 87s / **182s** | **46s / 75s** |
+| 墙钟 | 262s | 524s | **275s** |
+| 可用性闸门 | 通过 | **失败** | **通过** |
 
-**可用性闸门也独立触发**（`provider_stability_gate_passed=false`）。
+**G3 拿到了 G2 的覆盖率，同时恢复了 G1 的延迟，且不再超时。**
 
-这同时完成了此前挂着的「真实改动验证」缺口：**闸门确实能识别真实变化**，
-而且能把「可用性回归」与「质量变化」分开报，不会把超时平均进一个总分里。
+注意 G2 的 `n=5`：它有一题超时，分母与另两臂不同。**G3 六题全部完成，n=6**，
+所以 G1↔G3 是可比的同分母比较，不需要配对修正。
 
-### 4.4 ⚠️ 一处指标设计警告：`citation_id_usage_ratio` 不可跨证据量比较
+### 3.2 逐题逐跳
 
-`citation_id_usage_ratio = 用到的引用数 / 允许的引用数`。G2 的允许引用从 ~5 涨到 9~20，
-**分母机械地变大**，比值必然下降。
+| 题 | G1 | G2 | G3 |
+|---|---|---|---|
+| mh01 | T T **F** | 超时 | T **F** F |
+| mh02 | T T **F** | T T T | T T **F** |
+| mh03 | F F | T F | **T T** |
+| mh04 | F T **F** | F T T | F T **T** |
+| mh05 | T **F** | T T | **T T** |
+| mh06 | T **F** T | T T F | **T T T** |
 
-所以上表里那个 −0.46 的「违规」**主要是分母效应，不是引用质量退化**。
-这条指标只在**证据条数相同**的两臂之间可比。
+（**粗体** = 该题在 G1 中被截断的那一跳）
 
-这与之前记录的「基线必须覆盖同一批运行」是同一类陷阱：**分母变了，比值就不可比**。
+**G3 vs G1**：4 跳改善（mh03 两跳、mh04 h3、mh05 h2、mh06 h2），1 跳回退（mh01 h2）。
+
+被截断的跳在 G3 中大多转为覆盖：mh04 h3、mh05 h2、mh06 h2 均 F→T。
+
+### 3.3 分组闸门：G3 vs G1（声明 `multi_hop,quality`）
+
+| 指标组 | 判定 | 指标 | 变化 |
+|---|---|---|---|
+| usability | **通过** | provider_timeout_rate | 0 → 0（**无可用性回归**）|
+| quality | 违规（beyond_tolerance） | answer_span_recall_mean | +0.417 |
+| multi_hop | 违规（beyond_tolerance） | hop_recall_mean | +0.306 |
+| citation | 违规（out_of_scope） | citation_id_usage_ratio_mean | −0.368（见 §4.2）|
+
+**对比 G2 vs G1**：G2 时 usability 组因超时率 0 → 0.167 判违规、可用性闸门失败；
+**G3 把这两项都修好了。**
+
+quality 与 multi_hop 报「超出容差」而不是「通过」，是因为**声明只说了「这两组会动」，
+没说会动多少**，而实际涨幅远超 5%/10% 的容差。这是闸门的正确行为：
+声明不完整就该被拦下，而不是被放行。
 
 ---
 
-## 五、下一步建议（按性价比排序）
+## 四、两个必须记录的发现
 
-1. **不要直接采用 G2 的配置**——它会撞延迟上限。
-2. 真正该做的是**在受控上下文预算下提高证据利用率**：
-   - 提高上限的同时**压缩每条证据**（去掉与问题无关的段落），而不是整段塞入；
-   - 或按相关性**筛选**要放进上下文的 chunk（这不是检索改动，是上下文装配）；
-   - 或继续提高 `LLM_TIMEOUT_SECONDS`，但要接受墙钟翻倍。
-3. 若目标只是「多跳能答」，**先把证据装配改对**，两阶段生成/本地模型都不必上。
-4. `citation_id_usage_ratio` 需要重新设计（改为「每条答案句是否都有引用」这类不随证据量漂移的口径），
-   否则它在不同配置间永远会报假违规。
+### 4.1 ⚠️ 配置的超时根本没兜住调用（严重）
+
+G3 首跑出现**单次尝试耗时 9458.9 秒（2.6 小时）**，而 `request_timeout=180`、
+`max_retries=0` 都正确传到了客户端。
+
+**根因**：HTTP 层超时**只在 socket 静默时触发**。中继只要持续滴流字节就会不断重置它。
+
+**后果**：一行可以挂几小时，**整轮延迟数据作废**（首跑 elapsed=9648s）。
+这也意味着此前任何基于延迟的结论都可能是脆的。
+
+**修法**：调用外层加 `asyncio.wait_for(..., timeout=llm_timeout + 30s)`——
+事件循环强制生效，与传输层行为无关；+30s 余量让客户端自身的错误（带 provider 原文）通常先返回。
+
+修复后 G3 重跑：**4 分 47 秒**完成（原 2 小时 41 分）。
+
+### 4.2 ⚠️ `citation_id_usage_ratio` 不可跨证据量比较
+
+`= 用到的引用 / 允许的引用`。G3 的允许引用有 9~20 个，**分母机械变大**，比值必然下降。
+
+所以 §3.3 里那个 −0.368 的「违规」**主要是分母效应，不是引用质量退化**。
+该指标只在**证据条数相同**的两臂之间可比，**需要重新设计口径**。
+
+---
+
+## 五、结论
+
+1. **瓶颈是证据可见性，不是模型能力。** 被截断的跳在放开上限后几乎全部转为覆盖。
+2. **但「只加证据」不可取**：G2 换来 16.7% 超时率。
+3. **正解是「加证据 + 压缩」**：G3 以 54% 的上下文拿到同等甚至更高的覆盖率，
+   延迟与 G1 持平，可用性零回归。
+4. **不需要改生成器**（不必上两阶段生成、不必上本地模型）。改证据装配即可。
 
 ---
 
 ## 六、复现方式
 
 ```bash
-# 1. 生成复合题（含防伪造断言；--check 可校验已生成文件未过期）
+# 1. 生成复合题（含防伪造断言；--positions 打印每跳在上下文中的位置）
 python scripts/build_multihop_snapshot.py --positions
 
-# 2. 两臂各跑一轮
+# 2. 三臂各跑一轮
 python eval_generation_replay.py --snapshot data/frozen_multihop_cases.jsonl \
   --evaluation data/generation_eval.multihop.v1.json \
   --max-evidence 5  --output data/runs/mh_g1_evidence5.json --repetition-index 1
 python eval_generation_replay.py --snapshot data/frozen_multihop_cases.jsonl \
   --evaluation data/generation_eval.multihop.v1.json \
   --max-evidence 99 --output data/runs/mh_g2_evidenceall.json --repetition-index 1
+python eval_generation_replay.py --snapshot data/frozen_multihop_cases.jsonl \
+  --evaluation data/generation_eval.multihop.v1.json \
+  --max-evidence 99 --max-chars-per-item 300 \
+  --output data/runs/mh_g3_evidenceall_compress300_r2.json --repetition-index 1
 
-# 3. 分组闸门对比（G1 作基线）
-python aggregate_generation_replays.py data/runs/mh_g2_evidenceall.json \
+# 3. 分组闸门（G1 作基线）
+python aggregate_generation_replays.py data/runs/mh_g1_evidence5.json \
+  --slices data/generation_eval_slices.multihop.v1.json \
+  --evaluation data/generation_eval.multihop.v1.json --output <G1 聚合>
+python aggregate_generation_replays.py data/runs/mh_g3_evidenceall_compress300_r2.json \
   --slices data/generation_eval_slices.multihop.v1.json \
   --evaluation data/generation_eval.multihop.v1.json \
-  --baseline <G1 的聚合结果> --declared-changes multi_hop,quality \
-  --report reports/generation-report-multihop-g1-vs-g2.md
+  --baseline <G1 聚合> --declared-changes multi_hop,quality
 
-# 4. 上传 LangSmith（两次上传复用同一 dataset）
-python upload_generation_replay_langsmith.py \
-  --result data/runs/mh_g1_evidence5.json \
-  --evaluation data/generation_eval.multihop.v1.json --arm evidence5
+# 4. 上传 LangSmith（三次上传复用同一 dataset）
+python upload_generation_replay_langsmith.py --result <任一运行> \
+  --evaluation data/generation_eval.multihop.v1.json --arm <臂名>
 ```

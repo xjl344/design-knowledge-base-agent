@@ -173,6 +173,72 @@ def test_hop_metric_is_not_applicable_to_boundary_questions():
     assert audit["hop_recall"] is None
 
 
+# --- per-item character budget -------------------------------------------
+# Raising `max_items` adds evidence but multiplies context length, and measured
+# calls with a ~13k-char context sat close enough to the ceiling that provider
+# variance pushed one over it.  `max_chars_per_item` shrinks each chunk instead,
+# keeping every chunk in play.
+
+
+def _long_case() -> FrozenRetrievalCase:
+    return _case(
+        "mh-budget",
+        (
+            _document("甲" * 400 + " 9999", "chunk-long"),
+            _document("乙" * 50, "chunk-short"),
+        ),
+    )
+
+
+def test_no_budget_leaves_content_untouched():
+    """The default must preserve historical runs' meaning exactly."""
+    pack = build_evidence_pack(_long_case(), max_items=5)
+    assert len(pack.items[0].page_content) == 405
+    assert "context_truncated" not in pack.items[0].metadata
+
+
+def test_budget_caps_each_item():
+    pack = build_evidence_pack(_long_case(), max_items=5, max_chars_per_item=100)
+    assert len(pack.items[0].page_content) == 100
+    # A chunk already under the budget is left alone, not padded.
+    assert len(pack.items[1].page_content) == 50
+
+
+def test_budget_records_what_it_cut():
+    """Truncation has to be visible, or a shortened chunk reads as the original."""
+    pack = build_evidence_pack(_long_case(), max_items=5, max_chars_per_item=100)
+    metadata = pack.items[0].metadata
+    assert metadata.get("context_truncated") is True
+    assert metadata.get("context_original_chars") == 405
+
+
+def test_budget_shrinks_the_rendered_context():
+    full = build_evidence_pack(_long_case(), max_items=5).context_text()
+    cut = build_evidence_pack(_long_case(), max_items=5, max_chars_per_item=100).context_text()
+    assert len(cut) < len(full)
+
+
+def test_audit_sees_the_same_truncated_text_as_the_model():
+    """The cut must happen on the evidence, not only on the rendered prompt.
+
+    Truncating at render time would leave the auditor treating text the model
+    never saw as supporting evidence, so a number lifted from the unseen tail
+    would be scored as grounded.  Cutting at pack construction keeps the two
+    views identical -- which is what this test pins.
+    """
+    answer = "数值是 9999。[L1]"
+    untruncated = soft_audit(answer, build_evidence_pack(_long_case(), max_items=5))
+    assert untruncated["unsupported_number_count"] == 0, "9999 在原 chunk 里，应视为有出处"
+
+    truncated = soft_audit(
+        answer, build_evidence_pack(_long_case(), max_items=5, max_chars_per_item=100)
+    )
+    assert truncated["unsupported_number_count"] == 1, (
+        "9999 落在被截断的尾部，模型看不到它；审计若仍算它有出处，"
+        "就等于把模型不可能知道的数字判成有依据"
+    )
+
+
 # --- the generated artefacts ---------------------------------------------
 
 

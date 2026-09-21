@@ -449,10 +449,32 @@ class EvidencePack:
         }
 
 
-def build_evidence_pack(case: FrozenRetrievalCase, max_items: int = 5) -> EvidencePack:
-    """Deduplicate while preserving frozen retrieval order exactly."""
+def build_evidence_pack(
+    case: FrozenRetrievalCase,
+    max_items: int = 5,
+    max_chars_per_item: int | None = None,
+) -> EvidencePack:
+    """Deduplicate while preserving frozen retrieval order exactly.
+
+    ``max_chars_per_item`` caps how much of each chunk reaches the model.  It
+    exists because the two levers are not interchangeable: raising
+    ``max_items`` adds evidence but multiplies context length, and measured
+    calls with a ~13k-char context sat close enough to the ceiling that provider
+    variance pushed one over it.  Cutting characters keeps every chunk in play
+    while shrinking the prompt.
+
+    The cut happens here, on ``page_content``, rather than when rendering the
+    prompt.  That keeps the model and the auditor looking at the same evidence:
+    truncating only the rendered prompt would leave the auditor treating text
+    the model never saw as "supporting", so a number lifted from the unseen tail
+    would be scored as grounded.
+
+    ``None`` (the default) means no truncation, so recorded runs keep their
+    original meaning.
+    """
     selected: list[EvidenceItem] = []
     seen: set[str] = set()
+    limit = None if max_chars_per_item is None else max(0, int(max_chars_per_item))
     for document in case.documents:
         identity = document.chunk_id or document.content_hash or document.document_id
         if identity in seen:
@@ -462,12 +484,17 @@ def build_evidence_pack(case: FrozenRetrievalCase, max_items: int = 5) -> Eviden
             break
         metadata = dict(document.metadata)
         source = str(metadata.get("source") or metadata.get("parent_document") or "未知来源")
+        content = document.page_content
+        if limit is not None and len(content) > limit:
+            content = content[:limit]
+            metadata["context_truncated"] = True
+            metadata["context_original_chars"] = len(document.page_content)
         selected.append(EvidenceItem(
             citation_id=f"L{len(selected) + 1}",
             document_id=document.document_id,
             chunk_id=document.chunk_id,
             content_hash=document.content_hash,
-            page_content=document.page_content,
+            page_content=content,
             source=source,
             title=str(metadata.get("title") or metadata.get("source_title") or source),
             page=metadata.get("page"),

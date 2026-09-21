@@ -186,6 +186,10 @@ def _metadata(
         "retrieval_calls": result.get("retrieval_calls"),
         "dry_run": result.get("dry_run"),
         "max_evidence": result.get("max_evidence"),
+        # The other half of the context budget: how many characters of each
+        # chunk reached the model.  Two arms can share max_evidence and still
+        # differ here, so both have to be recorded or the arms are ambiguous.
+        "max_chars_per_item": result.get("max_chars_per_item"),
         "arm": arm,
         "upload_type": "offline-generation-replay",
     }
@@ -239,6 +243,7 @@ def _print_plan(
         "dry_run_source": result.get("dry_run"),
         "model": result.get("model"),
         "max_evidence": result.get("max_evidence"),
+        "max_chars_per_item": result.get("max_chars_per_item"),
     }, ensure_ascii=False, indent=2))
 
 

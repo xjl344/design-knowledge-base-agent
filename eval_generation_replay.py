@@ -224,7 +224,11 @@ async def run(args: argparse.Namespace) -> dict:
             rows.append({"question_id": question_id, "status": "missing_snapshot"})
             continue
         spec = evaluation.get(question_id, {})
-        pack = build_evidence_pack(cases[question_id], max_items=args.max_evidence)
+        pack = build_evidence_pack(
+            cases[question_id],
+            max_items=args.max_evidence,
+            max_chars_per_item=args.max_chars_per_item,
+        )
         row = {
             "question_id": question_id,
             "question": pack.question,
@@ -276,6 +280,11 @@ async def run(args: argparse.Namespace) -> dict:
         # absent, which made a 5-item run and an all-items run indistinguishable
         # in their metadata.
         "max_evidence": int(args.max_evidence),
+        # Character budget per chunk.  Distinct from max_evidence: that one
+        # trades latency for *more* chunks, this one shrinks each chunk.
+        "max_chars_per_item": (
+            None if args.max_chars_per_item is None else int(args.max_chars_per_item)
+        ),
         "retrieval_calls": 0,
         "dry_run": bool(args.dry_run),
         "elapsed_seconds": round(time.perf_counter() - started, 3),
@@ -290,6 +299,12 @@ def main() -> int:
     parser.add_argument("--evaluation", default=str(ROOT / "data" / "generation_eval.v2.json"))
     parser.add_argument("--output", default="", help="结果路径；省略时自动写入 data/runs 唯一文件")
     parser.add_argument("--max-evidence", type=int, default=5)
+    parser.add_argument(
+        "--max-chars-per-item",
+        type=int,
+        default=None,
+        help="每条证据的字符上限；省略表示不截断（保持历史运行的含义不变）",
+    )
     parser.add_argument("--question-id", action="append", default=[])
     parser.add_argument("--dry-run", action="store_true")
     parser.add_argument("--repetition-index", type=int, default=1)

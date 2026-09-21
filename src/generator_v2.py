@@ -52,6 +52,23 @@ GENERATOR_PROMPT_VERSION = "generator-v2-20260919-r2"
 # the actual call can never drift apart.
 GENERATOR_MAX_RETRIES = 0
 
+# A deadline the event loop enforces, on top of the HTTP client's own timeout.
+#
+# The client timeout is not sufficient in practice: one recorded attempt ran
+# 9459 seconds against a 180-second `request_timeout`, because an HTTP-level
+# timeout only fires when the socket goes quiet, and a relay that trickles bytes
+# keeps resetting it.  The run's timing data is worthless if a row can hang for
+# hours, so the call is additionally bounded by `asyncio.wait_for`, which the
+# event loop enforces regardless of what the transport does.
+#
+# The margin keeps the client's own error (which carries the provider's
+# message) as the usual outcome; this is the backstop, not the primary bound.
+HARD_DEADLINE_MARGIN_SECONDS = 30.0
+
+
+def _hard_deadline_seconds() -> float:
+    return float(settings.llm_timeout_seconds) + HARD_DEADLINE_MARGIN_SECONDS
+
 
 # Control-token pollution observed in practice: the model occasionally appends
 # a routing/control suffix such as ".calc" that is not part of the answer.
@@ -230,14 +247,32 @@ async def generate_from_pack(
 
     for attempt_index in range(total_attempts):
         attempt_started = time.perf_counter()
+        # Reset per attempt: without this a failed first attempt would leave
+        # ``error`` set, so a retry that succeeded would still be recorded as
+        # a failure and its answer discarded.
+        error = None
         try:
             require_role_model("generator")
             chain = _build_chain()
             raw_answer = str(
-                await chain.ainvoke({"question": pack.question, "context": pack.context_text()})
+                await asyncio.wait_for(
+                    chain.ainvoke({"question": pack.question, "context": pack.context_text()}),
+                    timeout=_hard_deadline_seconds(),
+                )
             ).strip()
+        except (asyncio.TimeoutError, TimeoutError):
+            # `asyncio.TimeoutError` is `TimeoutError` on 3.11+; naming both
+            # keeps this correct across versions.  The message has to contain
+            # "timed out" so `_classify_error` files it as provider_timeout --
+            # the same class the client's own timeout produces, because the
+            # remedy is identical.
+            error = (
+                f"Request timed out: exceeded the hard deadline of "
+                f"{_hard_deadline_seconds():.0f}s."
+            )
         except Exception as exc:
             error = str(exc)
+        if error is not None:
             error_type = _classify_error(error)
             attempts.append(
                 {
