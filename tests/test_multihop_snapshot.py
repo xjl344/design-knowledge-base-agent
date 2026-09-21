@@ -448,6 +448,64 @@ def test_the_usage_ratio_is_still_measured():
     assert "citation_id_usage_ratio_mean" in CITATION_METRICS
 
 
+# --- fact-depth measurement ----------------------------------------------
+
+
+def test_fact_depth_measures_each_hop_against_its_own_chunk():
+    """Measuring any other way gives wrong answers.
+
+    The first version scanned every span against every chunk, so an unrelated
+    table's percentile values registered as deep matches and the tool reported
+    573 characters for a set that empirically loses nothing at 300.  A hop
+    declares its chunk precisely so it can be measured there.
+    """
+    import scripts.measure_fact_depth as depth
+
+    # The hop's fact sits early in its own chunk, but a same-looking number
+    # appears late in an unrelated chunk.  Measuring the wrong chunk would
+    # report the late position.
+    own = _document("目标 100 在前面。" + "填" * 400, "chunk-own")
+    other = _document("填" * 600 + " 100 在很后面。", "chunk-other")
+    case = _case("mh-depth", (own, other))
+    pack = build_evidence_pack(case, max_items=99)
+
+    spec = {
+        "required_hops": [
+            {
+                "hop_id": "h1",
+                "from_question": "q01_hit",
+                "source_chunk_id": "chunk-own",
+                "expected_span": "100",
+                "required_terms": [["100"]],
+            }
+        ]
+    }
+    deepest, _, measured = depth._measure_hop_case(spec, pack)
+    assert measured == 1
+    assert deepest < 50, f"应当在它自己声明的 chunk 里测（测得 {deepest}）"
+
+
+def test_fact_depth_reports_unmeasurable_questions(capsys, tmp_path):
+    """A question the tool cannot measure must be named, not silently skipped.
+
+    The question that actually broke under a 300-character budget (q10) is an
+    enumeration whose expected fact is a concept, so this measurement cannot see
+    it.  Reporting a confident budget while hiding that would be worse than
+    reporting nothing.
+    """
+    import scripts.measure_fact_depth as depth
+
+    result = depth.measure(
+        ROOT / "data" / "frozen_retrieval_cases.jsonl",
+        ROOT / "data" / "generation_eval.v2.json",
+        max_items=5,
+    )
+    unmeasured = [row["question_id"] for row in result["rows"] if row["status"] == "no_numeric_span"]
+    # q10 is the regression that motivated this warning; it must be listed.
+    assert "q10_hit" in unmeasured
+    assert result["suggested_budget"] is not None
+
+
 # --- the builder's guard --------------------------------------------------
 
 
