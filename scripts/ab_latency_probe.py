@@ -39,6 +39,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import random
 import statistics
 import sys
 import time
@@ -110,10 +111,18 @@ async def probe(args: argparse.Namespace) -> dict[str, Any]:
 
     observations: list[dict[str, Any]] = []
     started = time.perf_counter()
+    # Order is randomised per (round, question) rather than alternated on a
+    # fixed schedule.  A strict A,B / B,A alternation is periodic, and a
+    # provider whose slow phases have a similar period would be hit by one arm
+    # every time -- the probe measured exactly that pattern once (one round
+    # uniformly slower for one arm), which is indistinguishable from a real
+    # effect.  The seed is recorded so a run stays reproducible.
+    rng = random.Random(args.seed)
     for round_index in range(args.rounds):
-        # Alternate the order each round so drift cannot favour one arm.
-        ordered = arms if round_index % 2 == 0 else list(reversed(arms))
         for question_id in question_ids:
+            ordered = list(arms)
+            if rng.random() < 0.5:
+                ordered.reverse()
             for arm in ordered:
                 observation = await _measure(arm, cases[question_id], specs[question_id])
                 observations.append({
@@ -135,6 +144,7 @@ async def probe(args: argparse.Namespace) -> dict[str, Any]:
         "evaluation": str(args.evaluation),
         "arms": arms,
         "rounds": args.rounds,
+        "order_seed": args.seed,
         "llm_model": settings.llm_model,
         "llm_timeout_seconds": float(settings.llm_timeout_seconds),
         "elapsed_seconds": round(time.perf_counter() - started, 1),
@@ -220,6 +230,8 @@ def main() -> int:
         help="name:max_items:max_chars（max_chars 可为 none）；需给两个",
     )
     parser.add_argument("--rounds", type=int, default=3)
+    parser.add_argument("--seed", type=int, default=20260921,
+                        help="臂顺序随机化的种子；固定以便复现")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
