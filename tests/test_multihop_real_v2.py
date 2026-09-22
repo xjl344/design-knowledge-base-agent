@@ -333,7 +333,7 @@ def test_wording_only_spans_are_demoted_to_terms():
     to those spans and the scores did not move: the gap was wording.  Demoting
     them keeps one mechanism -- every hop is judged on terms.
     """
-    from scripts.build_real_specs_v2 import SPAN_DEMOTIONS
+    from scripts.build_multihop_snapshot import SPAN_DEMOTIONS
 
     contract = load(GROUPS["complete"]["contract"])
     # A list, not a dict keyed by hop_id: hop ids repeat across cases, and
@@ -342,8 +342,18 @@ def test_wording_only_spans_are_demoted_to_terms():
         hop for case in contract["cases"] for hop in case["required_hops"]
     ]
     demoted = [hop for hop in all_hops if not hop.get("expected_span")]
-    assert len(demoted) == len(SPAN_DEMOTIONS), (
-        f"降级的跳数应为 {len(SPAN_DEMOTIONS)}，实际 {len(demoted)}；"
+    # Expected count derived from the spec, so adding a demotion to
+    # SPAN_DEMOTIONS without the span being present is not silently ignored.
+    spec = load(SPEC_V2)
+    expected = sum(
+        1
+        for case in spec["cases"]
+        if case.get("coverage") == "complete"
+        for hop in (case.get("hops") or [])
+        if hop.get("expected_span") in SPAN_DEMOTIONS
+    )
+    assert len(demoted) == expected, (
+        f"降级的跳数应为 {expected}，实际 {len(demoted)}；"
         "多一个或少一个都意味着有跳被悄悄改了计分方式"
     )
     for hop in demoted:

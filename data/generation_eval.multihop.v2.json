@@ -1,0 +1,399 @@
+{
+  "version": 2,
+  "family": "multihop.v2",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "generated_from": "data/multihop_specs.json",
+  "note": "复合多跳题契约：证据由冻结的单跳 case 池化而成，未执行检索。required_hops 逐跳声明该跳的事实必须来自哪个 chunk。",
+  "cases": [
+    {
+      "id": "mh01_child_desk_height",
+      "question": "设计儿童学习桌时，桌面高应如何确定？请结合 GB/T 3326—2016 的桌面高与座高配合高差要求，以及 GB/T 26158—2010 中未成年人的人体尺寸数据，说明取值依据。",
+      "expected_answer_spans": [
+        {
+          "id": "mh01_child_desk_height-h1",
+          "text": "680~760",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "mh01_child_desk_height-h2",
+          "text": "坐高",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        },
+        {
+          "id": "mh01_child_desk_height-h3",
+          "text": "4岁~17岁",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q01_hit",
+          "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "required_terms": [
+            [
+              "680~760"
+            ],
+            [
+              "400~440"
+            ],
+            [
+              "250~320"
+            ]
+          ],
+          "position": 1,
+          "expected_span": "680~760"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q01_hit",
+          "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+          "required_terms": [
+            [
+              "坐高"
+            ]
+          ],
+          "position": 3,
+          "expected_span": "坐高"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q06_hit",
+          "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "required_terms": [
+            [
+              "未成年人"
+            ],
+            [
+              "4岁~17岁",
+              "4岁至17岁"
+            ]
+          ],
+          "position": 8,
+          "expected_span": "4岁~17岁"
+        }
+      ]
+    },
+    {
+      "id": "mh02_seat_height_vs_sitting_height",
+      "question": "GB/T 3326—2016 规定的座高与 GB/T 26158—2010 给出的坐高分别是什么？两者含义不同在哪里，设计中应如何配合使用？",
+      "expected_answer_spans": [
+        {
+          "id": "mh02_seat_height_vs_sitting_height-h1",
+          "text": "400~440",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "mh02_seat_height_vs_sitting_height-h2",
+          "text": "坐高",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        },
+        {
+          "id": "mh02_seat_height_vs_sitting_height-h3",
+          "text": "4岁~17岁",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q01_hit",
+          "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "required_terms": [
+            [
+              "400~440"
+            ],
+            [
+              "460"
+            ]
+          ],
+          "position": 1,
+          "expected_span": "400~440"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q01_hit",
+          "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+          "required_terms": [
+            [
+              "坐高"
+            ]
+          ],
+          "position": 3,
+          "expected_span": "坐高"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q06_hit",
+          "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "required_terms": [
+            [
+              "未成年人"
+            ],
+            [
+              "4岁~17岁",
+              "4岁至17岁"
+            ]
+          ],
+          "position": 8,
+          "expected_span": "4岁~17岁"
+        }
+      ]
+    },
+    {
+      "id": "mh03_adult_vs_minor_population",
+      "question": "GB/T 10000—2023 与 GB/T 26158—2010 分别覆盖哪个人群？在家具尺寸设计中，何时应使用哪一份标准？",
+      "expected_answer_spans": [
+        {
+          "id": "mh03_adult_vs_minor_population-h2",
+          "text": "4岁~17岁",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "03_人体工程学/Anthropometry/GBT+10000-2023.pdf",
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q08_hit",
+          "source_chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
+          "required_terms": [
+            [
+              "成年人"
+            ],
+            [
+              "人体尺寸"
+            ]
+          ],
+          "position": 3,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q06_hit",
+          "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "required_terms": [
+            [
+              "未成年人"
+            ],
+            [
+              "4岁~17岁",
+              "4岁至17岁"
+            ]
+          ],
+          "position": 11,
+          "expected_span": "4岁~17岁"
+        }
+      ]
+    },
+    {
+      "id": "mh04_percentile_derivation",
+      "question": "依据 GB/T 26158—2010 的坐高百分位数据，推算儿童椅座高的合理区间，并说明应取哪个百分位及理由。",
+      "expected_answer_spans": [
+        {
+          "id": "mh04_percentile_derivation-h1",
+          "text": "坐高",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        },
+        {
+          "id": "mh04_percentile_derivation-h2",
+          "text": "400~440",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "mh04_percentile_derivation-h3",
+          "text": "11个百分位数",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q01_hit",
+          "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+          "required_terms": [
+            [
+              "坐高"
+            ],
+            [
+              "758"
+            ]
+          ],
+          "position": 3,
+          "expected_span": "坐高"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q01_hit",
+          "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "required_terms": [
+            [
+              "400~440"
+            ]
+          ],
+          "position": 1,
+          "expected_span": "400~440"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q06_hit",
+          "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "required_terms": [
+            [
+              "百分位"
+            ]
+          ],
+          "position": 8,
+          "expected_span": "11个百分位数"
+        }
+      ]
+    },
+    {
+      "id": "mh05_armchair_dimension_basis",
+      "question": "按 GB/T 3326—2016，扶手椅的扶手内宽与座深要求是多少？这些尺寸与人体尺寸标准如何关联？",
+      "expected_answer_spans": [
+        {
+          "id": "mh05_armchair_dimension_basis-h1",
+          "text": "≥480mm",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "mh05_armchair_dimension_basis-h2",
+          "text": "4岁~17岁",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q03_hit",
+          "source_chunk_id": "ca80df0dbd2bc1bffb31f49e1d366cfb45e5368b10858f2cec5ad3e7ac04e612",
+          "required_terms": [
+            [
+              "≥480"
+            ],
+            [
+              "400mm~480mm"
+            ]
+          ],
+          "position": 1,
+          "expected_span": "≥480mm"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q06_hit",
+          "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "required_terms": [
+            [
+              "未成年人"
+            ]
+          ],
+          "position": 8,
+          "expected_span": "4岁~17岁"
+        }
+      ]
+    },
+    {
+      "id": "mh06_child_dining_chair_spec",
+      "question": "设计一款儿童餐椅，请给出座高、座深与背倾角的完整尺寸方案，并说明每项尺寸的依据来源。",
+      "expected_answer_spans": [
+        {
+          "id": "mh06_child_dining_chair_spec-h1",
+          "text": "400~440",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "mh06_child_dining_chair_spec-h2",
+          "text": "95°~100°",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "mh06_child_dining_chair_spec-h3",
+          "text": "坐高",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q01_hit",
+          "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "required_terms": [
+            [
+              "400~440"
+            ]
+          ],
+          "position": 1,
+          "expected_span": "400~440"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q03_hit",
+          "source_chunk_id": "ca80df0dbd2bc1bffb31f49e1d366cfb45e5368b10858f2cec5ad3e7ac04e612",
+          "required_terms": [
+            [
+              "400mm~480mm"
+            ],
+            [
+              "95°~100°"
+            ]
+          ],
+          "position": 8,
+          "expected_span": "95°~100°"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q01_hit",
+          "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+          "required_terms": [
+            [
+              "坐高"
+            ]
+          ],
+          "position": 3,
+          "expected_span": "坐高"
+        }
+      ]
+    }
+  ]
+}

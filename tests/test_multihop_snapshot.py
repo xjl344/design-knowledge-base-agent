@@ -629,3 +629,135 @@ def test_select_cases_splits_by_coverage(tmp_path):
     assert [spec["id"] for spec in builder.select_cases(specs, "complete")] == ["a", "c"]
     assert [spec["id"] for spec in builder.select_cases(specs, "partial")] == ["b"]
     assert len(builder.select_cases(specs, "all")) == 3
+
+
+# ---------------------------------------------------------------------------
+# The demotion is a property of the builder, not of one spec.
+# ---------------------------------------------------------------------------
+
+
+def test_select_cases_applies_the_span_demotion():
+    """Every consumer of the builder must see the same scoring rule.
+
+    It was first written into the CLI path only, and the test that rebuilds the
+    committed artifacts then disagreed with them -- the verification path did
+    not apply the rule the artifact was built with.
+    """
+    import scripts.build_multihop_snapshot as builder
+
+    specs = [
+        {
+            "id": "c1",
+            "question": "q",
+            "sources": ["s"],
+            "hops": [
+                {
+                    "hop_id": "h1",
+                    "from_question": "s",
+                    "chunk_id": "c",
+                    "expected_span": "成年人人体尺寸",
+                    "required_terms": [["成年人"]],
+                }
+            ],
+        }
+    ]
+    selected = builder.select_cases(specs, "all")
+    hop = selected[0]["hops"][0]
+    assert "expected_span" not in hop
+    assert hop["required_terms"] == builder.SPAN_DEMOTIONS["成年人人体尺寸"]
+    assert hop["span_demoted_because"]
+
+
+def test_both_question_sets_are_demoted_by_the_same_rule():
+    """The comparison between the sets is only meaningful if both are treated alike.
+
+    A rule that can be applied to one spec and forgotten for the other is how
+    the two end up on different footings -- which is the whole reason the
+    synthetic set had to be demoted too before its number could be compared.
+    """
+    import scripts.build_multihop_snapshot as builder
+
+    synthetic = json.loads(
+        (ROOT / "data" / "generation_eval.multihop.v2.json").read_text(encoding="utf-8")
+    )
+    demoted = [
+        hop
+        for case in synthetic["cases"]
+        for hop in case["required_hops"]
+        if not hop.get("expected_span")
+    ]
+    assert demoted, "合成集也要降级，否则两题集不同口径"
+    for hop in demoted:
+        assert hop["required_terms"] == builder.SPAN_DEMOTIONS[
+            next(
+                span
+                for span, terms in builder.SPAN_DEMOTIONS.items()
+                if terms == hop["required_terms"]
+            )
+        ]
+
+
+# ---------------------------------------------------------------------------
+# The demotion is a property of the builder, not of one spec.
+# ---------------------------------------------------------------------------
+
+
+def test_select_cases_applies_the_span_demotion():
+    """Every consumer of the builder must see the same scoring rule.
+
+    It was first written into the CLI path only, and the test that rebuilds the
+    committed artifacts then disagreed with them -- the verification path did
+    not apply the rule the artifact was built with.
+    """
+    import scripts.build_multihop_snapshot as builder
+
+    specs = [
+        {
+            "id": "c1",
+            "question": "q",
+            "sources": ["s"],
+            "hops": [
+                {
+                    "hop_id": "h1",
+                    "from_question": "s",
+                    "chunk_id": "c",
+                    "expected_span": "成年人人体尺寸",
+                    "required_terms": [["成年人"]],
+                }
+            ],
+        }
+    ]
+    selected = builder.select_cases(specs, "all")
+    hop = selected[0]["hops"][0]
+    assert "expected_span" not in hop
+    assert hop["required_terms"] == builder.SPAN_DEMOTIONS["成年人人体尺寸"]
+    assert hop["span_demoted_because"]
+
+
+def test_both_question_sets_are_demoted_by_the_same_rule():
+    """The comparison between the sets is only meaningful if both are treated alike.
+
+    A rule that can be applied to one spec and forgotten for the other is how
+    the two end up on different footings -- which is the whole reason the
+    synthetic set had to be demoted too before its number could be compared.
+    """
+    import scripts.build_multihop_snapshot as builder
+
+    synthetic = json.loads(
+        (ROOT / "data" / "generation_eval.multihop.v2.json").read_text(encoding="utf-8")
+    )
+    demoted = [
+        hop
+        for case in synthetic["cases"]
+        for hop in case["required_hops"]
+        if not hop.get("expected_span")
+    ]
+    assert demoted, "合成集也要降级，否则两题集不同口径"
+    for hop in demoted:
+        assert hop["required_terms"] == builder.SPAN_DEMOTIONS[
+            next(
+                span
+                for span, terms in builder.SPAN_DEMOTIONS.items()
+                if terms == hop["required_terms"]
+            )
+        ]

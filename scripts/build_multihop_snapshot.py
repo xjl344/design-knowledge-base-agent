@@ -131,6 +131,69 @@ def _composite_snapshot_id(source_question_ids: Iterable[str], chunk_ids: Iterab
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 
+# Hops whose declared span only constrains *wording*, demoted to terms.
+#
+# The audit (`data/span_audit.v1.json`) read the answers behind every failed
+# hop.  For these the fact was delivered and the span was not:
+#
+#   r17 h1  span = the cylinder formula    answer = the same formula, values substituted
+#   r18 h1  span = 再用容量公式反推有效高度   answer = …再反推 h
+#   r18 h2  span = 检查高度是否导致重心过高   answer = 应检查重心是否过高
+#   r19 h1  span = the taper formula       answer = the same formula in LaTeX + 332.3 mL
+#   r19 h2  span = 复杂曲面杯体应使用 CAD 体积或实测注水体积
+#                                          answer = 应优先使用 CAD 计算内部封闭空间体积…
+#   mh03 h1 span = 成年人人体尺寸           answer = GB/T 10000 覆盖我国成年人…提供静态人体尺寸
+#
+# v7 fixed the mechanical damage to these spans and the scores still did not
+# move: a LaTeX `\frac{}{}` puts letters between the symbols, and no regex of any
+# tolerance reads that as the same formula.  The gap is wording, not a bug.
+#
+# `expected_span_alternatives` would also work, but it is a looseness knob with
+# no natural setting -- declaring `CAD` alone credits r19 h2, which is far too
+# weak.  Demoting keeps one mechanism: the hop is judged on terms, as every other
+# hop is.
+#
+# **This lives in the builder, not in one spec's generator**, so both question
+# sets are treated identically by construction.  A rule that can be applied to
+# one set and forgotten for the other is how the two end up on different
+# footings, which is the comparison this whole exercise is trying to make.
+#
+# The terms come from the contract's own declared span (`1000` is in `/ 4 / 1000`,
+# `内径`/`有效液高` are its operands), not from fitting the model's answers --
+# fitting them to the audit and validating against the same audit proves nothing.
+#
+# The cost, stated plainly: a hop judged on terms alone credits an answer that
+# names the right things without combining them.  The compensation is that the
+# terms are strengthened past the single topic word the hop used to carry
+# (`重心` becomes `重心` AND `过高`).
+SPAN_DEMOTIONS: dict[str, list[list[str]]] = {
+    "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000": [
+        ["内径"], ["有效液高"], ["1000"],
+    ],
+    "再用容量公式反推有效高度": [["反推"], ["内径"]],
+    "检查高度是否导致重心过高": [["重心"], ["过高"]],
+    "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000": [["锥台"], ["1000"]],
+    "复杂曲面杯体应使用 CAD 体积或实测注水体积": [["复杂曲面"], ["CAD"]],
+    "成年人人体尺寸": [["成年人"], ["人体尺寸"]],
+}
+
+
+def demote_hops(hops: list[dict[str, Any]]) -> int:
+    """Drop the span and strengthen the terms for the hops listed above."""
+    demoted = 0
+    for hop in hops:
+        span = str(hop.get("expected_span") or "")
+        if span not in SPAN_DEMOTIONS:
+            continue
+        hop.pop("expected_span", None)
+        hop["required_terms"] = SPAN_DEMOTIONS[span]
+        hop["span_demoted_because"] = (
+            "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        )
+        demoted += 1
+    return demoted
+
+
 def load_specs(path: Path) -> dict[str, Any]:
     if not path.exists():
         _fail(f"spec 文件不存在：{path}")
@@ -204,11 +267,21 @@ def declares_coverage(spec: dict[str, Any]) -> bool:
 
 
 def select_cases(specs: list[dict[str, Any]], coverage: str) -> list[dict[str, Any]]:
+    """Select by coverage and apply the wording-only span demotion.
+
+    The demotion lives here rather than in `main` so that every consumer of the
+    builder gets it -- including the test that rebuilds the committed artifacts
+    to check they are not stale.  A rule applied only on the CLI path is a rule
+    the verification path does not see, and the two then disagree.
+    """
     if coverage == "all":
-        return list(specs)
-    selected = [spec for spec in specs if case_coverage(spec) == coverage]
-    if not selected:
-        _fail(f"没有 coverage={coverage} 的 case")
+        selected = list(specs)
+    else:
+        selected = [spec for spec in specs if case_coverage(spec) == coverage]
+        if not selected:
+            _fail(f"没有 coverage={coverage} 的 case")
+    for spec in selected:
+        demote_hops(spec.get("hops") or [])
     return selected
 
 

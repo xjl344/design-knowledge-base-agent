@@ -400,63 +400,6 @@ def snapshot_source_names() -> set[str]:
     return names
 
 
-# Hops whose declared span only constrains *wording*, demoted to terms.
-#
-# The audit (`data/span_audit.v1.json`) read the answers behind every failed
-# hop.  For these five the fact was delivered and the span was not:
-#
-#   r17 h1  span = the cylinder formula   answer = the same formula, values substituted
-#   r18 h1  span = 再用容量公式反推有效高度  answer = …再反推 h
-#   r18 h2  span = 检查高度是否导致重心过高  answer = 应检查重心是否过高
-#   r19 h1  span = the taper formula      answer = the same formula in LaTeX + 332.3 mL
-#   r19 h2  span = 复杂曲面杯体应使用 CAD 体积或实测注水体积
-#                                         answer = 应优先使用 CAD 计算内部封闭空间体积…
-#
-# v7 fixed the mechanical damage to these spans and the scores still did not
-# move: a LaTeX `\frac{}{}` puts letters between the symbols, and no regex of
-# any tolerance reads that as the same formula.  The gap is wording, not a bug.
-#
-# `expected_span_alternatives` would also work, but it is a looseness knob with
-# no natural setting -- declaring `CAD` alone credits r19 h2, which is far too
-# weak.  Demoting keeps one mechanism: the hop is judged on terms, as every
-# other hop is.
-#
-# The terms are taken from the contract's own declared span (`1000` is in
-# `/ 4 / 1000`, `内径`/`有效液高` are its operands), not fitted to the model's
-# answers -- fitting them to the audit and validating against the same audit
-# would prove nothing.
-#
-# The cost, stated plainly: a hop judged on terms alone credits an answer that
-# names the right things without combining them.  The compensation is that the
-# terms are strengthened past the single topic word the hop used to carry
-# (`重心` becomes `重心` AND `过高`).
-SPAN_DEMOTIONS: dict[str, list[list[str]]] = {
-    "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000": [
-        ["内径"], ["有效液高"], ["1000"],
-    ],
-    "再用容量公式反推有效高度": [["反推"], ["内径"]],
-    "检查高度是否导致重心过高": [["重心"], ["过高"]],
-    "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000": [["锥台"], ["1000"]],
-    "复杂曲面杯体应使用 CAD 体积或实测注水体积": [["复杂曲面"], ["CAD"]],
-}
-
-
-def demote_hops(hops: list[dict[str, Any]]) -> int:
-    """Drop the span and strengthen the terms for the hops listed above."""
-    demoted = 0
-    for hop in hops:
-        span = str(hop.get("expected_span") or "")
-        if span not in SPAN_DEMOTIONS:
-            continue
-        hop.pop("expected_span", None)
-        hop["required_terms"] = SPAN_DEMOTIONS[span]
-        hop["span_demoted_because"] = (
-            "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
-        )
-        demoted += 1
-    return demoted
-
-
 def build_spec() -> dict[str, Any]:
     v1 = json.loads(SPEC_V1.read_text(encoding="utf-8"))
     source_questions = {
@@ -476,11 +419,6 @@ def build_spec() -> dict[str, Any]:
         entry.setdefault("risk_level", "medium")
         entry.setdefault("theme", "")
         entry.setdefault("notes", "")
-        # Hops whose declared span only constrains *wording* are demoted to
-        # terms here rather than in a separate pass over the JSON, so the rule
-        # lives in code and the spec stays reproducible from this script.  See
-        # demote_unmatchable_spans for the per-hop evidence.
-        demote_hops(entry.get("hops") or [])
         complete.append(entry)
 
     partial: list[dict[str, Any]] = []
