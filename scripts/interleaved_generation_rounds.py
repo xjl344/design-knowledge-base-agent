@@ -376,10 +376,17 @@ def provider_gate(
 async def run(args: argparse.Namespace) -> dict[str, Any]:
     sets = [parse_case_set(spec) for spec in args.case_set]
     arms = [parse_arm(spec) for spec in args.arm]
-    if len(arms) != 2:
-        raise SystemExit("需要恰好两个臂才能做配对比较")
+    # One arm is allowed, and is the right shape for a case set where only one
+    # arm is interpretable.  The partial real set is exactly that: five of its
+    # seven questions have *every* hop beyond position 5, so the evidence-5 arm
+    # sees zero relevant evidence rather than less of it -- pairing there would
+    # compare a number against a structural zero.  A single-arm run reports
+    # availability and coverage and declares the pairing not applicable, rather
+    # than inventing a comparison it cannot support.
+    if len(arms) not in (1, 2):
+        raise SystemExit("需要 1 或 2 个臂")
     names = [arm["name"] for arm in arms]
-    if len(set(names)) != 2:
+    if len(set(names)) != len(names):
         raise SystemExit(f"臂名必须互不相同：{names}")
 
     loaded: dict[str, dict[str, Any]] = {}
@@ -463,7 +470,18 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         for name in names
         for case_set in loaded
     }
-    pairs, dropped = paired_rows(rows, names)
+    # Pairing needs two arms by definition.  With one arm the cell count is
+    # still meaningful -- it is how many (question, round) cells produced a
+    # completed row -- so the gate can still judge availability.
+    if len(names) == 2:
+        pairs, dropped = paired_rows(rows, names)
+        paired_cells = len(pairs) + dropped
+    else:
+        pairs, dropped = [], 0
+        paired_cells = len({
+            (str(row["case_set"]), str(row["question_id"]), int(row["round"]))
+            for row in rows
+        })
 
     return {
         "experiment": "generation-interleaved-rounds",
@@ -501,11 +519,18 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             "by_arm": by_arm,
             "by_arm_and_case_set": by_arm_and_set,
             "hop_counts_by_arm_and_case_set": hop_by_arm_and_set,
-            "paired": summarise_pairs(pairs, names),
+            # A single-arm run has nothing to pair, and says so rather than
+            # reporting an empty comparison as a comparison.
+            "paired": (
+                summarise_pairs(pairs, names)
+                if len(names) == 2
+                else {"definition": "单臂运行，无配对", "comparable_pairs": 0}
+            ),
             "paired_cells_dropped": dropped,
             "round_stability": round_stability(rows),
             "provider_gate": provider_gate(
-                rows, args.rounds, len(pairs), len(pairs) + dropped
+                rows, args.rounds, paired_cells if len(names) == 1 else len(pairs),
+                paired_cells,
             ),
         },
         "rows": rows,
