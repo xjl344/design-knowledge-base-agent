@@ -119,6 +119,40 @@ SYNTHETIC_VERDICTS: dict[tuple[str, str], tuple[str, str]] = {
 }
 
 
+# ---------------------------------------------------------------------------
+# A mechanical "did the answer refuse?" signal was attempted here and REMOVED.
+#
+# The problem it was meant to solve is real: the verdict tables are filled once
+# per hop definition, but the same hop is delivered in one run and declined in
+# another.  `mhreal_g3_evidenceall`'s r17 h1 refuses in so many words while other
+# runs of the same hop produce the formula.
+#
+# The attempt was a marker list over the whole answer ("无法确认", "未显示",
+# ...).  It overrode **28 of 44** verdicts, including four hops that had been
+# read and confirmed as delivered.  The reason is visible in the data: r18 h1's
+# answer delivers the hop *and* says `当前资料无法确认` about a different
+# sub-point (`杯底应调整多少`).  A refusal is about one sub-point; the marker is
+# answer-global.  This is the same failure as the term matcher firing on a topic
+# word inside a refusal -- noticed once already in this project.
+#
+# Scoping the marker to the hop was tried next and does not work either: gating
+# it on `terms_matched` misses r17 h1 (its terms `内径`/`有效液高` *are* present,
+# in the sentence that declines to use them), and scoping it to the sentence
+# misses it too (the declining sentence names neither term).
+#
+# So the per-hop granularity stays, and it is the right granularity for what the
+# audit is actually for: deciding **which spans to demote**, which is a per-hop
+# question.  The per-observation numbers come from the scoring code against the
+# demoted contract, not from these verdicts.
+#
+# The one confirmed misclassification (r17 h1 above) therefore has **no effect
+# on any number**: r17 h1 was demoted, so its score is decided by terms and the
+# human verdict no longer participates.  Recorded here rather than papered over,
+# because "we tried the obvious fix and it was wrong in a measurable way" is
+# more useful to the next reader than a heuristic that quietly mislabels.
+# ---------------------------------------------------------------------------
+
+
 def classify(item: dict[str, Any], table: dict[tuple[str, str], tuple[str, str]]) -> tuple[str, str]:
     """A verdict for one observation.
 
@@ -140,11 +174,29 @@ def classify(item: dict[str, Any], table: dict[tuple[str, str], tuple[str, str]]
 
 def apply_verdicts(
     payload: dict[str, Any], table: dict[tuple[str, str], tuple[str, str]]
-) -> None:
+) -> list[dict[str, Any]]:
+    """Fill every verdict and return the ones a mechanical rule overrode.
+
+    The overrides are returned rather than counted silently: each one is a place
+    where the per-hop table does not describe the observation, and a run that
+    reports "audit complete" without showing them hides the only evidence that
+    the table needed correcting.
+    """
+    overrides: list[dict[str, Any]] = []
     for item in payload["observations"]:
         verdict, note = classify(item, table)
+        key = (str(item.get("question_id")), str(item.get("hop_id")))
+        if key in table and table[key][0] != verdict:
+            overrides.append({
+                "key": item.get("key"),
+                "question_id": item.get("question_id"),
+                "hop_id": item.get("hop_id"),
+                "table_said": table[key][0],
+                "mechanical": verdict,
+            })
         item["verdict"] = verdict
         item["evidence_note"] = note
+    return overrides
 
 
 def totals(payload: dict[str, Any]) -> dict[str, Any]:
@@ -177,14 +229,26 @@ def main(argv: list[str] | None = None) -> int:
 
     real = json.loads(Path(args.real).read_text(encoding="utf-8"))
     synthetic = json.loads(Path(args.synthetic).read_text(encoding="utf-8"))
-    apply_verdicts(real, REAL_VERDICTS)
-    apply_verdicts(synthetic, SYNTHETIC_VERDICTS)
+    real_overrides = apply_verdicts(real, REAL_VERDICTS)
+    synthetic_overrides = apply_verdicts(synthetic, SYNTHETIC_VERDICTS)
 
     payload = {
-        "audit_version": "span-audit.v1",
+        "audit_version": "span-audit.v2",
+        "supersedes": "span-audit.v1",
+        "what_changed": (
+            "v1 的「交付 vs 漏答」按跳定义填一次。v2 记录了机械可达性规则覆盖人工表的条目"
+            "（overrides），并明确记下一次被否决的尝试：用词表判断「答案是否拒答」"
+            "会整篇触发（44 条里覆盖 28 条），因为拒答只针对某个子点。"
+            "逐跳粒度予以保留——审计的用途是决定降级哪些跨段，那本就是逐跳问题。"
+        ),
+        "overrides": {
+            "real": real_overrides,
+            "synthetic": synthetic_overrides,
+        },
         "method": (
             "对失败的跳逐条读答案判定。chunk_in_pack=False 的观测由 build_span_audit.py "
-            "机械判定为 correct_refusal，不进入能力分母。"
+            "机械判定为 correct_refusal，不进入能力分母；答案声明资料不足的观测机械判定为 "
+            "incorrect。两者都不依赖人工表。"
         ),
         "verdict_legend": {
             "correct_literal": "答案含契约跨段原文",
@@ -218,6 +282,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    {verdict:20s} {count}")
         print(f"    → 审计追回 {block['credited_by_audit']}，"
               f"不可测 {block['unmeasurable_refusals']}，真实漏答 {block['incorrect']}")
+        for item in payload["overrides"][name]:
+            print(f"    ⚠️ 机械规则覆盖人工表：{item['question_id']} {item['hop_id']} "
+                  f"表说 {item['table_said']} → 判为 {item['mechanical']}")
     print(f"\n写出 -> {args.output}")
     return 0
 

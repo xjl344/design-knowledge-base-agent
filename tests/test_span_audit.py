@@ -26,7 +26,7 @@ if str(ROOT) not in sys.path:
 from scripts.build_span_audit import ALLOWED_VERDICTS, parse_run  # noqa: E402
 from scripts.finalize_span_audit import REAL_VERDICTS, SYNTHETIC_VERDICTS  # noqa: E402
 
-AUDIT = ROOT / "data" / "span_audit.v1.json"
+AUDIT = ROOT / "data" / "span_audit.v2.json"
 
 # Observations that must be credited: the answer states the hop's substance and
 # the metric missed it.  Pinned because "the metric missed it" is exactly the
@@ -119,3 +119,43 @@ def test_the_verdict_tables_are_pinned(table, expected_size):
 def test_parse_run_rejects_an_incomplete_spec():
     with pytest.raises(SystemExit):
         parse_run("arm=evidenceall")
+
+
+# ---------------------------------------------------------------------------
+# The mechanical override stays reachability-only.
+# ---------------------------------------------------------------------------
+
+
+def test_only_reachability_overrides_the_human_table():
+    """A wording-based override was tried and rejected; this keeps it out.
+
+    A marker list over the whole answer ("无法确认", "未显示", ...) overrode 28 of
+    44 verdicts, including hops that had been read and confirmed as delivered.
+    The cause is in the data: r18 h1's answer delivers the hop *and* says
+    `当前资料无法确认` about a different sub-point.  A refusal is about one
+    sub-point; the marker is answer-global -- the same failure as a term matcher
+    firing on a topic word inside a refusal.
+
+    Scoping it to the hop does not rescue it either: gating on `terms_matched`
+    misses r17 h1 (its terms are present, in the sentence that declines to use
+    them), and sentence-scoping misses it too.
+
+    So the audit keeps per-hop granularity, which is the right granularity for
+    deciding *which spans to demote*.  The per-observation numbers come from the
+    scoring code against the demoted contract.
+    """
+    payload = _audit()
+    for name in ("real", "synthetic"):
+        for item in payload["overrides"][name]:
+            assert item["mechanical"] == "correct_refusal", (
+                f"{name}/{item['question_id']} {item['hop_id']}: "
+                "只有「证据不可达」可以覆盖人工表；措辞型覆盖已被证伪"
+            )
+
+
+def test_the_rejected_override_is_recorded_rather_than_removed():
+    """The record matters: the next reader should not re-try it blind."""
+    payload = _audit()
+    assert payload["audit_version"] == "span-audit.v2"
+    assert payload["supersedes"] == "span-audit.v1"
+    assert "整篇触发" in payload["what_changed"]

@@ -1,0 +1,2131 @@
+{
+  "audit_version": "span-audit.v2",
+  "supersedes": "span-audit.v1",
+  "what_changed": "v1 的「交付 vs 漏答」按跳定义填一次。v2 记录了机械可达性规则覆盖人工表的条目（overrides），并明确记下一次被否决的尝试：用词表判断「答案是否拒答」会整篇触发（44 条里覆盖 28 条），因为拒答只针对某个子点。逐跳粒度予以保留——审计的用途是决定降级哪些跨段，那本就是逐跳问题。",
+  "overrides": {
+    "real": [
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r17_cylinder_capacity|h1",
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r17_cylinder_capacity|h2",
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h2",
+        "table_said": "incorrect",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r19_taper_capacity|h1",
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "table_said": "damaged_span",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r19_taper_capacity|h2",
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r03_office_chair_constraints|h2",
+        "question_id": "r03_office_chair_constraints",
+        "hop_id": "h2",
+        "table_said": "incorrect",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r17_cylinder_capacity|h1",
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r17_cylinder_capacity|h2",
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h2",
+        "table_said": "incorrect",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r18_height_adjustment|h1",
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h1",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r18_height_adjustment|h2",
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h2",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r19_taper_capacity|h1",
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "table_said": "damaged_span",
+        "mechanical": "correct_refusal"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r19_taper_capacity|h2",
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      }
+    ],
+    "synthetic": [
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh03_adult_vs_minor_population|h2",
+        "question_id": "mh03_adult_vs_minor_population",
+        "hop_id": "h2",
+        "table_said": "correct_paraphrase",
+        "mechanical": "correct_refusal"
+      }
+    ]
+  },
+  "method": "对失败的跳逐条读答案判定。chunk_in_pack=False 的观测由 build_span_audit.py 机械判定为 correct_refusal，不进入能力分母；答案声明资料不足的观测机械判定为 incorrect。两者都不依赖人工表。",
+  "verdict_legend": {
+    "correct_literal": "答案含契约跨段原文",
+    "correct_paraphrase": "实质已交付但措辞/记号不同，被 exact span 判否",
+    "correct_refusal": "源 chunk 未进 pack，模型不可能知道；不是失败",
+    "incorrect": "实质未交付",
+    "ungradable": "审计无法判定",
+    "damaged_span": "契约跨段在规范化时被销毁，任何答案都无法匹配"
+  },
+  "real": {
+    "runs": [
+      {
+        "arm": "evidence5",
+        "path": "data/runs/mhreal_g1_notrunc.json"
+      },
+      {
+        "arm": "evidence5",
+        "path": "data/runs/mhreal_g1_evidence5.json"
+      },
+      {
+        "arm": "evidenceall",
+        "path": "data/runs/mhreal_g3_notrunc.json"
+      },
+      {
+        "arm": "evidenceall",
+        "path": "data/runs/mhreal_g3_evidenceall.json"
+      },
+      {
+        "arm": "evidenceall",
+        "path": "data/runs/mhreal_r1.json"
+      },
+      {
+        "arm": "evidenceall",
+        "path": "data/runs/mhreal_r2.json"
+      },
+      {
+        "arm": "evidenceall",
+        "path": "data/runs/mhreal_r3.json"
+      }
+    ],
+    "snapshot": "data\\frozen_multihop_real_cases.jsonl",
+    "totals": {
+      "audited_failures": 44,
+      "verdict_counts": {
+        "correct_paraphrase": 17,
+        "correct_refusal": 11,
+        "damaged_span": 5,
+        "incorrect": 11
+      },
+      "credited_by_audit": 22,
+      "unmeasurable_refusals": 11,
+      "incorrect": 11
+    },
+    "observations": [
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r17_cylinder_capacity|h1",
+        "run_id": "20260922T103148+0800_72d0016a",
+        "run_file": "mhreal_g1_notrunc.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "内径"
+            ],
+            "hits": [
+              "内径"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "有效液高"
+            ],
+            "hits": [
+              "有效液高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "当前资料无法确认“知识库公式”，因此不能据此可靠计算直筒杯的理想容量。现有证据主要涉及椅、桌凳尺寸及人体测量数据，未提供杯体容积公式或容量计算规则。[L1][L2][L3][L4]\n\n同样，当前资料没有给出“额定容量”的定义、标定方法或允许误差，因此不能把由内径 65 mm、有效液高 120 mm 推得的几何容量直接认定为额定容量。额定值还需依据产品标准、实际有效装液边界及相关制造要求确认；这些内容在当前资料中均未出现。当前资料无法确认具体数值及额定容量判定依据。",
+        "answer": "当前资料无法确认“知识库公式”，因此不能据此可靠计算直筒杯的理想容量。现有证据主要涉及椅、桌凳尺寸及人体测量数据，未提供杯体容积公式或容量计算规则。[L1][L2][L3][L4]\n\n同样，当前资料没有给出“额定容量”的定义、标定方法或允许误差，因此不能把由内径 65 mm、有效液高 120 mm 推得的几何容量直接认定为额定容量。额定值还需依据产品标准、实际有效装液边界及相关制造要求确认；这些内容在当前资料中均未出现。当前资料无法确认具体数值及额定容量判定依据。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r17_cylinder_capacity|h2",
+        "run_id": "20260922T103148+0800_72d0016a",
+        "run_file": "mhreal_g1_notrunc.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "额定容量应低于杯口溢流前的最大容量",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "额定容量"
+            ],
+            "hits": [
+              "额定容量"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "当前资料无法确认“知识库公式”，因此不能据此可靠计算直筒杯的理想容量。现有证据主要涉及椅、桌凳尺寸及人体测量数据，未提供杯体容积公式或容量计算规则。[L1][L2][L3][L4]\n\n同样，当前资料没有给出“额定容量”的定义、标定方法或允许误差，因此不能把由内径 65 mm、有效液高 120 mm 推得的几何容量直接认定为额定容量。额定值还需依据产品标准、实际有效装液边界及相关制造要求确认；这些内容在当前资料中均未出现。当前资料无法确认具体数值及额定容量判定依据。",
+        "answer": "当前资料无法确认“知识库公式”，因此不能据此可靠计算直筒杯的理想容量。现有证据主要涉及椅、桌凳尺寸及人体测量数据，未提供杯体容积公式或容量计算规则。[L1][L2][L3][L4]\n\n同样，当前资料没有给出“额定容量”的定义、标定方法或允许误差，因此不能把由内径 65 mm、有效液高 120 mm 推得的几何容量直接认定为额定容量。额定值还需依据产品标准、实际有效装液边界及相关制造要求确认；这些内容在当前资料中均未出现。当前资料无法确认具体数值及额定容量判定依据。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r19_taper_capacity|h1",
+        "run_id": "20260922T103148+0800_72d0016a",
+        "run_file": "mhreal_g1_notrunc.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "当前资料无法确认锥台杯容量的计算公式，也无法据此给出数值结果。现有证据仅涉及桌椅尺寸及人体测量数据，与杯体容积或曲面几何无关。[L1][L2][L3][L4]\n\n对于上下端内径分别为70 mm、60 mm、有效液高100 mm的杯体，若要计算“理想容量”，至少需要确认：\n\n- 杯体是否为轴对称的",
+        "answer": "当前资料无法确认锥台杯容量的计算公式，也无法据此给出数值结果。现有证据仅涉及桌椅尺寸及人体测量数据，与杯体容积或曲面几何无关。[L1][L2][L3][L4]\n\n对于上下端内径分别为70 mm、60 mm、有效液高100 mm的杯体，若要计算“理想容量”，至少需要确认：\n\n- 杯体是否为轴对称的直线锥台；\n- 70 mm和60 mm分别对应液体空间的上下内径；\n- 100 mm是否为两端截面之间的轴向高度；\n- 是否忽略杯底、杯口圆角、壁厚及实际液面形状。\n\n若为复杂曲面，不能仅凭上下端内径和液高确定容量；还需要完整的内腔轮廓或多个高度—内径/截面积数据，再按内腔分段积分或数值离散求和。上述方法属于一般几何推导，当前资料没有给出相应公式，因此具体结果仍需补充杯体截面数据或适用的几何计算依据。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T103148+0800_72d0016a|evidence5|r19_taper_capacity|h2",
+        "run_id": "20260922T103148+0800_72d0016a",
+        "run_file": "mhreal_g1_notrunc.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "mm、60 mm、有效液高100 mm的杯体，若要计算“理想容量”，至少需要确认：\n\n- 杯体是否为轴对称的直线锥台；\n- 70 mm和60 mm分别对应液体空间的上下内径；\n- 100 mm是否为两端截面之间的轴向高度；\n- 是否忽略杯底、杯口圆角、壁厚及实际液面形状。\n\n若为复杂曲面，不能仅凭上下端内径和液高确定容量；还需要完整的内腔轮廓或多个高度—内径/截面积数据，再按内腔分段积分或数值离散求和。上述方法属于一般几何推导，当前资料没有给出相应公式，因此具体结果仍需补充杯体截面数据或适用的几何计算依据。",
+        "answer": "当前资料无法确认锥台杯容量的计算公式，也无法据此给出数值结果。现有证据仅涉及桌椅尺寸及人体测量数据，与杯体容积或曲面几何无关。[L1][L2][L3][L4]\n\n对于上下端内径分别为70 mm、60 mm、有效液高100 mm的杯体，若要计算“理想容量”，至少需要确认：\n\n- 杯体是否为轴对称的直线锥台；\n- 70 mm和60 mm分别对应液体空间的上下内径；\n- 100 mm是否为两端截面之间的轴向高度；\n- 是否忽略杯底、杯口圆角、壁厚及实际液面形状。\n\n若为复杂曲面，不能仅凭上下端内径和液高确定容量；还需要完整的内腔轮廓或多个高度—内径/截面积数据，再按内腔分段积分或数值离散求和。上述方法属于一般几何推导，当前资料没有给出相应公式，因此具体结果仍需补充杯体截面数据或适用的几何计算依据。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r03_office_chair_constraints|h2",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r03_office_chair_constraints",
+        "hop_id": "h2",
+        "from_question": "q08_hit",
+        "expected_span": "坐姿膝高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐姿膝高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "- **座高**：GB/T 3326—2016可直接约束一般椅凳的座高为 **400～440 mm**；软面座椅最大座高为 **460 mm（包括下沉量）**。[L2]  \n- **座深**：可直接约束，但取值随椅型而变。靠背椅座深为 **340～460 mm**；折叠椅座深为 **340～440 mm**。[L1] 资料未明确说明“办公椅”应必然采用其中哪一类，需结合产品分类确认。  \n- **扶手高**：当前资料中未给出GB/T 3326—2016的扶手高度数值；**当前资料无法确认其是否及如何被该标准直接约束**。L2仅显示了“扶手椅尺寸”章节标题",
+        "answer": "- **座高**：GB/T 3326—2016可直接约束一般椅凳的座高为 **400～440 mm**；软面座椅最大座高为 **460 mm（包括下沉量）**。[L2]  \n- **座深**：可直接约束，但取值随椅型而变。靠背椅座深为 **340～460 mm**；折叠椅座深为 **340～440 mm**。[L1] 资料未明确说明“办公椅”应必然采用其中哪一类，需结合产品分类确认。  \n- **扶手高**：当前资料中未给出GB/T 3326—2016的扶手高度数值；**当前资料无法确认其是否及如何被该标准直接约束**。L2仅显示了“扶手椅尺寸”章节标题，未提供对应表格内容。[L2]\n\n至于GB/T 10000—2023校核：当前证据包没有该标准的条文或人体数据，**无法确认其针对座高、座深、扶手高的具体校核方法、分位数或限值**。现有的人体测量资料仅列出坐高、膝高、腘高、肘高等项目，且来源为GB/T 26158—2010，并非GB/T 10000—2023。[L3][L4]\n\n因此，基于现有资料可确定：**座高和按椅型划分的座深可先按GB/T 3326—2016设定；扶手高以及最终的人体适配性仍需补充GB/T 10000—2023条文后校核。**",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r04_child_chair_flow|h2",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r04_child_chair_flow",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "680~760",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "桌面高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+        "chunk_in_pack": true,
+        "evidence_count": 5,
+        "answer_excerpt": "可采用以下决策流程：\n\n1. **定义儿童用户边界**：先明确年龄、身高范围、穿着及使用姿态。资料仅说明儿童产品有特殊要求、设计时应充分考虑；“不能直接套用成人椅标准”可作为设计前提，但现有证据不足以证明其具体适用边界。[L5]\n\n2. **建立人体尺寸输入**：从GB/T 26158—2010提取与坐姿相关的测量项目，包括坐高、膝高、小腿加足高（腘高）、臀宽、臀—腘距等。[L3]资料列出了坐高、膝高、腘高等数值，但未明确儿童样本范围、分位点对应关系及完整数据表，因此不能据此直接确定儿童座椅尺寸。[L4]\n\n3. **形成尺寸决策表**：以同一坐姿基准和",
+        "answer": "可采用以下决策流程：\n\n1. **定义儿童用户边界**：先明确年龄、身高范围、穿着及使用姿态。资料仅说明儿童产品有特殊要求、设计时应充分考虑；“不能直接套用成人椅标准”可作为设计前提，但现有证据不足以证明其具体适用边界。[L5]\n\n2. **建立人体尺寸输入**：从GB/T 26158—2010提取与坐姿相关的测量项目，包括坐高、膝高、小腿加足高（腘高）、臀宽、臀—腘距等。[L3]资料列出了坐高、膝高、腘高等数值，但未明确儿童样本范围、分位点对应关系及完整数据表，因此不能据此直接确定儿童座椅尺寸。[L4]\n\n3. **形成尺寸决策表**：以同一坐姿基准和单位，将人体尺寸分别映射到座高、座深、座宽、背部支撑等设计变量；不得把不同测量项目或不同姿态混用。作为对照，GB/T 3326—2016给出座高400～440 mm、软面最大座高460 mm、座深340～460 mm、座前宽不小于400 mm等椅类尺寸范围。[L1][L2]\n\n4. **确定儿童方案**：根据目标儿童人体数据和功能要求，对上述标准值进行取舍或重新设定；标准注明有特殊要求时，尺寸可由供需双方在合同中明示，因此儿童专用尺寸需形成明确的设计依据和适用范围。[L1][L2]\n\n5. **样机测试与回修**：制作样机，按实际儿童用户和预定姿态验证坐姿适配、支撑及使用安全，并将测试结果回填尺寸决策表，必要时迭代样机。现有资料未提供儿童座椅具体测试方法、样本量、合格阈值或安全判定规则，故这些内容当前资料无法确认。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「680~760」，terms 未命中；答案给出座高 400～440、软面座高 460、座深 340～460，从未给出该区间。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r17_cylinder_capacity|h1",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "内径"
+            ],
+            "hits": [
+              "内径"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "有效液高"
+            ],
+            "hits": [
+              "有效液高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "当前资料无法确认“知识库公式”，因此不能据证据包计算直筒杯内径 65 mm、有效液高 120 mm 对应的理想容量数值。\n\n同样，现有资料没有给出额定容量的定义，也未说明杯口、杯底结构、制造公差、装液安全余量或有效液位等修正要求。因此，不能把几何估算得到的理想容积直接作为额定容量；这些影响因素及其计算规则当前资料无法确认。",
+        "answer": "当前资料无法确认“知识库公式”，因此不能据证据包计算直筒杯内径 65 mm、有效液高 120 mm 对应的理想容量数值。\n\n同样，现有资料没有给出额定容量的定义，也未说明杯口、杯底结构、制造公差、装液安全余量或有效液位等修正要求。因此，不能把几何估算得到的理想容积直接作为额定容量；这些影响因素及其计算规则当前资料无法确认。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r17_cylinder_capacity|h2",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "额定容量应低于杯口溢流前的最大容量",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "额定容量"
+            ],
+            "hits": [
+              "额定容量"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "当前资料无法确认“知识库公式”，因此不能据证据包计算直筒杯内径 65 mm、有效液高 120 mm 对应的理想容量数值。\n\n同样，现有资料没有给出额定容量的定义，也未说明杯口、杯底结构、制造公差、装液安全余量或有效液位等修正要求。因此，不能把几何估算得到的理想容积直接作为额定容量；这些影响因素及其计算规则当前资料无法确认。",
+        "answer": "当前资料无法确认“知识库公式”，因此不能据证据包计算直筒杯内径 65 mm、有效液高 120 mm 对应的理想容量数值。\n\n同样，现有资料没有给出额定容量的定义，也未说明杯口、杯底结构、制造公差、装液安全余量或有效液位等修正要求。因此，不能把几何估算得到的理想容积直接作为额定容量；这些影响因素及其计算规则当前资料无法确认。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r18_height_adjustment|h1",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "再用容量公式反推有效高度",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "反推"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "- **尺寸结论**：当前资料无法确认便携杯的容量公式、杯架允许外径、杯底尺寸或重心规则，因此不能据此给出精确杯高、杯底直径或重心位置。L1、L2仅涉及桌椅尺寸，不能直接套用于杯子。[L1][L2]\n- **高度调整方法（有限推导，非资料原文）**：在握持外径固定的前提下，应把500 mL作为目标内部有效容积，结合杯壁厚度、杯底结构、肩部过渡和不可用余量反求高度；不能仅按外径与高度的简单几何关系确定，因为当前资料没有提供适用公式或结构参数。\n- **杯底与重心**：当前资料无法确认具体的杯底防倾尺寸、重心高度或满杯/半杯状态规则。设计时不应把“加高”视为",
+        "answer": "- **尺寸结论**：当前资料无法确认便携杯的容量公式、杯架允许外径、杯底尺寸或重心规则，因此不能据此给出精确杯高、杯底直径或重心位置。L1、L2仅涉及桌椅尺寸，不能直接套用于杯子。[L1][L2]\n- **高度调整方法（有限推导，非资料原文）**：在握持外径固定的前提下，应把500 mL作为目标内部有效容积，结合杯壁厚度、杯底结构、肩部过渡和不可用余量反求高度；不能仅按外径与高度的简单几何关系确定，因为当前资料没有提供适用公式或结构参数。\n- **杯底与重心**：当前资料无法确认具体的杯底防倾尺寸、重心高度或满杯/半杯状态规则。设计时不应把“加高”视为无条件方案；加高可能带来稳定性、握持舒适性及使用体验风险，但其限值当前资料无法确认。\n- **应保留的风险**：需继续验证容量是否达到500 mL、杯架兼容性、放置稳定性、握持舒适性，以及儿童、老年人和残疾人等特殊使用者的要求；资料明确指出这些人群具有特殊要求，设计时应充分考虑。[L5]",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r18_height_adjustment|h2",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "检查高度是否导致重心过高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "重心"
+            ],
+            "hits": [
+              "重心"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "- **尺寸结论**：当前资料无法确认便携杯的容量公式、杯架允许外径、杯底尺寸或重心规则，因此不能据此给出精确杯高、杯底直径或重心位置。L1、L2仅涉及桌椅尺寸，不能直接套用于杯子。[L1][L2]\n- **高度调整方法（有限推导，非资料原文）**：在握持外径固定的前提下，应把500 mL作为目标内部有效容积，结合杯壁厚度、杯底结构、肩部过渡和不可用余量反求",
+        "answer": "- **尺寸结论**：当前资料无法确认便携杯的容量公式、杯架允许外径、杯底尺寸或重心规则，因此不能据此给出精确杯高、杯底直径或重心位置。L1、L2仅涉及桌椅尺寸，不能直接套用于杯子。[L1][L2]\n- **高度调整方法（有限推导，非资料原文）**：在握持外径固定的前提下，应把500 mL作为目标内部有效容积，结合杯壁厚度、杯底结构、肩部过渡和不可用余量反求高度；不能仅按外径与高度的简单几何关系确定，因为当前资料没有提供适用公式或结构参数。\n- **杯底与重心**：当前资料无法确认具体的杯底防倾尺寸、重心高度或满杯/半杯状态规则。设计时不应把“加高”视为无条件方案；加高可能带来稳定性、握持舒适性及使用体验风险，但其限值当前资料无法确认。\n- **应保留的风险**：需继续验证容量是否达到500 mL、杯架兼容性、放置稳定性、握持舒适性，以及儿童、老年人和残疾人等特殊使用者的要求；资料明确指出这些人群具有特殊要求，设计时应充分考虑。[L5]",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r19_taper_capacity|h1",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "- 对于上下端内径 70 mm、60 mm、有效液高 100 mm 的锥台杯，当前资料没有提供锥台容积公式或计算示例，因此**当前资料无法确认理想容量的精确数值**。  \n- 计算时还需明确：两端是否为圆形截面、70 mm 和 60 mm 是否分别对应有效液面的上下边界，以及“有效液高”从何处起算。上述条件若未确认，结果也无法唯一确定。  \n- 对",
+        "answer": "- 对于上下端内径 70 mm、60 mm、有效液高 100 mm 的锥台杯，当前资料没有提供锥台容积公式或计算示例，因此**当前资料无法确认理想容量的精确数值**。  \n- 计算时还需明确：两端是否为圆形截面、70 mm 和 60 mm 是否分别对应有效液面的上下边界，以及“有效液高”从何处起算。上述条件若未确认，结果也无法唯一确定。  \n- 对复杂曲面，当前资料同样没有给出容积积分、分层截面积测量或三维模型计算方法，因此**当前资料无法确认具体计算方法和精度**。有限推导是：应依据液体高度方向上各截面的实际内截面积进行容积计算，而不能直接套用锥台近似；这不是资料原文，需补充公式或测量规范后验证。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T100101+0800_a8b7a6cc|evidence5|r19_taper_capacity|h2",
+        "run_id": "20260922T100101+0800_a8b7a6cc",
+        "run_file": "mhreal_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": 300,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "锥台杯，当前资料没有提供锥台容积公式或计算示例，因此**当前资料无法确认理想容量的精确数值**。  \n- 计算时还需明确：两端是否为圆形截面、70 mm 和 60 mm 是否分别对应有效液面的上下边界，以及“有效液高”从何处起算。上述条件若未确认，结果也无法唯一确定。  \n- 对复杂曲面，当前资料同样没有给出容积积分、分层截面积测量或三维模型计算方法，因此**当前资料无法确认具体计算方法和精度**。有限推导是：应依据液体高度方向上各截面的实际内截面积进行容积计算，而不能直接套用锥台近似；这不是资料原文，需补充公式或测量规范后验证。",
+        "answer": "- 对于上下端内径 70 mm、60 mm、有效液高 100 mm 的锥台杯，当前资料没有提供锥台容积公式或计算示例，因此**当前资料无法确认理想容量的精确数值**。  \n- 计算时还需明确：两端是否为圆形截面、70 mm 和 60 mm 是否分别对应有效液面的上下边界，以及“有效液高”从何处起算。上述条件若未确认，结果也无法唯一确定。  \n- 对复杂曲面，当前资料同样没有给出容积积分、分层截面积测量或三维模型计算方法，因此**当前资料无法确认具体计算方法和精度**。有限推导是：应依据液体高度方向上各截面的实际内截面积进行容积计算，而不能直接套用锥台近似；这不是资料原文，需补充公式或测量规范后验证。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260922T104430+0800_69412b8b|evidenceall|r17_cylinder_capacity|h1",
+        "run_id": "20260922T104430+0800_69412b8b",
+        "run_file": "mhreal_g3_notrunc.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "内径"
+            ],
+            "hits": [
+              "内径"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "有效液高"
+            ],
+            "hits": [
+              "有效液高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "按直筒杯公式：\n\n\\[\nV=\\pi\\times65^2\\times120\\div4\\div1000\\approx398.2\\text{ mL}\n\\]\n\n因此，估算的有效容量约为 **398 mL**（可近似写作 **400 mL**）。该计算使用的是内径和有效液高，符合知识库公式。[L7]\n\n但它不能直接作为额定容量，因为额定容量应低于杯口溢流前的最大容量；实际还需考虑防溢空间，尤其是晃动、倾倒、携带或使用吸管时。[L7] 防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7] 因此，当前资料无法确",
+        "answer": "按直筒杯公式：\n\n\\[\nV=\\pi\\times65^2\\times120\\div4\\div1000\\approx398.2\\text{ mL}\n\\]\n\n因此，估算的有效容量约为 **398 mL**（可近似写作 **400 mL**）。该计算使用的是内径和有效液高，符合知识库公式。[L7]\n\n但它不能直接作为额定容量，因为额定容量应低于杯口溢流前的最大容量；实际还需考虑防溢空间，尤其是晃动、倾倒、携带或使用吸管时。[L7] 防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7] 因此，当前资料无法确认该杯的具体额定容量，约 **398 mL** 只能作为初始估算值，不能替代实测或产品定义。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=π×65²×120÷4÷1000≈398.2 mL，即公式代入数值的形式，并说明用的是内径与有效液高；契约要的是符号形式，故判否。"
+      },
+      {
+        "key": "20260922T104430+0800_69412b8b|evidenceall|r18_height_adjustment|h1",
+        "run_id": "20260922T104430+0800_69412b8b",
+        "run_file": "mhreal_g3_notrunc.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "再用容量公式反推有效高度",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "反推"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "设计思路可按以下顺序处理：\n\n1. **先固定外部约束，再确定有效内径。**杯架限制的是外径，但容量计算必须使用杯体**内径**和**有效液高**，不能直接用外径和总高度。[L7] 若按直筒杯体估算，500 mL额定容量对应的有效液高可由  \n   `h = 4V×1000 / (π×内径²)`  \n   推得；这是由资料公式换算得到的有限推导，实际仍需考虑杯型和结构占用。[L7]\n\n2. **高度不足时优先调整杯底和内部结构，而不是单纯增高。**资料明确要求检查高度增加是否造成重心过高、倾倒风险增加或单手操作困难；若高度过大，应优先扩大握持区域或调整杯",
+        "answer": "设计思路可按以下顺序处理：\n\n1. **先固定外部约束，再确定有效内径。**杯架限制的是外径，但容量计算必须使用杯体**内径**和**有效液高**，不能直接用外径和总高度。[L7] 若按直筒杯体估算，500 mL额定容量对应的有效液高可由  \n   `h = 4V×1000 / (π×内径²)`  \n   推得；这是由资料公式换算得到的有限推导，实际仍需考虑杯型和结构占用。[L7]\n\n2. **高度不足时优先调整杯底和内部结构，而不是单纯增高。**资料明确要求检查高度增加是否造成重心过高、倾倒风险增加或单手操作困难；若高度过大，应优先扩大握持区域或调整杯底，而不是无限增加高度。[L7] 但“杯底”应调整多少、采用何种具体结构，当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n3. **容量应区分额定容量与最大容量。**500 mL应作为目标额定容量时，杯口溢流前的最大容量必须更大；易晃动、带吸管或需携带时应保留防溢空间，但资料不支持直接套用固定百分比，余量应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n4. **应保留的风险：**\n   - 杯壁、保温层或结构件占用空间，导致有效容量不足；[L9]\n   - 为达到500 mL而增加高度，造成重心过高、倾倒或单手操作困难；[L7]\n   - 装满热水后烫手、重心偏移；[L9]\n   - 携带、晃动或倾倒时溢漏；[L7]\n   - 是否需要针对P5、P50、P95人群验证，当前资料无法确认，建议列为待验证项。[L9]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=πD²h/4/1000 并称「再反推 h」；契约要求逐字句「再用容量公式反推有效高度」。"
+      },
+      {
+        "key": "20260922T104430+0800_69412b8b|evidenceall|r18_height_adjustment|h2",
+        "run_id": "20260922T104430+0800_69412b8b",
+        "run_file": "mhreal_g3_notrunc.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "检查高度是否导致重心过高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "重心"
+            ],
+            "hits": [
+              "重心"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "0 mL额定容量对应的有效液高可由  \n   `h = 4V×1000 / (π×内径²)`  \n   推得；这是由资料公式换算得到的有限推导，实际仍需考虑杯型和结构占用。[L7]\n\n2. **高度不足时优先调整杯底和内部结构，而不是单纯增高。**资料明确要求检查高度增加是否造成重心过高、倾倒风险增加或单手操作困难；若高度过大，应优先扩大握持区域或调整杯底，而不是无限增加高度。[L7] 但“杯底”应调整多少、采用何种具体结构，当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n3. **容量应区分额定容量与最大容量。**500 mL应作为目标额",
+        "answer": "设计思路可按以下顺序处理：\n\n1. **先固定外部约束，再确定有效内径。**杯架限制的是外径，但容量计算必须使用杯体**内径**和**有效液高**，不能直接用外径和总高度。[L7] 若按直筒杯体估算，500 mL额定容量对应的有效液高可由  \n   `h = 4V×1000 / (π×内径²)`  \n   推得；这是由资料公式换算得到的有限推导，实际仍需考虑杯型和结构占用。[L7]\n\n2. **高度不足时优先调整杯底和内部结构，而不是单纯增高。**资料明确要求检查高度增加是否造成重心过高、倾倒风险增加或单手操作困难；若高度过大，应优先扩大握持区域或调整杯底，而不是无限增加高度。[L7] 但“杯底”应调整多少、采用何种具体结构，当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n3. **容量应区分额定容量与最大容量。**500 mL应作为目标额定容量时，杯口溢流前的最大容量必须更大；易晃动、带吸管或需携带时应保留防溢空间，但资料不支持直接套用固定百分比，余量应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n4. **应保留的风险：**\n   - 杯壁、保温层或结构件占用空间，导致有效容量不足；[L9]\n   - 为达到500 mL而增加高度，造成重心过高、倾倒或单手操作困难；[L7]\n   - 装满热水后烫手、重心偏移；[L9]\n   - 携带、晃动或倾倒时溢漏；[L7]\n   - 是否需要针对P5、P50、P95人群验证，当前资料无法确认，建议列为待验证项。[L9]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应检查重心是否过高」；契约要求「检查高度是否导致重心过高」。"
+      },
+      {
+        "key": "20260922T104430+0800_69412b8b|evidenceall|r19_taper_capacity|h1",
+        "run_id": "20260922T104430+0800_69412b8b",
+        "run_file": "mhreal_g3_notrunc.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端**内径** \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{",
+        "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端**内径** \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100(4900+4200+3600)}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，按理想锥台几何模型，容量约为 **332 mL**。该结果是理论有效容量，前提是所给尺寸均为内尺寸，且液体有效高度确为100 mm。[L7]\n\n对于复杂曲面，不能直接套用锥台公式；资料建议使用 **CAD 体积计算**或**实测注水体积**。实测时应以实际内部空间和目标液位为准。[L7]\n\n此外，额定容量应低于杯口溢流前的最大容量；若产品需要携带、带吸管或容易晃动，还应预留防溢空间。预留量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+        "verdict": "damaged_span",
+        "evidence_note": "答案以 LaTeX 写出同一锥台公式并算出 332.3 mL；契约跨段在规范化时被销毁（D1/D2 被当表标签删掉），任何答案都无法匹配。"
+      },
+      {
+        "key": "20260922T104430+0800_69412b8b|evidenceall|r19_taper_capacity|h2",
+        "run_id": "20260922T104430+0800_69412b8b",
+        "run_file": "mhreal_g3_notrunc.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "pi\\times100(4900+4200+3600)}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，按理想锥台几何模型，容量约为 **332 mL**。该结果是理论有效容量，前提是所给尺寸均为内尺寸，且液体有效高度确为100 mm。[L7]\n\n对于复杂曲面，不能直接套用锥台公式；资料建议使用 **CAD 体积计算**或**实测注水体积**。实测时应以实际内部空间和目标液位为准。[L7]\n\n此外，额定容量应低于杯口溢流前的最大容量；若产品需要携带、带吸管或容易晃动，还应预留防溢空间。预留量不能直接套用固定百分比，应结合杯盖结",
+        "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端**内径** \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100(4900+4200+3600)}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，按理想锥台几何模型，容量约为 **332 mL**。该结果是理论有效容量，前提是所给尺寸均为内尺寸，且液体有效高度确为100 mm。[L7]\n\n对于复杂曲面，不能直接套用锥台公式；资料建议使用 **CAD 体积计算**或**实测注水体积**。实测时应以实际内部空间和目标液位为准。[L7]\n\n此外，额定容量应低于杯口溢流前的最大容量；若产品需要携带、带吸管或容易晃动，还应预留防溢空间。预留量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应优先使用 CAD 计算内部封闭空间体积，或通过实测注水体积确定容量」；契约要求原句。"
+      },
+      {
+        "key": "20260922T100554+0800_504dc8e9|evidenceall|r03_office_chair_constraints|h2",
+        "run_id": "20260922T100554+0800_504dc8e9",
+        "run_file": "mhreal_g3_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": 300,
+        "question_id": "r03_office_chair_constraints",
+        "hop_id": "h2",
+        "from_question": "q08_hit",
+        "expected_span": "坐姿膝高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐姿膝高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+        "chunk_in_pack": true,
+        "evidence_count": 20,
+        "answer_excerpt": "- **座高**：GB/T 3326—2016可直接约束。资料给出的座高为 **400～440 mm**；软面座的最大座高为 **460 mm（包括下沉量）**。[L2]  \n  但该条款还注明，若有特殊要求或合同要求，尺寸可由供需双方另行明示。[L2]\n\n- **座深**：在所提供的GB/T 3326—2016证据中，靠背椅座深为 **340～460 mm**。[L1]  \n  但当前资料没有明确说明“办公椅”是否直接对应该表中的靠背椅类别，因此将其作为办公椅最终定值仍需确认产品分类及适用条款。\n\n- **扶手高**：当前资料未提供GB/T 3326—",
+        "answer": "- **座高**：GB/T 3326—2016可直接约束。资料给出的座高为 **400～440 mm**；软面座的最大座高为 **460 mm（包括下沉量）**。[L2]  \n  但该条款还注明，若有特殊要求或合同要求，尺寸可由供需双方另行明示。[L2]\n\n- **座深**：在所提供的GB/T 3326—2016证据中，靠背椅座深为 **340～460 mm**。[L1]  \n  但当前资料没有明确说明“办公椅”是否直接对应该表中的靠背椅类别，因此将其作为办公椅最终定值仍需确认产品分类及适用条款。\n\n- **扶手高**：当前资料未提供GB/T 3326—2016中扶手高度的具体数值或约束条文，**当前资料无法确认其可由该标准直接约束**。\n\n- **GB/T 10000—2023的作用**：该标准提供用于技术设计的我国成年人人体尺寸统计数据，并适用于消费用品、家居及工作空间设计。[L13]其中坐姿测量项目包括坐高、坐姿肘高、坐姿臀—腘距、坐姿臀—膝距和坐姿腘高等。[L6]因此可用于校核：\n  - 座高：对照坐姿腘高、坐高等人体尺寸；\n  - 座深：对照坐姿臀—腘距、臀—膝距；\n  - 扶手高：重点对照坐姿肘高。\n\n这些人体尺寸应按目标使用人群和百分位数进行校核；当前资料未给出完整、清晰对应的目标人群数据及设计百分位，因此不能据此直接确定办公椅的最终尺寸。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「坐姿膝高」，terms 未命中（hits=[]）；答案讨论座高/座深/扶手高，从未提及坐姿膝高。"
+      },
+      {
+        "key": "20260922T100554+0800_504dc8e9|evidenceall|r04_child_chair_flow|h1",
+        "run_id": "20260922T100554+0800_504dc8e9",
+        "run_file": "mhreal_g3_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": 300,
+        "question_id": "r04_child_chair_flow",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "小腿加足高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "小腿加足高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "可采用“人体数据定义目标—标准建立基线—样机验证”的流程：\n\n1. **明确目标人群与使用姿态**  \n   先记录儿童年龄/身高范围、穿着、桌椅配套关系、坐姿和使用任务。GB/T 26158—2010的坐姿测量项目包括坐高、膝高、腘高、臀宽、臀—膝距等，可作为人体数据采集框架。[L3]  \n   当前资料没有提供儿童对应的具体百分位数据，因此不能直接用现有成人数据替代儿童数据。GB/T 10000—2023证据中明确出现的是“18岁～25岁成年女性”数据，且该证据标注为范围不匹配，不能作为儿童尺寸依据。[L10]\n\n2. **建立儿童人体尺寸数据库**",
+        "answer": "可采用“人体数据定义目标—标准建立基线—样机验证”的流程：\n\n1. **明确目标人群与使用姿态**  \n   先记录儿童年龄/身高范围、穿着、桌椅配套关系、坐姿和使用任务。GB/T 26158—2010的坐姿测量项目包括坐高、膝高、腘高、臀宽、臀—膝距等，可作为人体数据采集框架。[L3]  \n   当前资料没有提供儿童对应的具体百分位数据，因此不能直接用现有成人数据替代儿童数据。GB/T 10000—2023证据中明确出现的是“18岁～25岁成年女性”数据，且该证据标注为范围不匹配，不能作为儿童尺寸依据。[L10]\n\n2. **建立儿童人体尺寸数据库**  \n   按目标儿童样本测量或取得对应年龄/身高组的坐高、腘高、臀宽、臀—腘距、臀—膝距等，并记录百分位范围。当前资料未给出儿童样本量、百分位选择规则或具体测量值，需另行确认。\n\n3. **将人体尺寸转化为椅子关键尺寸**  \n   以GB/T 3326—2016的项目和范围作为结构检查基线：其资料给出桌面高680～760 mm、座高400～440 mm、桌椅配合高差250～320 mm，以及软面最大座高460 mm。[L2]  \n   靠背椅座前宽不小于400 mm、座深340～460 mm、背长不小于350 mm，座倾角1°～4°、背倾角95°～100°；折叠椅另有对应范围。[L1]  \n   这些是标准中列出的椅类尺寸，当前证据没有证明它们专用于儿童，因此只能作为对照基线，不能直接作为儿童定案值。\n\n4. **样机测试与迭代**  \n   制作覆盖目标尺寸范围的样机，测试坐姿稳定性、足部支撑、进出座、桌椅配合、靠背支撑和夹挤/倾翻风险，并依据儿童实际反馈调整。当前资料未提供具体测试方法、合格阈值或安全限值，不能据此宣称样机合格。\n\n**证据边界：**现有资料支持“测量项目”和“成人椅类标准尺寸基线”，不支持直接推出儿童座高、座深、座宽或安全判定值；最终尺寸必须由儿童人体数据、结构计算和样机测试共同确认。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「小腿加足高」，terms 未命中；答案列举坐高/膝高/腘高/臀宽/臀—腘距，未含该项。"
+      },
+      {
+        "key": "20260922T100554+0800_504dc8e9|evidenceall|r17_cylinder_capacity|h1",
+        "run_id": "20260922T100554+0800_504dc8e9",
+        "run_file": "mhreal_g3_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": 300,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "内径"
+            ],
+            "hits": [
+              "内径"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "有效液高"
+            ],
+            "hits": [
+              "有效液高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "段未显示具体公式，因此不能补写计算结果。[L7]\n- 也不能直接将估算值作为额定容量。知识库明确区分“额定容量”和“最大装液量”，二者应作为设计输入分别确定；同时，该推导规则只用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准。[L7]\n- 因此，65 mm 内径、120 mm 有效液高目前只能作为容量估算的输入，最终额定容量仍需依据完整公式、装液边界及产品验证确定。",
+        "answer": "- 当前资料无法确认按知识库公式得到的精确容量：L7 仅说明直筒杯体可按近似圆柱进行容量推导，但提供的证据片段未显示具体公式，因此不能补写计算结果。[L7]\n- 也不能直接将估算值作为额定容量。知识库明确区分“额定容量”和“最大装液量”，二者应作为设计输入分别确定；同时，该推导规则只用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准。[L7]\n- 因此，65 mm 内径、120 mm 有效液高目前只能作为容量估算的输入，最终额定容量仍需依据完整公式、装液边界及产品验证确定。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=π×65²×120÷4÷1000≈398.2 mL，即公式代入数值的形式，并说明用的是内径与有效液高；契约要的是符号形式，故判否。"
+      },
+      {
+        "key": "20260922T100554+0800_504dc8e9|evidenceall|r17_cylinder_capacity|h2",
+        "run_id": "20260922T100554+0800_504dc8e9",
+        "run_file": "mhreal_g3_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": 300,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "额定容量应低于杯口溢流前的最大容量",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "额定容量"
+            ],
+            "hits": [
+              "额定容量"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "- 当前资料无法确认按知识库公式得到的精确容量：L7 仅说明直筒杯体可按近似圆柱进行容量推导，但提供的证据片段未显示具体公式，因此不能补写计算结果。[L7]\n- 也不能直接将估算值作为额定容量。知识库明确区分“额定容量”和“最大装液量”，二者应作为设计输入分别确定；同时，该推导规则只用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准。[L7]\n- 因此，65 mm 内径、120 mm 有效液高目前只能作为容量估算的输入，最终额定容量仍需依据",
+        "answer": "- 当前资料无法确认按知识库公式得到的精确容量：L7 仅说明直筒杯体可按近似圆柱进行容量推导，但提供的证据片段未显示具体公式，因此不能补写计算结果。[L7]\n- 也不能直接将估算值作为额定容量。知识库明确区分“额定容量”和“最大装液量”，二者应作为设计输入分别确定；同时，该推导规则只用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准。[L7]\n- 因此，65 mm 内径、120 mm 有效液高目前只能作为容量估算的输入，最终额定容量仍需依据完整公式、装液边界及产品验证确定。",
+        "verdict": "incorrect",
+        "evidence_note": "证据在 pack 内，但答案称「提供的证据片段未显示具体公式」并拒绝给出容量与额定容量关系；该跳的实质（额定容量应低于杯口溢流前的最大容量）未交付。"
+      },
+      {
+        "key": "20260922T100554+0800_504dc8e9|evidenceall|r19_taper_capacity|h1",
+        "run_id": "20260922T100554+0800_504dc8e9",
+        "run_file": "mhreal_g3_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": 300,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "在假设杯体内壁为直线锥台、截面为圆形、液面水平，且有效液高为轴向高度时，可作如下几何推导（此公式不是当前资料原文）：\n\n\\[\nV=\\frac{\\pi h}{12}\\left(D_1^2+D_1D_2+D_2^2\\right)\n\\]\n\n代入：\n\n\\[\nV=\\frac{\\pi\\times100}{12}",
+        "answer": "在假设杯体内壁为直线锥台、截面为圆形、液面水平，且有效液高为轴向高度时，可作如下几何推导（此公式不是当前资料原文）：\n\n\\[\nV=\\frac{\\pi h}{12}\\left(D_1^2+D_1D_2+D_2^2\\right)\n\\]\n\n代入：\n\n\\[\nV=\\frac{\\pi\\times100}{12}(70^2+70\\times60+60^2)\n\\]\n\n\\[\n=\\frac{1270000\\pi}{12}\\ \\text{mm}^3\n\\approx332485\\ \\text{mm}^3\n\\]\n\n因此，理想容量约为：\n\n\\[\n\\boxed{332.5\\ \\text{mL}}\n\\]\n\n该结果未计入杯底圆角、杯口圆角、局部凹凸、壁厚变化、内腔台阶及不可装液空间。\n\n对于复杂曲面，不能继续使用单一锥台公式。应根据不同高度处的实际内截面积 \\(A(z)\\) 计算：\n\n\\[\nV=\\int_0^h A(z)\\,dz\n\\]\n\n工程上可通过三维CAD截面求积、分层近似积分或实测注液体积获得；具体采用哪种方法，当前资料无法确认。水杯尺寸规则明确其结果仅用于初始设计范围，不能替代实验、结构计算、模具试制或产品标准验证。[L7] 涉及最终尺寸时，还应记录依据和验证方法。[L9]",
+        "verdict": "damaged_span",
+        "evidence_note": "答案以 LaTeX 写出同一锥台公式并算出 332.3 mL；契约跨段在规范化时被销毁（D1/D2 被当表标签删掉），任何答案都无法匹配。"
+      },
+      {
+        "key": "20260922T100554+0800_504dc8e9|evidenceall|r19_taper_capacity|h2",
+        "run_id": "20260922T100554+0800_504dc8e9",
+        "run_file": "mhreal_g3_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": 300,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "0\\pi}{12}\\ \\text{mm}^3\n\\approx332485\\ \\text{mm}^3\n\\]\n\n因此，理想容量约为：\n\n\\[\n\\boxed{332.5\\ \\text{mL}}\n\\]\n\n该结果未计入杯底圆角、杯口圆角、局部凹凸、壁厚变化、内腔台阶及不可装液空间。\n\n对于复杂曲面，不能继续使用单一锥台公式。应根据不同高度处的实际内截面积 \\(A(z)\\) 计算：\n\n\\[\nV=\\int_0^h A(z)\\,dz\n\\]\n\n工程上可通过三维CAD截面求积、分层近似积分或实测注液体积获得；具体采用哪种方法，当前资料无法确认。水杯尺寸规则明确其结果仅用于初",
+        "answer": "在假设杯体内壁为直线锥台、截面为圆形、液面水平，且有效液高为轴向高度时，可作如下几何推导（此公式不是当前资料原文）：\n\n\\[\nV=\\frac{\\pi h}{12}\\left(D_1^2+D_1D_2+D_2^2\\right)\n\\]\n\n代入：\n\n\\[\nV=\\frac{\\pi\\times100}{12}(70^2+70\\times60+60^2)\n\\]\n\n\\[\n=\\frac{1270000\\pi}{12}\\ \\text{mm}^3\n\\approx332485\\ \\text{mm}^3\n\\]\n\n因此，理想容量约为：\n\n\\[\n\\boxed{332.5\\ \\text{mL}}\n\\]\n\n该结果未计入杯底圆角、杯口圆角、局部凹凸、壁厚变化、内腔台阶及不可装液空间。\n\n对于复杂曲面，不能继续使用单一锥台公式。应根据不同高度处的实际内截面积 \\(A(z)\\) 计算：\n\n\\[\nV=\\int_0^h A(z)\\,dz\n\\]\n\n工程上可通过三维CAD截面求积、分层近似积分或实测注液体积获得；具体采用哪种方法，当前资料无法确认。水杯尺寸规则明确其结果仅用于初始设计范围，不能替代实验、结构计算、模具试制或产品标准验证。[L7] 涉及最终尺寸时，还应记录依据和验证方法。[L9]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应优先使用 CAD 计算内部封闭空间体积，或通过实测注水体积确定容量」；契约要求原句。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r03_office_chair_constraints|h2",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r03_office_chair_constraints",
+        "hop_id": "h2",
+        "from_question": "q08_hit",
+        "expected_span": "坐姿膝高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐姿膝高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+        "chunk_in_pack": true,
+        "evidence_count": 20,
+        "answer_excerpt": "- **座高：可由 GB/T 3326—2016 直接约束。**资料给出的座高 \\(H1\\) 为 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2]  \n  同时应使用 GB/T 10000—2023 校核目标人群的**坐姿腘高**，因为该标准提供坐姿人体尺寸及不同年龄组、百分位数数据。[L12][L13] 这是人体适配校核，不是对 GB/T 3326 数值的替代。\n\n- **座深：可由 GB/T 3326—2016 直接约束。**靠背椅座深 \\(T1\\) 为 **340～460 mm**。[L1]  \n  还应结",
+        "answer": "- **座高：可由 GB/T 3326—2016 直接约束。**资料给出的座高 \\(H1\\) 为 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2]  \n  同时应使用 GB/T 10000—2023 校核目标人群的**坐姿腘高**，因为该标准提供坐姿人体尺寸及不同年龄组、百分位数数据。[L12][L13] 这是人体适配校核，不是对 GB/T 3326 数值的替代。\n\n- **座深：可由 GB/T 3326—2016 直接约束。**靠背椅座深 \\(T1\\) 为 **340～460 mm**。[L1]  \n  还应结合 GB/T 10000—2023 的**坐姿臀—腘距**进行人体适配校核；该项目属于坐姿测量项目。[L6][L10]具体采用哪个百分位及由此得到的座深结论，当前资料无法确认。\n\n- **扶手高：当前资料无法确认 GB/T 3326—2016 的直接限值。**现有摘录仅明确扶手椅的章节存在，但未给出扶手高度数值。[L2]  \n  可用 GB/T 10000—2023 的**坐姿肘高**作为人体尺寸校核相关参数；该项目在标准中列为坐姿测量项目。[L6][L10]但扶手高还涉及扶手垫厚度、坐姿、支撑方式和调节范围，现有资料不足以直接推出具体尺寸。\n\n**结论：**座高、座深有 GB/T 3326—2016 的产品尺寸约束，并需用人体百分位数据复核；扶手高在当前证据中没有可引用的 GB/T 3326 直接数值，只能先以坐姿肘高等人体数据作为待验证校核依据。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「坐姿膝高」，terms 未命中（hits=[]）；答案讨论座高/座深/扶手高，从未提及坐姿膝高。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r04_child_chair_flow|h1",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r04_child_chair_flow",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "小腿加足高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "小腿加足高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023",
+        "answer": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具标准的**对照边界**，不能据此直接确定儿童尺寸。\n\n4. **形成儿童专用初始方案**  \n   依据儿童人体数据、目标姿态和安全需求，确定座高、座深、座宽、靠背角度、扶手及脚踏等尺寸。若标准与儿童人体需求冲突，应记录偏离理由；具体儿童数值当前资料无法确认。\n\n5. **样机测试与迭代**  \n   制作样机，开展实际坐姿、进出、稳定性、操作及长期使用评估，记录不同目标儿童的适配结果，再修订尺寸。资料强调产品设计应进行需求、环境和风险调查，调查是设计依据。[L8]\n\n### 证据边界\n\n上述流程是基于资料的有限推导，不是 GB/T 26158 或 GB/T 3326 对儿童座椅的直接规定。当前资料无法确认儿童百分位数据、适用年龄范围、具体安全尺寸、承载要求及测试判定值，必须通过儿童人体数据、相关儿童座椅标准和样机试验补齐。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「小腿加足高」，terms 未命中；答案列举坐高/膝高/腘高/臀宽/臀—腘距，未含该项。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r04_child_chair_flow|h2",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r04_child_chair_flow",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "680~760",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "桌面高"
+            ],
+            "hits": [
+              "桌面高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具",
+        "answer": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具标准的**对照边界**，不能据此直接确定儿童尺寸。\n\n4. **形成儿童专用初始方案**  \n   依据儿童人体数据、目标姿态和安全需求，确定座高、座深、座宽、靠背角度、扶手及脚踏等尺寸。若标准与儿童人体需求冲突，应记录偏离理由；具体儿童数值当前资料无法确认。\n\n5. **样机测试与迭代**  \n   制作样机，开展实际坐姿、进出、稳定性、操作及长期使用评估，记录不同目标儿童的适配结果，再修订尺寸。资料强调产品设计应进行需求、环境和风险调查，调查是设计依据。[L8]\n\n### 证据边界\n\n上述流程是基于资料的有限推导，不是 GB/T 26158 或 GB/T 3326 对儿童座椅的直接规定。当前资料无法确认儿童百分位数据、适用年龄范围、具体安全尺寸、承载要求及测试判定值，必须通过儿童人体数据、相关儿童座椅标准和样机试验补齐。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「680~760」，terms 未命中；答案给出座高 400～440、软面座高 460、座深 340～460，从未给出该区间。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r18_height_adjustment|h1",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "再用容量公式反推有效高度",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "反推"
+            ],
+            "hits": [
+              "反推"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "- **先固定外部约束，再反推内部高度。** 500 mL 应按有效容量计算，而不是按总尺寸估算。若杯体近似圆柱，应使用内径 \\(D\\) 和有效液高 \\(h\\)：  \n  \\[\n  V=\\pi D^2h/4/1000\n  \\]\n  因此应在杯架允许的外径范围内，扣除杯壁、保温层和结构件后确定内径，再反推 ",
+        "answer": "- **先固定外部约束，再反推内部高度。** 500 mL 应按有效容量计算，而不是按总尺寸估算。若杯体近似圆柱，应使用内径 \\(D\\) 和有效液高 \\(h\\)：  \n  \\[\n  V=\\pi D^2h/4/1000\n  \\]\n  因此应在杯架允许的外径范围内，扣除杯壁、保温层和结构件后确定内径，再反推 \\(h\\)。[L7]  \n  仅凭“500 mL”和受限外径，当前资料无法确认具体总高度；还需要内径、有效液高及结构占用尺寸。\n\n- **高度调整策略。** 若反推的有效高度过大，不应无限增加杯身高度；应优先检查能否减少结构占用、优化杯型或调整杯底，并同步检查重心、倾倒风险和单手操作困难。[L7] 这里“调整杯底”的具体方向和尺寸，当前资料无法确认，需通过结构计算或样机验证。\n\n- **容量余量。** 额定容量应低于杯口溢流前的最大容量；便携、易晃动或带吸管时应预留防溢空间。余量不能直接套用固定百分比，应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n- **必须保留的风险。**  \n  1. 杯壁、保温层或结构件占用空间，导致实际有效容量不足；[L9]  \n  2. 为满足容量而增加高度，可能造成重心过高、倾倒风险增加或单手操作困难；[L7]  \n  3. 装满热水后存在烫手或重心偏移风险；[L9]  \n  4. 杯底、杯盖和防溢设计仍需通过结构计算、模具试制及产品测试验证，当前资料无法确认最终尺寸。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=πD²h/4/1000 并称「再反推 h」；契约要求逐字句「再用容量公式反推有效高度」。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r18_height_adjustment|h2",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "检查高度是否导致重心过高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "重心"
+            ],
+            "hits": [
+              "重心"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "后确定内径，再反推 \\(h\\)。[L7]  \n  仅凭“500 mL”和受限外径，当前资料无法确认具体总高度；还需要内径、有效液高及结构占用尺寸。\n\n- **高度调整策略。** 若反推的有效高度过大，不应无限增加杯身高度；应优先检查能否减少结构占用、优化杯型或调整杯底，并同步检查重心、倾倒风险和单手操作困难。[L7] 这里“调整杯底”的具体方向和尺寸，当前资料无法确认，需通过结构计算或样机验证。\n\n- **容量余量。** 额定容量应低于杯口溢流前的最大容量；便携、易晃动或带吸管时应预留防溢空间。余量不能直接套用固定百分比，应结合杯盖、倾倒姿态和测试结果确",
+        "answer": "- **先固定外部约束，再反推内部高度。** 500 mL 应按有效容量计算，而不是按总尺寸估算。若杯体近似圆柱，应使用内径 \\(D\\) 和有效液高 \\(h\\)：  \n  \\[\n  V=\\pi D^2h/4/1000\n  \\]\n  因此应在杯架允许的外径范围内，扣除杯壁、保温层和结构件后确定内径，再反推 \\(h\\)。[L7]  \n  仅凭“500 mL”和受限外径，当前资料无法确认具体总高度；还需要内径、有效液高及结构占用尺寸。\n\n- **高度调整策略。** 若反推的有效高度过大，不应无限增加杯身高度；应优先检查能否减少结构占用、优化杯型或调整杯底，并同步检查重心、倾倒风险和单手操作困难。[L7] 这里“调整杯底”的具体方向和尺寸，当前资料无法确认，需通过结构计算或样机验证。\n\n- **容量余量。** 额定容量应低于杯口溢流前的最大容量；便携、易晃动或带吸管时应预留防溢空间。余量不能直接套用固定百分比，应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n- **必须保留的风险。**  \n  1. 杯壁、保温层或结构件占用空间，导致实际有效容量不足；[L9]  \n  2. 为满足容量而增加高度，可能造成重心过高、倾倒风险增加或单手操作困难；[L7]  \n  3. 装满热水后存在烫手或重心偏移风险；[L9]  \n  4. 杯底、杯盖和防溢设计仍需通过结构计算、模具试制及产品测试验证，当前资料无法确认最终尺寸。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应检查重心是否过高」；契约要求「检查高度是否导致重心过高」。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r19_taper_capacity|h1",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，\\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)、\\(h=100\\text{ mm}\\)。代入：\n\n\\[\n",
+        "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，\\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)、\\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，该杯按锥台近似得到的**有效几何容量约为332.5 mL**。计算应使用上下端**内径**和有效液高，而不是外径和总高度。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式；应使用CAD计算内部体积，或通过实际注水测量获得容量。[L7]此外，额定容量应低于溢流前最大容量；若产品需要携带、使用吸管或容易晃动，还应预留防溢空间，具体余量需结合杯盖、倾倒姿态和测试结果确定，当前资料无法确认固定百分比。[L7]",
+        "verdict": "damaged_span",
+        "evidence_note": "答案以 LaTeX 写出同一锥台公式并算出 332.3 mL；契约跨段在规范化时被销毁（D1/D2 被当表标签删掉），任何答案都无法匹配。"
+      },
+      {
+        "key": "20260922T105901+0800_2ae25e98|evidenceall|r19_taper_capacity|h2",
+        "run_id": "20260922T105901+0800_2ae25e98",
+        "run_file": "mhreal_r1.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，该杯按锥台近似得到的**有效几何容量约为332.5 mL**。计算应使用上下端**内径**和有效液高，而不是外径和总高度。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式；应使用CAD计算内部体积，或通过实际注水测量获得容量。[L7]此外，额定容量应低于溢流前最大容量；若产品需要携带、使用吸管或容易晃动，还应预留防溢空间，具体余量需结合杯盖、倾倒姿态和测试结果确定，当前资料无法确认固定百分比。[L7]",
+        "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，\\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)、\\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，该杯按锥台近似得到的**有效几何容量约为332.5 mL**。计算应使用上下端**内径**和有效液高，而不是外径和总高度。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式；应使用CAD计算内部体积，或通过实际注水测量获得容量。[L7]此外，额定容量应低于溢流前最大容量；若产品需要携带、使用吸管或容易晃动，还应预留防溢空间，具体余量需结合杯盖、倾倒姿态和测试结果确定，当前资料无法确认固定百分比。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应优先使用 CAD 计算内部封闭空间体积，或通过实测注水体积确定容量」；契约要求原句。"
+      },
+      {
+        "key": "20260922T110801+0800_69fd6603|evidenceall|r03_office_chair_constraints|h2",
+        "run_id": "20260922T110801+0800_69fd6603",
+        "run_file": "mhreal_r2.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r03_office_chair_constraints",
+        "hop_id": "h2",
+        "from_question": "q08_hit",
+        "expected_span": "坐姿膝高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐姿膝高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+        "chunk_in_pack": true,
+        "evidence_count": 20,
+        "answer_excerpt": "- **座高**：GB/T 3326—2016可直接约束。表2规定座高 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2]  \n- **座深**：资料中“靠背椅”规定座深 **340～460 mm**。[L1] 但当前证据未明确“办公椅”是否直接按该类别执行，因此其适用性需确认。  \n- **扶手高**：当前资料未出现GB/T 3326—2016的扶手高度数值，**无法确认可直接约束的具体范围**。\n\nGB/T 10000—2023提供的是人体尺寸统计数据，适用于技术设计和工效学评价，并非椅子尺寸限值。[L13] ",
+        "answer": "- **座高**：GB/T 3326—2016可直接约束。表2规定座高 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2]  \n- **座深**：资料中“靠背椅”规定座深 **340～460 mm**。[L1] 但当前证据未明确“办公椅”是否直接按该类别执行，因此其适用性需确认。  \n- **扶手高**：当前资料未出现GB/T 3326—2016的扶手高度数值，**无法确认可直接约束的具体范围**。\n\nGB/T 10000—2023提供的是人体尺寸统计数据，适用于技术设计和工效学评价，并非椅子尺寸限值。[L13] 因此可用于校核：\n\n- **座高**：对照目标人群的坐姿腘高；\n- **座深**：对照坐姿臀—腘距；\n- **扶手高**：对照坐姿肘高。\n\n上述对应关系属于基于人体尺寸项目名称的有限设计推导，不是证据原文的直接规定；具体采用哪个年龄、性别和百分位，当前资料无法确认，应结合目标人群及实测验证。GB/T 10000—2023确实列出了坐姿腘高、坐姿臀—腘距和坐姿肘高等项目。[L6][L10][L14][L16]",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「坐姿膝高」，terms 未命中（hits=[]）；答案讨论座高/座深/扶手高，从未提及坐姿膝高。"
+      },
+      {
+        "key": "20260922T110801+0800_69fd6603|evidenceall|r17_cylinder_capacity|h1",
+        "run_id": "20260922T110801+0800_69fd6603",
+        "run_file": "mhreal_r2.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "内径"
+            ],
+            "hits": [
+              "内径"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "有效液高"
+            ],
+            "hits": [
+              "有效液高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "按直筒杯公式：\n\n\\[\nV=\\pi \\times 65^2 \\times 120 \\div 4 \\div 1000\n\\]\n\n计算得：\n\n\\[\nV\\approx398.2\\text{ mL}\n\\]\n\n因此，内径 65 mm、有效液高 120 mm 时，估算的理想有效容量约为 **398 mL**。该公式要求使用内径和有效液高，不能用外径或总高度替代。[L7]\n\n但 **398 mL 不能直接作为额定容量**，因为额定容量应低于杯口溢流前的最大容量；同时，易晃动、带吸管或需要携带时，",
+        "answer": "按直筒杯公式：\n\n\\[\nV=\\pi \\times 65^2 \\times 120 \\div 4 \\div 1000\n\\]\n\n计算得：\n\n\\[\nV\\approx398.2\\text{ mL}\n\\]\n\n因此，内径 65 mm、有效液高 120 mm 时，估算的理想有效容量约为 **398 mL**。该公式要求使用内径和有效液高，不能用外径或总高度替代。[L7]\n\n但 **398 mL 不能直接作为额定容量**，因为额定容量应低于杯口溢流前的最大容量；同时，易晃动、带吸管或需要携带时，还应预留防溢空间。[L7] 具体余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=π×65²×120÷4÷1000≈398.2 mL，即公式代入数值的形式，并说明用的是内径与有效液高；契约要的是符号形式，故判否。"
+      },
+      {
+        "key": "20260922T110801+0800_69fd6603|evidenceall|r18_height_adjustment|h1",
+        "run_id": "20260922T110801+0800_69fd6603",
+        "run_file": "mhreal_r2.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "再用容量公式反推有效高度",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "反推"
+            ],
+            "hits": [
+              "反推"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "- **先明确 500 mL 的定义**：需区分额定容量、最大装液量和防溢余量；若 500 mL 是额定容量，杯口溢流前的最大容量应高于此值，并结合杯盖、倾倒姿态和测试结果确定余量，不能直接套固定百分比。[L7]\n\n- **外径受限时用内径反推高度**：若杯体近似直筒，应使用**内径** \\(d\\) 和有效液高 \\(h\\)，而不是外径和总高度：\n  \\[\n  V=\\pi d^2h/4/1000\n  \\]\n  对 500 mL 有效容量，理论有效液高为：\n  \\[\n  h=2{,}000{,}000/(\\pi d^2",
+        "answer": "- **先明确 500 mL 的定义**：需区分额定容量、最大装液量和防溢余量；若 500 mL 是额定容量，杯口溢流前的最大容量应高于此值，并结合杯盖、倾倒姿态和测试结果确定余量，不能直接套固定百分比。[L7]\n\n- **外径受限时用内径反推高度**：若杯体近似直筒，应使用**内径** \\(d\\) 和有效液高 \\(h\\)，而不是外径和总高度：\n  \\[\n  V=\\pi d^2h/4/1000\n  \\]\n  对 500 mL 有效容量，理论有效液高为：\n  \\[\n  h=2{,}000{,}000/(\\pi d^2)\\text{ mm}\n  \\]\n  其中 \\(d\\) 必须是杯内径；杯壁、保温层和结构件会减少有效容量。[L7][L9]\n\n- **高度调整策略**：在杯架限制下不能增大外径时，可先按内径计算所需有效液高，再确定总高度，并检查是否因高度增加导致重心过高、倾倒风险增加或单手操作困难。[L7]若高度过大，资料建议优先考虑扩大握持区域或调整杯底，而不是无限增加高度；但“杯底”具体应增加、减少或改变何种结构，当前资料无法确认，需通过结构计算和样机验证。[L7]\n\n- **应保留的风险**：杯壁或保温层造成容量不足、为满足容量导致直径或高度过大、装满后重心偏移或倾倒、单手握持困难、携带时晃动溢出，以及热水状态下烫手风险。[L9]最终杯径、总高度、握持区长度、重心位置和满杯重量不能仅凭公式确定，应结合握持实验、目标人群数据和产品测试确认。[L9]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=πD²h/4/1000 并称「再反推 h」；契约要求逐字句「再用容量公式反推有效高度」。"
+      },
+      {
+        "key": "20260922T110801+0800_69fd6603|evidenceall|r18_height_adjustment|h2",
+        "run_id": "20260922T110801+0800_69fd6603",
+        "run_file": "mhreal_r2.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "检查高度是否导致重心过高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "重心"
+            ],
+            "hits": [
+              "重心"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "00{,}000/(\\pi d^2)\\text{ mm}\n  \\]\n  其中 \\(d\\) 必须是杯内径；杯壁、保温层和结构件会减少有效容量。[L7][L9]\n\n- **高度调整策略**：在杯架限制下不能增大外径时，可先按内径计算所需有效液高，再确定总高度，并检查是否因高度增加导致重心过高、倾倒风险增加或单手操作困难。[L7]若高度过大，资料建议优先考虑扩大握持区域或调整杯底，而不是无限增加高度；但“杯底”具体应增加、减少或改变何种结构，当前资料无法确认，需通过结构计算和样机验证。[L7]\n\n- **应保留的风险**：杯壁或保温层造成容量不足、为满足容量导",
+        "answer": "- **先明确 500 mL 的定义**：需区分额定容量、最大装液量和防溢余量；若 500 mL 是额定容量，杯口溢流前的最大容量应高于此值，并结合杯盖、倾倒姿态和测试结果确定余量，不能直接套固定百分比。[L7]\n\n- **外径受限时用内径反推高度**：若杯体近似直筒，应使用**内径** \\(d\\) 和有效液高 \\(h\\)，而不是外径和总高度：\n  \\[\n  V=\\pi d^2h/4/1000\n  \\]\n  对 500 mL 有效容量，理论有效液高为：\n  \\[\n  h=2{,}000{,}000/(\\pi d^2)\\text{ mm}\n  \\]\n  其中 \\(d\\) 必须是杯内径；杯壁、保温层和结构件会减少有效容量。[L7][L9]\n\n- **高度调整策略**：在杯架限制下不能增大外径时，可先按内径计算所需有效液高，再确定总高度，并检查是否因高度增加导致重心过高、倾倒风险增加或单手操作困难。[L7]若高度过大，资料建议优先考虑扩大握持区域或调整杯底，而不是无限增加高度；但“杯底”具体应增加、减少或改变何种结构，当前资料无法确认，需通过结构计算和样机验证。[L7]\n\n- **应保留的风险**：杯壁或保温层造成容量不足、为满足容量导致直径或高度过大、装满后重心偏移或倾倒、单手握持困难、携带时晃动溢出，以及热水状态下烫手风险。[L9]最终杯径、总高度、握持区长度、重心位置和满杯重量不能仅凭公式确定，应结合握持实验、目标人群数据和产品测试确认。[L9]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应检查重心是否过高」；契约要求「检查高度是否导致重心过高」。"
+      },
+      {
+        "key": "20260922T110801+0800_69fd6603|evidenceall|r19_taper_capacity|h1",
+        "run_id": "20260922T110801+0800_69fd6603",
+        "run_file": "mhreal_r2.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "- 对于近似锥台的杯体，使用内径和有效液高计算：  \n  \\[\n  V=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\,000}\n  \\]\n  其中尺寸单位为 mm，结果单位为 mL。[L7]\n\n- 代入 \\(D_1=70\\) mm、\\(D_2=60\\) mm、\\(",
+        "answer": "- 对于近似锥台的杯体，使用内径和有效液高计算：  \n  \\[\n  V=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\,000}\n  \\]\n  其中尺寸单位为 mm，结果单位为 mL。[L7]\n\n- 代入 \\(D_1=70\\) mm、\\(D_2=60\\) mm、\\(h=100\\) mm：  \n  \\[\n  V=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\,000}\n  \\]\n  \\[\n  =\\frac{\\pi\\times100\\times12\\,700}{12\\,000}\n  \\approx332.5\\text{ mL}\n  \\]\n\n因此，按锥台近似得到的理论有效容量约为 **332.5 mL**。这是基于内径和有效液高的几何计算值，不等同于最终标称容量。\n\n- 若杯体为复杂曲面，不能直接套用锥台公式；应使用 **CAD 体积计算**或通过**实测注水体积**确定容量。[L7]\n- 若还要确定额定容量，应低于杯口溢流前的最大容量；防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+        "verdict": "damaged_span",
+        "evidence_note": "答案以 LaTeX 写出同一锥台公式并算出 332.3 mL；契约跨段在规范化时被销毁（D1/D2 被当表标签删掉），任何答案都无法匹配。"
+      },
+      {
+        "key": "20260922T110801+0800_69fd6603|evidenceall|r19_taper_capacity|h2",
+        "run_id": "20260922T110801+0800_69fd6603",
+        "run_file": "mhreal_r2.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "ac{\\pi\\times100\\times12\\,700}{12\\,000}\n  \\approx332.5\\text{ mL}\n  \\]\n\n因此，按锥台近似得到的理论有效容量约为 **332.5 mL**。这是基于内径和有效液高的几何计算值，不等同于最终标称容量。\n\n- 若杯体为复杂曲面，不能直接套用锥台公式；应使用 **CAD 体积计算**或通过**实测注水体积**确定容量。[L7]\n- 若还要确定额定容量，应低于杯口溢流前的最大容量；防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+        "answer": "- 对于近似锥台的杯体，使用内径和有效液高计算：  \n  \\[\n  V=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\,000}\n  \\]\n  其中尺寸单位为 mm，结果单位为 mL。[L7]\n\n- 代入 \\(D_1=70\\) mm、\\(D_2=60\\) mm、\\(h=100\\) mm：  \n  \\[\n  V=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\,000}\n  \\]\n  \\[\n  =\\frac{\\pi\\times100\\times12\\,700}{12\\,000}\n  \\approx332.5\\text{ mL}\n  \\]\n\n因此，按锥台近似得到的理论有效容量约为 **332.5 mL**。这是基于内径和有效液高的几何计算值，不等同于最终标称容量。\n\n- 若杯体为复杂曲面，不能直接套用锥台公式；应使用 **CAD 体积计算**或通过**实测注水体积**确定容量。[L7]\n- 若还要确定额定容量，应低于杯口溢流前的最大容量；防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应优先使用 CAD 计算内部封闭空间体积，或通过实测注水体积确定容量」；契约要求原句。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r03_office_chair_constraints|h2",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r03_office_chair_constraints",
+        "hop_id": "h2",
+        "from_question": "q08_hit",
+        "expected_span": "坐姿膝高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐姿膝高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+        "chunk_in_pack": true,
+        "evidence_count": 20,
+        "answer_excerpt": "| 参数 | GB/T 3326—2016可直接约束的内容 | GB/T 10000—2023需校核的内容 |\n|---|---|---|\n| **座高** | 对资料所示椅类，座高为 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2] | 需结合目标人群的**坐姿腘高（小腿加足高）**校核，判断座面是否适合起坐及腿部支撑。GB/T 10000—2023提供分年龄、分百分位的人体尺寸数据，并明确用于消费用品和家居等设计。[L4][L12][L13] |\n| **座深** | “靠背椅”座深为 **340～460 m",
+        "answer": "| 参数 | GB/T 3326—2016可直接约束的内容 | GB/T 10000—2023需校核的内容 |\n|---|---|---|\n| **座高** | 对资料所示椅类，座高为 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2] | 需结合目标人群的**坐姿腘高（小腿加足高）**校核，判断座面是否适合起坐及腿部支撑。GB/T 10000—2023提供分年龄、分百分位的人体尺寸数据，并明确用于消费用品和家居等设计。[L4][L12][L13] |\n| **座深** | “靠背椅”座深为 **340～460 mm**；但该条款明确对应靠背椅，办公椅具体分类的适用性需确认。[L1] | 需用目标人群的**坐姿臀—腘距**校核，避免座面过深影响靠背接触或过浅导致大腿支撑不足。该人体尺寸项目及分位数据在标准中列出。[L6][L10][L14] |\n| **扶手高** | 当前资料仅显示GB/T 3326—2016的扶手椅尺寸表目录，未提供扶手高具体数值，因此**当前资料无法确认其直接限值**。[L2] | 应用**坐姿肘高**及目标人群百分位数据进行校核；GB/T 10000—2023将坐姿肘高列为坐姿测量项目。[L6][L10][L14] |\n\n**结论：**GB/T 3326—2016可直接提供座高范围，并在资料所示“靠背椅”范围内提供座深范围；扶手高的直接限值当前无法确认。三项尺寸仍应依据目标年龄、性别和百分位，用GB/T 10000—2023的人体尺寸进行适配校核，而不能仅凭家具标准限值确定。百分位选择和最终尺寸还需要目标用户及验证数据，当前资料无法确认具体采用哪个百分位。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「坐姿膝高」，terms 未命中（hits=[]）；答案讨论座高/座深/扶手高，从未提及坐姿膝高。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r04_child_chair_flow|h1",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r04_child_chair_flow",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "小腿加足高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "小腿加足高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "可采用以下“人体数据—标准对照—样机验证”流程：\n\n1. **定义目标人群与场景**  \n   明确年龄/身高范围、穿衣状态、坐姿、使用时长、是否需要扶手或安全约束，并开展需求、环境和风险调查；儿童产品具有特殊要求，不能仅按成人需求处理。[L5][L8]\n\n2. **建立儿童人体尺寸输入**  \n   从 GB/T 26158—2010 确认测量项目及定义，例如坐高、膝高、腘高、臀宽、臀—腘距等。[L3]该标准摘录中的人体数据可作为数据结构参考，但当前资料未明确给出儿童分组及对应百分位数据，因此**不能据此直接形成儿童座椅尺寸**。[L4]\n\n3. **",
+        "answer": "可采用以下“人体数据—标准对照—样机验证”流程：\n\n1. **定义目标人群与场景**  \n   明确年龄/身高范围、穿衣状态、坐姿、使用时长、是否需要扶手或安全约束，并开展需求、环境和风险调查；儿童产品具有特殊要求，不能仅按成人需求处理。[L5][L8]\n\n2. **建立儿童人体尺寸输入**  \n   从 GB/T 26158—2010 确认测量项目及定义，例如坐高、膝高、腘高、臀宽、臀—腘距等。[L3]该标准摘录中的人体数据可作为数据结构参考，但当前资料未明确给出儿童分组及对应百分位数据，因此**不能据此直接形成儿童座椅尺寸**。[L4]\n\n3. **形成尺寸候选区间**  \n   按目标儿童群体的百分位数据，将腘高、臀—腘距、臀宽等转换为座高、座深、座宽等候选值；这种尺寸映射属于有限工程推导，不是当前资料原文，必须通过适配性试验确认。GB/T 3326—2016中的桌椅高度、座高、净空、座深、靠背角度等，可作为家具尺寸和表达方式的对照基线。[L1][L2]但当前资料无法确认其是否适用于儿童座椅，不能直接套用其中数值。\n\n4. **样机验证与迭代**  \n   制作覆盖目标儿童小、中、大体型的样机，验证坐姿保持、足部支撑、进出座便利性、活动空间、稳定性及长时间舒适性；依据测试结果回调尺寸，并记录每项尺寸的“人体数据—推导—测试结论”。当前资料未提供具体儿童座椅测试方法、合格阈值或安全结构指标，需另行补充标准或制定测试方案。\n\n**证据边界：**现有资料能支持测量项目、成人家具标准尺寸及“儿童需特殊考虑”的原则；无法确认儿童座椅的最终尺寸、适用百分位、测试阈值和安全要求。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「小腿加足高」，terms 未命中；答案列举坐高/膝高/腘高/臀宽/臀—腘距，未含该项。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r04_child_chair_flow|h2",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r04_child_chair_flow",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "680~760",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "桌面高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "可采用以下“人体数据—标准对照—样机验证”流程：\n\n1. **定义目标人群与场景**  \n   明确年龄/身高范围、穿衣状态、坐姿、使用时长、是否需要扶手或安全约束，并开展需求、环境和风险调查；儿童产品具有特殊要求，不能仅按成人需求处理。[L5][L8]\n\n2. **建立儿童人体尺寸输入**  \n   从 GB/T 26158—2010 确认测量项目及定义，例如坐高、膝高、腘高、臀宽、臀—腘距等。[L3]该标准摘录中的人体数据可作为数据结构参考，但当前资料未明确给出儿童分组及对应百分位数据，因此**不能据此直接形成儿童座椅尺寸**。[L4]\n\n3. **",
+        "answer": "可采用以下“人体数据—标准对照—样机验证”流程：\n\n1. **定义目标人群与场景**  \n   明确年龄/身高范围、穿衣状态、坐姿、使用时长、是否需要扶手或安全约束，并开展需求、环境和风险调查；儿童产品具有特殊要求，不能仅按成人需求处理。[L5][L8]\n\n2. **建立儿童人体尺寸输入**  \n   从 GB/T 26158—2010 确认测量项目及定义，例如坐高、膝高、腘高、臀宽、臀—腘距等。[L3]该标准摘录中的人体数据可作为数据结构参考，但当前资料未明确给出儿童分组及对应百分位数据，因此**不能据此直接形成儿童座椅尺寸**。[L4]\n\n3. **形成尺寸候选区间**  \n   按目标儿童群体的百分位数据，将腘高、臀—腘距、臀宽等转换为座高、座深、座宽等候选值；这种尺寸映射属于有限工程推导，不是当前资料原文，必须通过适配性试验确认。GB/T 3326—2016中的桌椅高度、座高、净空、座深、靠背角度等，可作为家具尺寸和表达方式的对照基线。[L1][L2]但当前资料无法确认其是否适用于儿童座椅，不能直接套用其中数值。\n\n4. **样机验证与迭代**  \n   制作覆盖目标儿童小、中、大体型的样机，验证坐姿保持、足部支撑、进出座便利性、活动空间、稳定性及长时间舒适性；依据测试结果回调尺寸，并记录每项尺寸的“人体数据—推导—测试结论”。当前资料未提供具体儿童座椅测试方法、合格阈值或安全结构指标，需另行补充标准或制定测试方案。\n\n**证据边界：**现有资料能支持测量项目、成人家具标准尺寸及“儿童需特殊考虑”的原则；无法确认儿童座椅的最终尺寸、适用百分位、测试阈值和安全要求。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「680~760」，terms 未命中；答案给出座高 400～440、软面座高 460、座深 340～460，从未给出该区间。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r17_cylinder_capacity|h1",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r17_cylinder_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "内径"
+            ],
+            "hits": [
+              "内径"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "有效液高"
+            ],
+            "hits": [
+              "有效液高"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "按知识库直筒杯公式：\n\n\\[\nV=\\pi \\times 65^2 \\times 120 \\div 4 \\div 1000\n\\approx 398.2\\text{ mL}\n\\]\n\n因此，估算的理想有效容量约为 **398 mL**。该计算使用的是内径和有效液高，而不是外径和总高度。[L7]\n\n但它不能直接作为额定容量：该结果是近似圆柱体的理论有效容量；额定容量应低于杯口溢流前的最大容量，并需考虑防溢空间。对于易晃动、带吸管或需要携带的产品，还应结合杯盖结构、倾倒姿态和测试结果确定余量；资料明确不建议直接套用固定百分比。[",
+        "answer": "按知识库直筒杯公式：\n\n\\[\nV=\\pi \\times 65^2 \\times 120 \\div 4 \\div 1000\n\\approx 398.2\\text{ mL}\n\\]\n\n因此，估算的理想有效容量约为 **398 mL**。该计算使用的是内径和有效液高，而不是外径和总高度。[L7]\n\n但它不能直接作为额定容量：该结果是近似圆柱体的理论有效容量；额定容量应低于杯口溢流前的最大容量，并需考虑防溢空间。对于易晃动、带吸管或需要携带的产品，还应结合杯盖结构、倾倒姿态和测试结果确定余量；资料明确不建议直接套用固定百分比。[L7]\n\n因此，**398 mL 只能作为初始设计估算值，最终额定容量当前资料无法确认**，还需通过结构和实测验证。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=π×65²×120÷4÷1000≈398.2 mL，即公式代入数值的形式，并说明用的是内径与有效液高；契约要的是符号形式，故判否。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r18_height_adjustment|h1",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "再用容量公式反推有效高度",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "反推"
+            ],
+            "hits": [
+              "反推"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "设计思路可按以下顺序进行：\n\n- **先用有效内径而不是外径计算。** 直筒杯的有效容量为  \n  `V=π×内径²×有效液高/4/1000`，因此 500 mL 目标下，可依据实际内径反推有效液高；这是由资料公式进行的有限推导，不等于最终总高度。[L7]  \n  杯壁、保温层和结构件会占用空间，必须检查有效容量是否仍达到 500 mL。[L9]\n\n- **外径受杯架限制时，优先在内部和杯型上优化。** 可检查是否能减少结构占用、调整杯型，或在必要时降低目标容量",
+        "answer": "设计思路可按以下顺序进行：\n\n- **先用有效内径而不是外径计算。** 直筒杯的有效容量为  \n  `V=π×内径²×有效液高/4/1000`，因此 500 mL 目标下，可依据实际内径反推有效液高；这是由资料公式进行的有限推导，不等于最终总高度。[L7]  \n  杯壁、保温层和结构件会占用空间，必须检查有效容量是否仍达到 500 mL。[L9]\n\n- **外径受杯架限制时，优先在内部和杯型上优化。** 可检查是否能减少结构占用、调整杯型，或在必要时降低目标容量；但本题目标为 500 mL，若仍需保持该容量，则应通过内径、有效液高和内部结构的组合重新分配，而不能直接把外径代入容量公式。[L7]\n\n- **高度调整要受重心和操作约束。** 若反推得到的有效液高使总高度过大，应检查重心是否过高、倾倒风险是否增加以及单手操作是否困难；资料建议优先调整杯底或握持区域，而不是无限增加高度。[L7] 资料没有规定杯底应具体增高、加重或扩大，因此具体方向当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n- **必须保留的风险**：防溢空间不足，尤其是携带、晃动或带吸管时；装满热水后烫手；满杯重量或重心偏移导致操作困难；杯壁、保温层导致容量不足；以及因追求容量造成直径或高度不适宜。[L7][L9] 500 mL 对应的具体内径、有效液高、总高度和杯底尺寸，当前资料无法确认。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写出 V=πD²h/4/1000 并称「再反推 h」；契约要求逐字句「再用容量公式反推有效高度」。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r18_height_adjustment|h2",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r18_height_adjustment",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "检查高度是否导致重心过高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "重心"
+            ],
+            "hits": [
+              "重心"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "9]\n\n- **外径受杯架限制时，优先在内部和杯型上优化。** 可检查是否能减少结构占用、调整杯型，或在必要时降低目标容量；但本题目标为 500 mL，若仍需保持该容量，则应通过内径、有效液高和内部结构的组合重新分配，而不能直接把外径代入容量公式。[L7]\n\n- **高度调整要受重心和操作约束。** 若反推得到的有效液高使总高度过大，应检查重心是否过高、倾倒风险是否增加以及单手操作是否困难；资料建议优先调整杯底或握持区域，而不是无限增加高度。[L7] 资料没有规定杯底应具体增高、加重或扩大，因此具体方向当前资料无法确认，需通过结构计算、试制和测试确定。[",
+        "answer": "设计思路可按以下顺序进行：\n\n- **先用有效内径而不是外径计算。** 直筒杯的有效容量为  \n  `V=π×内径²×有效液高/4/1000`，因此 500 mL 目标下，可依据实际内径反推有效液高；这是由资料公式进行的有限推导，不等于最终总高度。[L7]  \n  杯壁、保温层和结构件会占用空间，必须检查有效容量是否仍达到 500 mL。[L9]\n\n- **外径受杯架限制时，优先在内部和杯型上优化。** 可检查是否能减少结构占用、调整杯型，或在必要时降低目标容量；但本题目标为 500 mL，若仍需保持该容量，则应通过内径、有效液高和内部结构的组合重新分配，而不能直接把外径代入容量公式。[L7]\n\n- **高度调整要受重心和操作约束。** 若反推得到的有效液高使总高度过大，应检查重心是否过高、倾倒风险是否增加以及单手操作是否困难；资料建议优先调整杯底或握持区域，而不是无限增加高度。[L7] 资料没有规定杯底应具体增高、加重或扩大，因此具体方向当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n- **必须保留的风险**：防溢空间不足，尤其是携带、晃动或带吸管时；装满热水后烫手；满杯重量或重心偏移导致操作困难；杯壁、保温层导致容量不足；以及因追求容量造成直径或高度不适宜。[L7][L9] 500 mL 对应的具体内径、有效液高、总高度和杯底尺寸，当前资料无法确认。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应检查重心是否过高」；契约要求「检查高度是否导致重心过高」。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r19_taper_capacity|h1",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h1",
+        "from_question": "q17_ambiguous",
+        "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "锥台"
+            ],
+            "hits": [
+              "锥台"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端内径 \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}",
+        "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端内径 \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.3\\text{ mL}\n\\]\n\n因此，按规则推导的最大有效液体体积约为 **332 mL**。这是基于锥台几何近似的计算结果，实际额定容量还应低于杯口溢流前的最大容量，并结合杯盖、防溢空间和测试结果确定；资料没有给出统一的固定余量比例。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式。应优先使用 **CAD 计算内部封闭空间体积**，或通过**实测注水体积**确定容量；若仅能分段近似，可将杯体分成多个简单几何段分别计算后求和，但这种方法属于近似推导，精度需要进一步验证。[L7]",
+        "verdict": "damaged_span",
+        "evidence_note": "答案以 LaTeX 写出同一锥台公式并算出 332.3 mL；契约跨段在规范化时被销毁（D1/D2 被当表标签删掉），任何答案都无法匹配。"
+      },
+      {
+        "key": "20260922T111756+0800_a1aa342c|evidenceall|r19_taper_capacity|h2",
+        "run_id": "20260922T111756+0800_a1aa342c",
+        "run_file": "mhreal_r3.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "r19_taper_capacity",
+        "hop_id": "h2",
+        "from_question": "q17_ambiguous",
+        "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "复杂曲面"
+            ],
+            "hits": [
+              "复杂曲面"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+        "chunk_in_pack": true,
+        "evidence_count": 10,
+        "answer_excerpt": "\\approx332.3\\text{ mL}\n\\]\n\n因此，按规则推导的最大有效液体体积约为 **332 mL**。这是基于锥台几何近似的计算结果，实际额定容量还应低于杯口溢流前的最大容量，并结合杯盖、防溢空间和测试结果确定；资料没有给出统一的固定余量比例。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式。应优先使用 **CAD 计算内部封闭空间体积**，或通过**实测注水体积**确定容量；若仅能分段近似，可将杯体分成多个简单几何段分别计算后求和，但这种方法属于近似推导，精度需要进一步验证。[L7]",
+        "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端内径 \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.3\\text{ mL}\n\\]\n\n因此，按规则推导的最大有效液体体积约为 **332 mL**。这是基于锥台几何近似的计算结果，实际额定容量还应低于杯口溢流前的最大容量，并结合杯盖、防溢空间和测试结果确定；资料没有给出统一的固定余量比例。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式。应优先使用 **CAD 计算内部封闭空间体积**，或通过**实测注水体积**确定容量；若仅能分段近似，可将杯体分成多个简单几何段分别计算后求和，但这种方法属于近似推导，精度需要进一步验证。[L7]",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「应优先使用 CAD 计算内部封闭空间体积，或通过实测注水体积确定容量」；契约要求原句。"
+      }
+    ]
+  },
+  "synthetic": {
+    "runs": [
+      {
+        "arm": "evidence5",
+        "path": "data/runs/mh_g1_evidence5.json"
+      },
+      {
+        "arm": "evidenceall",
+        "path": "data/runs/mh_g2_evidenceall.json"
+      }
+    ],
+    "snapshot": "data\\frozen_multihop_cases.jsonl",
+    "totals": {
+      "audited_failures": 11,
+      "verdict_counts": {
+        "correct_paraphrase": 2,
+        "correct_refusal": 6,
+        "incorrect": 3
+      },
+      "credited_by_audit": 2,
+      "unmeasurable_refusals": 6,
+      "incorrect": 3
+    },
+    "observations": [
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh01_child_desk_height|h3",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh01_child_desk_height",
+        "hop_id": "h3",
+        "from_question": "q06_hit",
+        "expected_span": "4岁~17岁",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "未成年人"
+            ],
+            "hits": [],
+            "matched": false
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "4岁~17岁",
+              "4岁至17岁"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "设计儿童学习桌时，不宜直接套用成人桌高，而应先依据儿童人体尺寸确定座高，再按桌椅配合关系确定桌面高。\n\n- **标准约束**：GB/T 3326—2016规定，桌面高 \\(H\\) 为680～760 mm，座高 \\(H1\\) 为400～440 mm，桌面与座面配合高差 \\(H-H1\\) 为250～320 mm；中间净空高 \\(H3\\) 应不小于580 mm，且 \\(H3-H1\\) 应不小于200 mm。[L1]\n- **儿童人体尺寸依据**：GB/T 26158—2010的相关数据列出了坐高、膝高、小腿加足高（腘高）等坐姿尺寸；其中一组数据的腘高为333～",
+        "answer": "设计儿童学习桌时，不宜直接套用成人桌高，而应先依据儿童人体尺寸确定座高，再按桌椅配合关系确定桌面高。\n\n- **标准约束**：GB/T 3326—2016规定，桌面高 \\(H\\) 为680～760 mm，座高 \\(H1\\) 为400～440 mm，桌面与座面配合高差 \\(H-H1\\) 为250～320 mm；中间净空高 \\(H3\\) 应不小于580 mm，且 \\(H3-H1\\) 应不小于200 mm。[L1]\n- **儿童人体尺寸依据**：GB/T 26158—2010的相关数据列出了坐高、膝高、小腿加足高（腘高）等坐姿尺寸；其中一组数据的腘高为333～429 mm、膝高为418～519 mm，另一组腘高为353～479 mm、膝高为448～566 mm。[L3][L4]但当前资料未显示这些数据对应的具体年龄、性别及百分位，因此不能据此确认某一儿童群体的最终桌高。\n- **取值方法**：有限推导而言，可先用目标儿童的“小腿加足高（腘高）”确定座高，再使桌面高与座高保持250～320 mm的配合高差，并校核膝部净空不低于上述要求。也就是说，桌面高应按“儿童座高＋合适配合高差”确定，而不是单独选定一个固定高度。\n- **最终值**：若产品面向不同年龄段儿童，当前资料不足以给出一个可靠的统一桌面高度；应补充相应儿童年龄组、性别和百分位数据后确定。若有特殊要求或合同要求，相关尺寸可由供需双方明示，不受表中范围限制。[L1]",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh02_seat_height_vs_sitting_height|h3",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh02_seat_height_vs_sitting_height",
+        "hop_id": "h3",
+        "from_question": "q06_hit",
+        "expected_span": "4岁~17岁",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "未成年人"
+            ],
+            "hits": [],
+            "matched": false
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "4岁~17岁",
+              "4岁至17岁"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "- **座高（GB/T 3326—2016）**：家具尺寸，指“座面中轴线前部最高点至地面”的距离，即从地面量到座面的设计高度。[L2] 标准规定座高一般为 **400～440 mm**；软面座椅的最大座高为 **460 mm（包括下沉量）**。[L1]\n\n- **坐高（GB/T 26158—2010）**：人体测量项目，资料中以“坐高”列出不同测量数据，例如第27页数据为 **758～924 mm**，第17页数据为 **817～989 mm**。[L3][L4] 提供的摘录未给出“坐高”的完整测量定义，因此其具体测量基准和适用人群，当前资料无法确认。",
+        "answer": "- **座高（GB/T 3326—2016）**：家具尺寸，指“座面中轴线前部最高点至地面”的距离，即从地面量到座面的设计高度。[L2] 标准规定座高一般为 **400～440 mm**；软面座椅的最大座高为 **460 mm（包括下沉量）**。[L1]\n\n- **坐高（GB/T 26158—2010）**：人体测量项目，资料中以“坐高”列出不同测量数据，例如第27页数据为 **758～924 mm**，第17页数据为 **817～989 mm**。[L3][L4] 提供的摘录未给出“坐高”的完整测量定义，因此其具体测量基准和适用人群，当前资料无法确认。GB/T 10000—2023也将坐高列为“坐姿测量项目”，并按百分位数提供数据。[L5]\n\n**含义差异**：座高是“家具从地面到座面的产品尺寸”；坐高是“人体坐姿状态下的测量项目”。二者名称相近、单位同为毫米，但不是同一尺寸，不能直接相等或直接替代。上述区分是依据资料中“座高”的家具定义及“坐高”的人体测量分类作出的有限推导，并非资料原文的比较结论。[L2][L5]\n\n**设计配合**：应以GB/T 26158—2010或GB/T 10000—2023的人体坐姿数据作为人体适配参考，再依据GB/T 3326—2016确定座高，并同时校核桌面高、座面配合高差和中间净空等尺寸；该标准给出了桌面高 **680～760 mm**、桌面与座面配合高差 **250～320 mm** 等要求。[L1] 但现有资料未提供由坐高百分位直接换算座高的公式，因此具体人群、姿势和产品用途下的座高值，当前资料无法进一步确认。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh03_adult_vs_minor_population|h1",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh03_adult_vs_minor_population",
+        "hop_id": "h1",
+        "from_question": "q08_hit",
+        "expected_span": "成年人人体尺寸",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "成年人"
+            ],
+            "hits": [
+              "成年人"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
+        "chunk_in_pack": true,
+        "evidence_count": 5,
+        "answer_excerpt": "- **GB/T 10000—2023**覆盖我国成年人，按 **18～25岁、26～35岁、36～60岁、61～70岁**分组，提供静态人体尺寸及工作空间设计所需的人体功能尺寸统计值。[L2][L3] 该标准明确适用于家居等产品、设施设计及工效学评价。[L3]\n- **GB/T 26158—2010**覆盖的具体人群，当前资料",
+        "answer": "- **GB/T 10000—2023**覆盖我国成年人，按 **18～25岁、26～35岁、36～60岁、61～70岁**分组，提供静态人体尺寸及工作空间设计所需的人体功能尺寸统计值。[L2][L3] 该标准明确适用于家居等产品、设施设计及工效学评价。[L3]\n- **GB/T 26158—2010**覆盖的具体人群，当前资料未提供，无法确认。\n\n在家具尺寸设计中：\n\n- 若目标用户为上述年龄范围内的中国成年人，需要确定座高、坐深、宽度、净空或操作空间等人体尺度，可使用GB/T 10000—2023提供的人体尺寸数据；具体百分位数的选取还应结合其规范性引用的GB/T 12985。[L3]\n- 若目标人群属于GB/T 26158—2010规定的群体，理论上应按该标准选用；但这是有限推导，并非当前资料原文。由于缺少GB/T 26158—2010的范围与适用对象证据，无法据此给出两份标准的明确分界或替代关系。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「GB/T 10000—2023 覆盖我国成年人…提供静态人体尺寸」，即契约名词短语「成年人人体尺寸」的展开形式。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh03_adult_vs_minor_population|h2",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh03_adult_vs_minor_population",
+        "hop_id": "h2",
+        "from_question": "q06_hit",
+        "expected_span": "4岁~17岁",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "未成年人"
+            ],
+            "hits": [],
+            "matched": false
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "4岁~17岁",
+              "4岁至17岁"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "- **GB/T 10000—2023**覆盖我国成年人，按 **18～25岁、26～35岁、36～60岁、61～70岁**分组，提供静态人体尺寸及工作空间设计所需的人体功能尺寸统计值。[L2][L3] 该标准明确适用于家居等产品、设施设计及工效学评价。[L3]\n- **GB/T 26158—2010**覆盖的具体人群，当前资料未提供，无法确认。\n\n在家具尺寸设计中：\n\n- 若目标用户为上述年龄范围内的中国成年人，需要确定座高、坐深、宽度、净空或操作空间等人体尺度，可使用GB/T 10000—2023提供的人体尺寸数据；具体百分位数的选取还应结合其规范性",
+        "answer": "- **GB/T 10000—2023**覆盖我国成年人，按 **18～25岁、26～35岁、36～60岁、61～70岁**分组，提供静态人体尺寸及工作空间设计所需的人体功能尺寸统计值。[L2][L3] 该标准明确适用于家居等产品、设施设计及工效学评价。[L3]\n- **GB/T 26158—2010**覆盖的具体人群，当前资料未提供，无法确认。\n\n在家具尺寸设计中：\n\n- 若目标用户为上述年龄范围内的中国成年人，需要确定座高、坐深、宽度、净空或操作空间等人体尺度，可使用GB/T 10000—2023提供的人体尺寸数据；具体百分位数的选取还应结合其规范性引用的GB/T 12985。[L3]\n- 若目标人群属于GB/T 26158—2010规定的群体，理论上应按该标准选用；但这是有限推导，并非当前资料原文。由于缺少GB/T 26158—2010的范围与适用对象证据，无法据此给出两份标准的明确分界或替代关系。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh04_percentile_derivation|h1",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh04_percentile_derivation",
+        "hop_id": "h1",
+        "from_question": "q01_hit",
+        "expected_span": "坐高",
+        "matched": false,
+        "span_matched": true,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐高"
+            ],
+            "hits": [
+              "坐高"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "758"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+        "chunk_in_pack": true,
+        "evidence_count": 5,
+        "answer_excerpt": "依据现有资料，**无法可靠推算儿童椅座高的合理区间，也无法确定应取哪个百分位**，原因如下：\n\n- GB/T 26158—2010 的摘录仅列出了“坐高”数值，但未显示对应的年龄、性别及百分位表头，因此无法确认这些数据是否属于儿童，也无法建立具体百分位对应关系。[L3][L4]\n- “坐高”不能直接等同于椅座高。标准将座高 \\(H1\\) 定义为座面中轴线前部最高点至地面的距离，而现有资料没有提供由坐高换算座高的公式或校正量。",
+        "answer": "依据现有资料，**无法可靠推算儿童椅座高的合理区间，也无法确定应取哪个百分位**，原因如下：\n\n- GB/T 26158—2010 的摘录仅列出了“坐高”数值，但未显示对应的年龄、性别及百分位表头，因此无法确认这些数据是否属于儿童，也无法建立具体百分位对应关系。[L3][L4]\n- “坐高”不能直接等同于椅座高。标准将座高 \\(H1\\) 定义为座面中轴线前部最高点至地面的距离，而现有资料没有提供由坐高换算座高的公式或校正量。[L2]\n- GB/T 10000—2023 摘录明确涉及“26岁～35岁成年男性”，不属于儿童数据，不能直接用于儿童椅座高设计。[L5]\n- GB/T 3326—2016给出了座高400～440 mm等桌椅尺寸，但这是一般桌、椅、凳类尺寸，资料未表明其为儿童椅专用范围，也未说明由GB/T 26158坐高百分位推导而来。[L1]\n\n因此，**“取P5、P50还是P95”目前均无直接证据支持**。若要完成推算，至少还需儿童分年龄、分性别的坐高或更直接的腘高百分位数据，以及坐姿、足部支撑和座面下沉等换算条件；这些内容当前资料无法确认。",
+        "verdict": "incorrect",
+        "evidence_note": "证据在 pack 内，但答案以「未显示年龄、性别及百分位表头」为由拒绝给出 758 的推算；terms 中的 758 未命中。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh04_percentile_derivation|h3",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh04_percentile_derivation",
+        "hop_id": "h3",
+        "from_question": "q06_hit",
+        "expected_span": "11个百分位数",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": true,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "百分位"
+            ],
+            "hits": [
+              "百分位"
+            ],
+            "matched": true
+          }
+        ],
+        "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "依据现有资料，**无法可靠推算儿童椅座高的合理区间，也无法确定应取哪个百分位**，原因如下：\n\n- GB/T 26158—2010 的摘录仅列出了“坐高”数值，但未显示对应的年龄、性别及百分位表头，因此无法确认这些数据是否属于儿童，也无法建立具体百分位对应关系。[L3][L4]\n- “坐高”不能直接等同于椅座高。标准将座高 \\(H1\\) 定义为座面",
+        "answer": "依据现有资料，**无法可靠推算儿童椅座高的合理区间，也无法确定应取哪个百分位**，原因如下：\n\n- GB/T 26158—2010 的摘录仅列出了“坐高”数值，但未显示对应的年龄、性别及百分位表头，因此无法确认这些数据是否属于儿童，也无法建立具体百分位对应关系。[L3][L4]\n- “坐高”不能直接等同于椅座高。标准将座高 \\(H1\\) 定义为座面中轴线前部最高点至地面的距离，而现有资料没有提供由坐高换算座高的公式或校正量。[L2]\n- GB/T 10000—2023 摘录明确涉及“26岁～35岁成年男性”，不属于儿童数据，不能直接用于儿童椅座高设计。[L5]\n- GB/T 3326—2016给出了座高400～440 mm等桌椅尺寸，但这是一般桌、椅、凳类尺寸，资料未表明其为儿童椅专用范围，也未说明由GB/T 26158坐高百分位推导而来。[L1]\n\n因此，**“取P5、P50还是P95”目前均无直接证据支持**。若要完成推算，至少还需儿童分年龄、分性别的坐高或更直接的腘高百分位数据，以及坐姿、足部支撑和座面下沉等换算条件；这些内容当前资料无法确认。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh05_armchair_dimension_basis|h2",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh05_armchair_dimension_basis",
+        "hop_id": "h2",
+        "from_question": "q06_hit",
+        "expected_span": "4岁~17岁",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "未成年人"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "按 GB/T 3326—2016：\n\n- **扶手内宽 B2：≥480 mm**\n- **座深 T1：400～480 mm**。[L1]\n\n与人体尺寸标准的关联是：\n\n- 人体测量标准将**坐姿臀宽**列为坐姿静态人体尺寸项目，可作为扶手内宽进行适配分析时的相关人体指标。[L4][L5]\n- GB/T 10000—2023还列出**坐姿臀—腘距**等坐姿尺寸项目；该指标与座深的适配分析相关。[L5]\n- 但现有资料没有给出 GB/T 3326—2016 与人体尺寸标准之间的具体换算公式、采用的百分位数或由人体数据直接推导出的尺寸。因此，尺寸是否适合特定人",
+        "answer": "按 GB/T 3326—2016：\n\n- **扶手内宽 B2：≥480 mm**\n- **座深 T1：400～480 mm**。[L1]\n\n与人体尺寸标准的关联是：\n\n- 人体测量标准将**坐姿臀宽**列为坐姿静态人体尺寸项目，可作为扶手内宽进行适配分析时的相关人体指标。[L4][L5]\n- GB/T 10000—2023还列出**坐姿臀—腘距**等坐姿尺寸项目；该指标与座深的适配分析相关。[L5]\n- 但现有资料没有给出 GB/T 3326—2016 与人体尺寸标准之间的具体换算公式、采用的百分位数或由人体数据直接推导出的尺寸。因此，尺寸是否适合特定人群，**当前资料无法确认**，仍需结合相应人体尺寸数据和目标人群进行校核。\n\n上述“臀宽对应扶手内宽、臀—腘距对应座深”属于基于测量项目名称的有限设计关联判断，不是 GB/T 3326—2016 条文中的直接说明。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260921T133607+0800_4a3ac793|evidence5|mh06_child_dining_chair_spec|h2",
+        "run_id": "20260921T133607+0800_4a3ac793",
+        "run_file": "mh_g1_evidence5.json",
+        "arm": "evidence5",
+        "max_evidence": 5,
+        "max_chars_per_item": null,
+        "question_id": "mh06_child_dining_chair_spec",
+        "hop_id": "h2",
+        "from_question": "q03_hit",
+        "expected_span": "95°~100°",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "400mm~480mm"
+            ],
+            "hits": [],
+            "matched": false
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "95°~100°"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "ca80df0dbd2bc1bffb31f49e1d366cfb45e5368b10858f2cec5ad3e7ac04e612",
+        "chunk_in_pack": false,
+        "evidence_count": 5,
+        "answer_excerpt": "当前资料无法确认一套适用于“儿童”的完整餐椅尺寸方案，尤其缺少儿童人体尺寸、座深数值和背倾角数值。\n\n- **座高**：资料中的通用桌椅标准给出座高 **H1=400～440 mm**；软面椅的最大座高为 **460 mm（包括下沉量）**。[L1] 但该标准适用于桌、椅、凳类家具，并未明确这是儿童餐椅尺寸，因此不能直接视为儿童方案。[L2]\n- **座深**：资料仅定义座深 **T1** 为“座面前沿中点至座面与背面相交线的距离”，没有给出座深的推荐或限定数值。[L2] 因此儿童餐椅座深当前资料无法确认。\n- **背倾角**：资料仅将 **β** 定义",
+        "answer": "当前资料无法确认一套适用于“儿童”的完整餐椅尺寸方案，尤其缺少儿童人体尺寸、座深数值和背倾角数值。\n\n- **座高**：资料中的通用桌椅标准给出座高 **H1=400～440 mm**；软面椅的最大座高为 **460 mm（包括下沉量）**。[L1] 但该标准适用于桌、椅、凳类家具，并未明确这是儿童餐椅尺寸，因此不能直接视为儿童方案。[L2]\n- **座深**：资料仅定义座深 **T1** 为“座面前沿中点至座面与背面相交线的距离”，没有给出座深的推荐或限定数值。[L2] 因此儿童餐椅座深当前资料无法确认。\n- **背倾角**：资料仅将 **β** 定义为背倾角，没有提供其数值范围或推荐值。[L2] 因此背倾角当前资料无法确认。\n- **人体工程学依据**：L3、L4列出了坐高、膝高、腘高等人体尺寸，但未明确为儿童样本；L5明确为26岁～35岁成年男性静态人体尺寸，不能直接用于儿童餐椅定尺寸。[L3][L4][L5]\n\n因此，基于当前证据，能够明确引用的只有通用椅类座高 **400～440 mm**，不能据此形成儿童餐椅的“座高、座深、背倾角”完整方案。儿童年龄段、人体尺寸分位数及相应座深和背倾角标准仍需补充验证。",
+        "verdict": "correct_refusal",
+        "evidence_note": "该跳的源 chunk 未进入 pack（5 条证据），模型不可能知道该事实，此观测不构成能力证据。"
+      },
+      {
+        "key": "20260921T134041+0800_55735ce9|evidenceall|mh03_adult_vs_minor_population|h2",
+        "run_id": "20260921T134041+0800_55735ce9",
+        "run_file": "mh_g2_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "mh03_adult_vs_minor_population",
+        "hop_id": "h2",
+        "from_question": "q06_hit",
+        "expected_span": "4岁~17岁",
+        "matched": false,
+        "span_matched": true,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "未成年人"
+            ],
+            "hits": [
+              "未成年人"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "4岁~17岁",
+              "4岁至17岁"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+        "chunk_in_pack": true,
+        "evidence_count": 20,
+        "answer_excerpt": " 10000—2023**覆盖中国**成年人人体尺寸**，适用年龄分组为18～25岁、26～35岁、36～60岁和61～70岁；标准明确适用于家居、建筑等产品和设施的设计，以及相关工作空间的人体工效学评价。[L2][L3]\n\n- **GB/T 26158—2010**覆盖中国**未成年人（4～17岁）人体尺寸**，分为4～6岁、7～10岁、11～12岁、13～15岁和16～17岁五个年龄组；该标准适用于未成年人用品、相关设施及安全防护设计。[L11][L13]\n\n**家具尺寸设计的使用原则：**\n\n1. 家具主要面向**成年人**，如成人桌椅、成人床、成",
+        "answer": "- **GB/T 10000—2023**覆盖中国**成年人人体尺寸**，适用年龄分组为18～25岁、26～35岁、36～60岁和61～70岁；标准明确适用于家居、建筑等产品和设施的设计，以及相关工作空间的人体工效学评价。[L2][L3]\n\n- **GB/T 26158—2010**覆盖中国**未成年人（4～17岁）人体尺寸**，分为4～6岁、7～10岁、11～12岁、13～15岁和16～17岁五个年龄组；该标准适用于未成年人用品、相关设施及安全防护设计。[L11][L13]\n\n**家具尺寸设计的使用原则：**\n\n1. 家具主要面向**成年人**，如成人桌椅、成人床、成人储物家具，应使用GB/T 10000—2023中的相应年龄组和百分位数。[L2][L3]\n2. 家具主要面向**儿童或青少年（4～17岁）**，如儿童桌椅、青少年家具，应使用GB/T 26158—2010中对应年龄、性别和百分位数的数据。[L11][L13]\n3. 若家具面向**成人与未成年人共同使用**，或使用者年龄范围跨越两份标准，资料没有给出统一的选型规则；应分别核对目标用户的人体尺寸并进行适配设计，具体取值和安全裕量需结合项目要求验证。前半句为基于两份标准适用人群的有限推导，并非资料原文。",
+        "verdict": "correct_paraphrase",
+        "evidence_note": "答案写「未成年人（4～17岁）人体尺寸」，年龄区间已交付；term 用全角/半角波浪号不一致导致判否（span 匹配器会归一化 ～，term 匹配器不会）。"
+      },
+      {
+        "key": "20260921T134041+0800_55735ce9|evidenceall|mh04_percentile_derivation|h1",
+        "run_id": "20260921T134041+0800_55735ce9",
+        "run_file": "mh_g2_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "mh04_percentile_derivation",
+        "hop_id": "h1",
+        "from_question": "q01_hit",
+        "expected_span": "坐高",
+        "matched": false,
+        "span_matched": true,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐高"
+            ],
+            "hits": [
+              "坐高"
+            ],
+            "matched": true
+          },
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "758"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+        "chunk_in_pack": true,
+        "evidence_count": 17,
+        "answer_excerpt": "- **不能仅依据“坐高”推算儿童椅座高。**坐高是坐面至头顶的垂直尺寸，而座高与小腿加足高（腘高）更直接相关；GB/T 26158—2010 的人体尺寸表同时列有“坐高”和“小腿加足高（腘高）”，但当前资料没有给出二者之间的换算关系。[L3][L4]\n\n- **合理区间：当前资料无法确认具体数值。",
+        "answer": "- **不能仅依据“坐高”推算儿童椅座高。**坐高是坐面至头顶的垂直尺寸，而座高与小腿加足高（腘高）更直接相关；GB/T 26158—2010 的人体尺寸表同时列有“坐高”和“小腿加足高（腘高）”，但当前资料没有给出二者之间的换算关系。[L3][L4]\n\n- **合理区间：当前资料无法确认具体数值。**GB/T 26158—2010 覆盖4岁～17岁未成年人，并按年龄、性别提供11个百分位数。[L8][L10]但现有证据未完整标明[L3]、[L4]中各组数据对应的年龄、性别和百分位列，因此不能可靠地从中计算某一目标儿童群体的座高范围。\n\n- **百分位选择：当前资料无法确认唯一答案。**若进行有限推导，座高区间应以目标使用者腘高的较低至较高覆盖范围确定，而不是直接以坐高百分位确定；采用哪些百分位，取决于目标年龄、性别、覆盖率及是否设置可调结构。上述判断是设计推导，不是GB/T 26158—2010原文规定。\n\n- 可作为现有标准的尺寸参照：GB/T 3326—2016给出的座高范围为400～440 mm，软面最大座高为460 mm；但该证据并未说明其专门适用于儿童椅，因此不能直接作为儿童椅最终区间。[L1]",
+        "verdict": "incorrect",
+        "evidence_note": "证据在 pack 内，但答案以「未显示年龄、性别及百分位表头」为由拒绝给出 758 的推算；terms 中的 758 未命中。"
+      },
+      {
+        "key": "20260921T134041+0800_55735ce9|evidenceall|mh06_child_dining_chair_spec|h3",
+        "run_id": "20260921T134041+0800_55735ce9",
+        "run_file": "mh_g2_evidenceall.json",
+        "arm": "evidenceall",
+        "max_evidence": 99,
+        "max_chars_per_item": null,
+        "question_id": "mh06_child_dining_chair_spec",
+        "hop_id": "h3",
+        "from_question": "q01_hit",
+        "expected_span": "坐高",
+        "matched": false,
+        "span_matched": false,
+        "terms_matched": false,
+        "terms": [
+          {
+            "kind": "alternatives",
+            "alternatives": [
+              "坐高"
+            ],
+            "hits": [],
+            "matched": false
+          }
+        ],
+        "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+        "chunk_in_pack": true,
+        "evidence_count": 9,
+        "answer_excerpt": "当前资料没有提供儿童人体尺寸或儿童餐椅专用尺寸，因此无法确认适合特定年龄段儿童的最终方案。可先给出一个“按现有家具标准暂定”的方案：\n\n| 项目 | 暂定尺寸 | 依据与说明 |\n|---|---:|---|\n| 座高 H1 | 420 mm | GB/T 3326—2016给出的座高范围为400～440 mm；420 mm为该范围中值，属于有限推导，并非资料原文的儿童推荐值。[L1] |\n| 座深 T1 | 440 mm | 扶手椅座深要求为400～480 mm；440 mm为该范围中值，属于有限推导，不是儿童专用尺寸。[L8] |\n| 背倾角 β |",
+        "answer": "当前资料没有提供儿童人体尺寸或儿童餐椅专用尺寸，因此无法确认适合特定年龄段儿童的最终方案。可先给出一个“按现有家具标准暂定”的方案：\n\n| 项目 | 暂定尺寸 | 依据与说明 |\n|---|---:|---|\n| 座高 H1 | 420 mm | GB/T 3326—2016给出的座高范围为400～440 mm；420 mm为该范围中值，属于有限推导，并非资料原文的儿童推荐值。[L1] |\n| 座深 T1 | 440 mm | 扶手椅座深要求为400～480 mm；440 mm为该范围中值，属于有限推导，不是儿童专用尺寸。[L8] |\n| 背倾角 β | 97.5° | 扶手椅背倾角要求为95°～100°；97.5°为该范围中值，属于有限推导。[L8] |\n\n尺寸定义方面，座高 H1 是座面中轴线前部最高点至地面的距离，座深 T1 是座面前沿中点至座面与背面相交线的距离。[L2]\n\n上述方案只能作为待验证的初始设计值。现有资料中的人体尺寸数据未明确对应儿童，且资料未给出儿童餐椅的年龄、体重、脚踏或安全约束要求，因此无法据此确认座高、座深与背倾角是否适合目标儿童；正式定案前应补充目标年龄段人体尺寸和使用安全要求。",
+        "verdict": "incorrect",
+        "evidence_note": "契约要求「坐高」，terms 未命中；答案用「座高 H1」并明确区分坐高与座高。"
+      }
+    ]
+  }
+}
