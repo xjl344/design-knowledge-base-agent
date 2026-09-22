@@ -70,6 +70,45 @@ def _hard_deadline_seconds() -> float:
     return float(settings.llm_timeout_seconds) + HARD_DEADLINE_MARGIN_SECONDS
 
 
+def _swallow_abandoned_result(task: "asyncio.Task[Any]") -> None:
+    """Retrieve a cancelled task's outcome so it is not reported as unhandled.
+
+    The abandoned call still finishes eventually, and its exception would
+    otherwise surface as "Task exception was never retrieved" long after the
+    row that abandoned it has been written.
+    """
+    if task.cancelled():
+        return
+    task.exception()
+
+
+async def _call_with_deadline(awaitable: Any, timeout: float) -> Any:
+    """Await ``awaitable``, abandoning it if it outlives ``timeout``.
+
+    ``asyncio.wait_for`` is not enough here, and the difference cost eleven
+    hours of wall clock.  On timeout it cancels the inner task and then *awaits
+    the cancellation*; a transport that does not honour cancellation makes that
+    await block for as long as the call would have taken anyway, so the guard
+    provides no bound at all.  A recorded attempt ran 39286 seconds against a
+    210-second deadline for exactly this reason.
+
+    ``asyncio.wait`` returns as soon as the deadline passes without waiting for
+    the cancellation to land, so the bound holds whatever the transport does.
+    The abandoned task is cancelled and its result retrieved in a callback; it
+    keeps its connection until it finishes, which is a cost worth paying to
+    stop one row from stalling an entire run.
+    """
+    task = asyncio.ensure_future(awaitable)
+    done, pending = await asyncio.wait({task}, timeout=timeout)
+    if pending:
+        task.cancel()
+        task.add_done_callback(_swallow_abandoned_result)
+        raise asyncio.TimeoutError(
+            f"Request timed out: exceeded the hard deadline of {timeout:.0f}s."
+        )
+    return task.result()
+
+
 # Control-token pollution observed in practice: the model occasionally appends
 # a routing/control suffix such as ".calc" that is not part of the answer.
 # These are stripped from the *normalised* answer only; the raw output is kept
@@ -255,9 +294,9 @@ async def generate_from_pack(
             require_role_model("generator")
             chain = _build_chain()
             raw_answer = str(
-                await asyncio.wait_for(
+                await _call_with_deadline(
                     chain.ainvoke({"question": pack.question, "context": pack.context_text()}),
-                    timeout=_hard_deadline_seconds(),
+                    _hard_deadline_seconds(),
                 )
             ).strip()
         except (asyncio.TimeoutError, TimeoutError):

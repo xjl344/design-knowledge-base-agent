@@ -736,6 +736,58 @@ def test_the_hard_deadline_exceeds_the_client_timeout():
     assert _hard_deadline_seconds() > float(settings.llm_timeout_seconds)
 
 
+def test_a_call_that_ignores_cancellation_is_still_bounded():
+    """The reason ``asyncio.wait_for`` was not enough.
+
+    ``wait_for`` cancels the inner task on timeout and then awaits the
+    cancellation.  A transport that swallows cancellation therefore makes it
+    block for as long as the call would have taken anyway, and the guard
+    provides no bound: a recorded attempt ran 39286 seconds against a
+    210-second deadline.
+
+    ``asyncio.wait`` returns as soon as the deadline passes, whatever the
+    transport does.  This test would hang for the full sleep under the old
+    implementation.
+    """
+    import asyncio
+    import time
+
+    from src.generator_v2 import _call_with_deadline
+
+    async def ignores_cancellation():
+        try:
+            await asyncio.sleep(30)
+        except asyncio.CancelledError:
+            # A transport that keeps going instead of unwinding.
+            await asyncio.sleep(30)
+            raise
+        return "never"
+
+    started = time.perf_counter()
+    raised = False
+    try:
+        asyncio.run(_call_with_deadline(ignores_cancellation(), timeout=0.05))
+    except asyncio.TimeoutError:
+        raised = True
+    elapsed = time.perf_counter() - started
+
+    assert raised, "超时没有抛 TimeoutError"
+    assert elapsed < 5, f"取消被忽略时没有被截断（耗时 {elapsed:.1f}s）"
+
+
+def test_the_deadline_returns_the_result_when_the_call_is_fast():
+    """The guard must not turn a normal call into a timeout."""
+    import asyncio
+
+    from src.generator_v2 import _call_with_deadline
+
+    async def fast():
+        await asyncio.sleep(0)
+        return "座高为400mm~440mm。[L1]"
+
+    assert asyncio.run(_call_with_deadline(fast(), timeout=5)) == "座高为400mm~440mm。[L1]"
+
+
 # --- citation attribution (v6) -------------------------------------------
 # The metric this replaces was "citations used / citations allowed", and
 # "allowed" is the evidence count -- so it fell whenever more evidence was
