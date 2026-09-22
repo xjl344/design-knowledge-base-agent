@@ -400,6 +400,52 @@ def snapshot_source_names() -> set[str]:
     return names
 
 
+# Terms the contract must accept alongside the standard one, because the
+# *evidence itself* treats them as the same measurement.
+#
+# The r04 h1 source chunk writes the dimension as `小腿加足高(腘高)` -- standard
+# term, then the common short form in brackets.  The contract accepted only
+# `小腿加足高`, so three of four all-evidence answers scored zero for using the
+# evidence's own vocabulary.  That is not a capability failure and not a wording
+# preference; it is the contract disagreeing with its own source.
+#
+# Only add an entry here when the source chunk states the equivalence.  A
+# synonym that merely seems reasonable to a reader would let the contract drift
+# away from what the evidence actually says.
+TERM_ADDITIONS: dict[str, list[str]] = {
+    "小腿加足高": ["腘高"],
+}
+
+
+def widen_terms(hops: list[dict[str, Any]]) -> int:
+    """Accept the evidence's own alternate wording, for terms and for the span.
+
+    Both are needed.  Widening only `required_terms` leaves the hop failing on
+    `span_matched`, which is what happened on the first attempt: the term `腘高`
+    matched and the hop still scored zero because `expected_span` was still the
+    literal `小腿加足高`.
+    """
+    widened = 0
+    for hop in hops:
+        groups = hop.get("required_terms") or []
+        for index, group in enumerate(groups):
+            if not isinstance(group, list):
+                continue
+            for term, extra in TERM_ADDITIONS.items():
+                if term in group and not any(item in group for item in extra):
+                    groups[index] = group + [item for item in extra if item not in group]
+                    widened += 1
+        span = str(hop.get("expected_span") or "")
+        extra = TERM_ADDITIONS.get(span)
+        if extra:
+            declared = hop.setdefault("expected_span_alternatives", [])
+            for item in extra:
+                if item not in declared:
+                    declared.append(item)
+                    widened += 1
+    return widened
+
+
 def build_spec() -> dict[str, Any]:
     v1 = json.loads(SPEC_V1.read_text(encoding="utf-8"))
     source_questions = {
@@ -419,6 +465,9 @@ def build_spec() -> dict[str, Any]:
         entry.setdefault("risk_level", "medium")
         entry.setdefault("theme", "")
         entry.setdefault("notes", "")
+        # The contract must accept the wording the evidence itself uses.  See
+        # TERM_ADDITIONS.
+        widen_terms(entry.get("hops") or [])
         complete.append(entry)
 
     partial: list[dict[str, Any]] = []

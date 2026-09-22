@@ -84,11 +84,15 @@
           "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
           "required_terms": [
             [
-              "小腿加足高"
+              "小腿加足高",
+              "腘高"
             ]
           ],
           "position": 4,
-          "expected_span": "小腿加足高"
+          "expected_span": "小腿加足高",
+          "expected_span_alternatives": [
+            "腘高"
+          ]
         },
         {
           "hop_id": "h2",

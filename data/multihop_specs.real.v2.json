@@ -128,8 +128,12 @@
           "expected_span": "小腿加足高",
           "required_terms": [
             [
-              "小腿加足高"
+              "小腿加足高",
+              "腘高"
             ]
+          ],
+          "expected_span_alternatives": [
+            "腘高"
           ]
         },
         {

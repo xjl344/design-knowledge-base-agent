@@ -462,6 +462,13 @@ def build_contract(
             # demotion.
             if hop.get("expected_span"):
                 entry["expected_span"] = str(hop["expected_span"])
+            # Accepted renderings the contract declares explicitly.  Carried
+            # through so a hop can accept the wording the evidence itself uses
+            # (`小腿加足高(腘高)`) without widening the matcher for everything.
+            if hop.get("expected_span_alternatives"):
+                entry["expected_span_alternatives"] = [
+                    str(item) for item in hop["expected_span_alternatives"]
+                ]
             if hop.get("span_demoted_because"):
                 entry["span_demoted_because"] = str(hop["span_demoted_because"])
             required_hops.append(entry)
