@@ -88,3 +88,147 @@ def test_the_thresholds_are_stated_not_implied():
     assert PROVIDER_GATE["provider_timeout_rate"] == 0.10
     assert PROVIDER_GATE["rounds_with_no_completions"] == 0
     assert PROVIDER_GATE["paired_cell_share"] == 0.60
+
+
+# ---------------------------------------------------------------------------
+# One arm is allowed, and is the right shape for the partial set.
+# ---------------------------------------------------------------------------
+
+
+def test_a_single_arm_run_is_allowed_and_declares_no_pairing(tmp_path):
+    """Five of the partial set's seven questions have every hop beyond position 5.
+
+    The evidence-5 arm sees *zero* relevant evidence there, not less of it, so
+    pairing would compare a number against a structural zero.  A single-arm run
+    must therefore be expressible, and must say the pairing is not applicable
+    instead of reporting an empty comparison as one.
+    """
+    import json
+    import subprocess
+    import sys
+
+    output = tmp_path / "single.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
+            "--case-set",
+            "name=real_partial,"
+            f"snapshot={ROOT / 'data' / 'frozen_multihop_real_partial.v2.jsonl'},"
+            f"evaluation={ROOT / 'data' / 'generation_eval.multihop.real.partial.v2.json'}",
+            "--arm", "evidenceall=99:none",
+            "--rounds", "1",
+            "--dry-run",
+            "--output", str(output),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    combined = (result.stdout or "") + (result.stderr or "")
+    if result.returncode != 0 and "ModuleNotFoundError" in combined:
+        pytest.skip("运行脚本需要模型依赖，离线解释器里跑不了")
+
+    assert result.returncode == 0, combined[-800:]
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["summary"]["paired"]["comparable_pairs"] == 0
+    assert "单臂" in payload["summary"]["paired"]["definition"]
+    # The gate still judges availability: with one arm the cell count is how
+    # many (question, round) cells produced a row.
+    assert "paired_cell_share" in payload["summary"]["provider_gate"]["observed"]
+
+
+def test_three_arms_are_rejected(tmp_path):
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
+            "--case-set",
+            "name=s,snapshot=x,evaluation=y",
+            "--arm", "a=1:none", "--arm", "b=2:none", "--arm", "c=3:none",
+            "--rounds", "1",
+            "--dry-run",
+            "--output", str(tmp_path / "x.json"),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    combined = (result.stdout or "") + (result.stderr or "")
+    if "ModuleNotFoundError" in combined:
+        pytest.skip("运行脚本需要模型依赖")
+    assert result.returncode != 0
+    assert "1 或 2 个臂" in combined
+
+
+# ---------------------------------------------------------------------------
+# One arm is allowed, and is the right shape for the partial set.
+# ---------------------------------------------------------------------------
+
+
+def test_a_single_arm_run_is_allowed_and_declares_no_pairing(tmp_path):
+    """Five of the partial set's seven questions have every hop beyond position 5.
+
+    The evidence-5 arm sees *zero* relevant evidence there, not less of it, so
+    pairing would compare a number against a structural zero.  A single-arm run
+    must therefore be expressible, and must say the pairing is not applicable
+    instead of reporting an empty comparison as one.
+    """
+    import json
+    import subprocess
+    import sys
+
+    output = tmp_path / "single.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
+            "--case-set",
+            "name=real_partial,"
+            f"snapshot={ROOT / 'data' / 'frozen_multihop_real_partial.v2.jsonl'},"
+            f"evaluation={ROOT / 'data' / 'generation_eval.multihop.real.partial.v2.json'}",
+            "--arm", "evidenceall=99:none",
+            "--rounds", "1",
+            "--dry-run",
+            "--output", str(output),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    combined = (result.stdout or "") + (result.stderr or "")
+    if result.returncode != 0 and "ModuleNotFoundError" in combined:
+        pytest.skip("运行脚本需要模型依赖，离线解释器里跑不了")
+
+    assert result.returncode == 0, combined[-800:]
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert payload["summary"]["paired"]["comparable_pairs"] == 0
+    assert "单臂" in payload["summary"]["paired"]["definition"]
+    # The gate still judges availability: with one arm the cell count is how
+    # many (question, round) cells produced a row.
+    assert "paired_cell_share" in payload["summary"]["provider_gate"]["observed"]
+
+
+def test_three_arms_are_rejected(tmp_path):
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
+            "--case-set",
+            "name=s,snapshot=x,evaluation=y",
+            "--arm", "a=1:none", "--arm", "b=2:none", "--arm", "c=3:none",
+            "--rounds", "1",
+            "--dry-run",
+            "--output", str(tmp_path / "x.json"),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    combined = (result.stdout or "") + (result.stderr or "")
+    if "ModuleNotFoundError" in combined:
+        pytest.skip("运行脚本需要模型依赖")
+    assert result.returncode != 0
+    assert "1 或 2 个臂" in combined
