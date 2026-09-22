@@ -17,6 +17,7 @@ the system did.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -697,67 +698,91 @@ def test_both_question_sets_are_demoted_by_the_same_rule():
         ]
 
 
+
+
 # ---------------------------------------------------------------------------
-# The demotion is a property of the builder, not of one spec.
+# A contract term must not contradict its own evidence.
+#
+# The evidence writes the dimension as `小腿加足高(腘高)` -- standard term, then
+# the common short form in brackets.  The contract accepted only the standard
+# one, so three all-evidence answers scored zero for using the *evidence's own
+# vocabulary*.  That is not a capability failure and not a wording preference;
+# it is the contract disagreeing with its source.
+#
+# This scans for the same shape elsewhere, so the next one is caught at build
+# time rather than after a round of scoring.
 # ---------------------------------------------------------------------------
 
+_UNIT_ALIAS = re.compile(r"^(?:m|mm|cm|mL|ml|L|kg|g|℃|%|岁)$")
+_QUALIFIER_ALIAS = ("包括", "其中", "即", "或", "又称", "也称", "以下简称")
+# A bracketed *name* is what this guard is about (`小腿加足高(腘高)`).  A
+# bracketed range is a clarification, not a second name -- the evidence writes
+# `未成年人（4岁~17岁）` to say *which* minors, not to rename them.  Digits are
+# the cheapest separator, and the failure direction is deliberate: a synonym
+# that happens to contain digits is missed rather than a clarification being
+# reported as a defect.
+_HAS_DIGIT = re.compile(r"\d")
 
-def test_select_cases_applies_the_span_demotion():
-    """Every consumer of the builder must see the same scoring rule.
 
-    It was first written into the CLI path only, and the test that rebuilds the
-    committed artifacts then disagreed with them -- the verification path did
-    not apply the rule the artifact was built with.
-    """
-    import scripts.build_multihop_snapshot as builder
+def test_no_contract_term_contradicts_its_own_evidence():
+    from src.frozen_evidence import load_cases
 
-    specs = [
-        {
-            "id": "c1",
-            "question": "q",
-            "sources": ["s"],
-            "hops": [
-                {
-                    "hop_id": "h1",
-                    "from_question": "s",
-                    "chunk_id": "c",
-                    "expected_span": "成年人人体尺寸",
-                    "required_terms": [["成年人"]],
+    groups = [
+        ("real_complete", ROOT / "data" / "frozen_multihop_real_complete.v2.jsonl",
+         ROOT / "data" / "generation_eval.multihop.real.complete.v2.json"),
+        ("real_partial", ROOT / "data" / "frozen_multihop_real_partial.v2.jsonl",
+         ROOT / "data" / "generation_eval.multihop.real.partial.v2.json"),
+        ("synthetic", ROOT / "data" / "frozen_multihop.v2.jsonl",
+         ROOT / "data" / "generation_eval.multihop.v2.json"),
+    ]
+    problems = []
+    for name, snapshot, evaluation in groups:
+        cases = load_cases(snapshot)
+        contract = json.loads(evaluation.read_text(encoding="utf-8"))
+        for case in contract["cases"]:
+            pooled = cases.get(str(case["id"]))
+            if pooled is None:
+                continue
+            for hop in case["required_hops"]:
+                document = next(
+                    (d for d in pooled.documents
+                     if d.chunk_id == hop.get("source_chunk_id")),
+                    None,
+                )
+                if document is None:
+                    continue
+                # Accepted means accepted *anywhere in the hop*: the hop
+                # requires every group, so an alias carried by another group is
+                # already covered.  Checking only the same group reported
+                # `未成年人(4岁~17岁)` as a problem when `4岁~17岁` was already a
+                # required term of that hop.
+                accepted = {
+                    item
+                    for grp in hop.get("required_terms") or []
+                    if isinstance(grp, list)
+                    for item in grp
                 }
-            ],
-        }
-    ]
-    selected = builder.select_cases(specs, "all")
-    hop = selected[0]["hops"][0]
-    assert "expected_span" not in hop
-    assert hop["required_terms"] == builder.SPAN_DEMOTIONS["成年人人体尺寸"]
-    assert hop["span_demoted_because"]
-
-
-def test_both_question_sets_are_demoted_by_the_same_rule():
-    """The comparison between the sets is only meaningful if both are treated alike.
-
-    A rule that can be applied to one spec and forgotten for the other is how
-    the two end up on different footings -- which is the whole reason the
-    synthetic set had to be demoted too before its number could be compared.
-    """
-    import scripts.build_multihop_snapshot as builder
-
-    synthetic = json.loads(
-        (ROOT / "data" / "generation_eval.multihop.v2.json").read_text(encoding="utf-8")
-    )
-    demoted = [
-        hop
-        for case in synthetic["cases"]
-        for hop in case["required_hops"]
-        if not hop.get("expected_span")
-    ]
-    assert demoted, "合成集也要降级，否则两题集不同口径"
-    for hop in demoted:
-        assert hop["required_terms"] == builder.SPAN_DEMOTIONS[
-            next(
-                span
-                for span, terms in builder.SPAN_DEMOTIONS.items()
-                if terms == hop["required_terms"]
-            )
-        ]
+                for group in hop.get("required_terms") or []:
+                    if not isinstance(group, list):
+                        continue
+                    for term in group:
+                        for match in re.finditer(
+                            re.escape(term) + r"[（(]([^）)]{1,12})[）)]",
+                            document.page_content,
+                        ):
+                            alias = match.group(1).strip()
+                            if not alias or alias in accepted:
+                                continue
+                            # A bracketed unit, qualifier or range is not an
+                            # equivalence the evidence declared.
+                            if _UNIT_ALIAS.match(alias):
+                                continue
+                            if any(alias.startswith(q) for q in _QUALIFIER_ALIAS):
+                                continue
+                            if _HAS_DIGIT.search(alias):
+                                continue
+                            problems.append(
+                                f"{name}/{case['id']} {hop['hop_id']}: "
+                                f"证据把 {alias!r} 写成 {term!r} 的等价说法，契约未接受"
+                            )
+    assert problems == [], "\n".join(problems)
