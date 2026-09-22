@@ -38,7 +38,6 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "必须使用内径和有效液高，不要直接使用外径和总高度",
           "required_terms": [
             [
               "内径"
@@ -47,31 +46,32 @@
               "有效液高"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "必须使用内径和有效液高，不要直接使用外径和总高度"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试",
           "required_terms": [
             [
               "握持实验"
             ]
           ],
-          "position": 9
+          "position": 9,
+          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试"
         },
         {
           "hop_id": "h3",
           "from_question": "q06_hit",
           "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
-          "expected_span": "本标准给出了未成年人(4岁~17岁)72项人体尺寸所涉及的11个百分位数",
           "required_terms": [
             [
               "百分位数"
             ]
           ],
-          "position": 11
+          "position": 11,
+          "expected_span": "本标准给出了未成年人(4岁~17岁)72项人体尺寸所涉及的11个百分位数"
         }
       ],
       "coverage": "partial",
@@ -113,38 +113,38 @@
           "hop_id": "h1",
           "from_question": "q06_hit",
           "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
-          "expected_span": "本标准将未成年人分为五个年龄组",
           "required_terms": [
             [
               "年龄组"
             ]
           ],
-          "position": 1
+          "position": 1,
+          "expected_span": "本标准将未成年人分为五个年龄组"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "先根据目标人群和握持方式确定候选外径范围",
           "required_terms": [
             [
               "目标人群"
             ]
           ],
-          "position": 17
+          "position": 17,
+          "expected_span": "先根据目标人群和握持方式确定候选外径范围"
         },
         {
           "hop_id": "h3",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "不要只根据手长、手宽直接推导杯径",
           "required_terms": [
             [
               "手长",
               "手宽"
             ]
           ],
-          "position": 19
+          "position": 19,
+          "expected_span": "不要只根据手长、手宽直接推导杯径"
         }
       ],
       "coverage": "partial",
@@ -186,19 +186,18 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "先根据目标人群和握持方式确定候选外径范围",
           "required_terms": [
             [
               "握持方式"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "先根据目标人群和握持方式确定候选外径范围"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "是否需要针对 P5、P50、P95 人群分别验证",
           "required_terms": [
             [
               "P5",
@@ -206,19 +205,20 @@
               "P95"
             ]
           ],
-          "position": 9
+          "position": 9,
+          "expected_span": "是否需要针对 P5、P50、P95 人群分别验证"
         },
         {
           "hop_id": "h3",
           "from_question": "q08_hit",
           "source_chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
-          "expected_span": "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品",
           "required_terms": [
             [
               "成年人"
             ]
           ],
-          "position": 13
+          "position": 13,
+          "expected_span": "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品"
         }
       ],
       "coverage": "partial",
@@ -259,38 +259,38 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决",
           "required_terms": [
             [
               "结构占用"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "若高度过大，优先扩大握持区域或调整杯底",
           "required_terms": [
             [
               "杯底"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "若高度过大，优先扩大握持区域或调整杯底"
         },
         {
           "hop_id": "h3",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "不要只根据手长、手宽直接推导杯径",
           "required_terms": [
             [
               "手长",
               "手宽"
             ]
           ],
-          "position": 9
+          "position": 9,
+          "expected_span": "不要只根据手长、手宽直接推导杯径"
         }
       ],
       "coverage": "partial",
@@ -330,37 +330,37 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "检查高度是否导致重心过高、倾倒风险增加或单手操作困难",
           "required_terms": [
             [
               "倾倒"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "检查高度是否导致重心过高、倾倒风险增加或单手操作困难"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "额定容量应低于杯口溢流前的最大容量",
           "required_terms": [
             [
               "额定容量"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "额定容量应低于杯口溢流前的最大容量"
         },
         {
           "hop_id": "h3",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "是否存在装满热水后烫手或重心偏移",
           "required_terms": [
             [
               "重心"
             ]
           ],
-          "position": 9
+          "position": 9,
+          "expected_span": "是否存在装满热水后烫手或重心偏移"
         }
       ],
       "coverage": "partial",
@@ -401,38 +401,38 @@
           "hop_id": "h1",
           "from_question": "q01_hit",
           "source_chunk_id": "eb5d0ff3d6ceb05745243f0ca7db6b34792b81be7cf22ef77e20cb722bab93af",
-          "expected_span": "本标准适用于双柜桌、单柜桌、梳妆桌(梳妆台)、单层桌、扶手椅、靠背椅、折叠椅、长方凳、方凳、圆凳的设计和生产",
           "required_terms": [
             [
               "家具"
             ]
           ],
-          "position": 2
+          "position": 2,
+          "expected_span": "本标准适用于双柜桌、单柜桌、梳妆桌(梳妆台)、单层桌、扶手椅、靠背椅、折叠椅、长方凳、方凳、圆凳的设计和生产"
         },
         {
           "hop_id": "h2",
           "from_question": "q06_hit",
           "source_chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
-          "expected_span": "本标准适用于未成年人用品的设计与生产",
           "required_terms": [
             [
               "未成年人用品"
             ]
           ],
-          "position": 8
+          "position": 8,
+          "expected_span": "本标准适用于未成年人用品的设计与生产"
         },
         {
           "hop_id": "h3",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "不要只根据手长、手宽直接推导杯径",
           "required_terms": [
             [
               "手长",
               "手宽"
             ]
           ],
-          "position": 23
+          "position": 23,
+          "expected_span": "不要只根据手长、手宽直接推导杯径"
         }
       ],
       "coverage": "partial",
@@ -472,38 +472,38 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "不要只根据手长、手宽直接推导杯径",
           "required_terms": [
             [
               "手长",
               "手宽"
             ]
           ],
-          "position": 9
+          "position": 9,
+          "expected_span": "不要只根据手长、手宽直接推导杯径"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
-          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试",
           "required_terms": [
             [
               "产品测试"
             ]
           ],
-          "position": 9
+          "position": 9,
+          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试"
         },
         {
           "hop_id": "h3",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "本文件用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准",
           "required_terms": [
             [
               "不替代"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "本文件用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准"
         }
       ],
       "coverage": "partial",

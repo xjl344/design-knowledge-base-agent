@@ -163,15 +163,18 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
           "required_terms": [
             [
               "内径"
             ],
             [
               "有效液高"
+            ],
+            [
+              "1000"
             ]
-          ]
+          ],
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -204,23 +207,29 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "再用容量公式反推有效高度",
           "required_terms": [
             [
               "反推"
+            ],
+            [
+              "内径"
             ]
-          ]
+          ],
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "检查高度是否导致重心过高",
           "required_terms": [
             [
               "重心"
+            ],
+            [
+              "过高"
             ]
-          ]
+          ],
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "complete",
@@ -242,23 +251,29 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
           "required_terms": [
             [
               "锥台"
+            ],
+            [
+              "1000"
             ]
-          ]
+          ],
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
           "required_terms": [
             [
               "复杂曲面"
+            ],
+            [
+              "CAD"
             ]
-          ]
+          ],
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "complete",

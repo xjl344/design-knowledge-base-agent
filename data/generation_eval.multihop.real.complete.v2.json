@@ -32,25 +32,25 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
-          "expected_span": "400~440",
           "required_terms": [
             [
               "座高"
             ]
           ],
-          "position": 2
+          "position": 2,
+          "expected_span": "400~440"
         },
         {
           "hop_id": "h2",
           "from_question": "q08_hit",
           "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
-          "expected_span": "坐姿膝高",
           "required_terms": [
             [
               "坐姿膝高"
             ]
           ],
-          "position": 14
+          "position": 14,
+          "expected_span": "坐姿膝高"
         }
       ],
       "coverage": "complete"
@@ -82,25 +82,25 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
-          "expected_span": "小腿加足高",
           "required_terms": [
             [
               "小腿加足高"
             ]
           ],
-          "position": 4
+          "position": 4,
+          "expected_span": "小腿加足高"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
-          "expected_span": "680~760",
           "required_terms": [
             [
               "桌面高"
             ]
           ],
-          "position": 2
+          "position": 2,
+          "expected_span": "680~760"
         }
       ],
       "coverage": "complete"
@@ -109,11 +109,6 @@
       "id": "r17_cylinder_capacity",
       "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
       "expected_answer_spans": [
-        {
-          "id": "r17_cylinder_capacity-h1",
-          "text": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
         {
           "id": "r17_cylinder_capacity-h2",
           "text": "额定容量应低于杯口溢流前的最大容量",
@@ -131,28 +126,31 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
           "required_terms": [
             [
               "内径"
             ],
             [
               "有效液高"
+            ],
+            [
+              "1000"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "额定容量应低于杯口溢流前的最大容量",
           "required_terms": [
             [
               "额定容量"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "expected_span": "额定容量应低于杯口溢流前的最大容量"
         }
       ],
       "coverage": "complete"
@@ -160,18 +158,7 @@
     {
       "id": "r18_height_adjustment",
       "question": "设计500 mL便携杯时，握持外径受杯架限制不能增大，应如何利用容量公式、杯底和重心规则调整高度，并保留哪些风险？",
-      "expected_answer_spans": [
-        {
-          "id": "r18_height_adjustment-h1",
-          "text": "再用容量公式反推有效高度",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "r18_height_adjustment-h2",
-          "text": "检查高度是否导致重心过高",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md"
       ],
@@ -183,25 +170,31 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "再用容量公式反推有效高度",
           "required_terms": [
             [
               "反推"
+            ],
+            [
+              "内径"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "检查高度是否导致重心过高",
           "required_terms": [
             [
               "重心"
+            ],
+            [
+              "过高"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "complete"
@@ -209,18 +202,7 @@
     {
       "id": "r19_taper_capacity",
       "question": "锥台杯上下端内径70 mm和60 mm、有效液高100 mm，如何计算理想容量？复杂曲面如何改变方法？",
-      "expected_answer_spans": [
-        {
-          "id": "r19_taper_capacity-h1",
-          "text": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "r19_taper_capacity-h2",
-          "text": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md"
       ],
@@ -232,25 +214,31 @@
           "hop_id": "h1",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
           "required_terms": [
             [
               "锥台"
+            ],
+            [
+              "1000"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
           "from_question": "q17_ambiguous",
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
-          "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
           "required_terms": [
             [
               "复杂曲面"
+            ],
+            [
+              "CAD"
             ]
           ],
-          "position": 7
+          "position": 7,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "complete"

@@ -317,3 +317,64 @@ def test_every_partial_case_has_a_hop_beyond_the_default_cap():
         assert any(str(hop["source_chunk_id"]) not in kept for hop in case["required_hops"]), (
             f"{case['id']} 的所有跳都在默认上限内，两臂在该题上必然相同"
         )
+
+
+# ---------------------------------------------------------------------------
+# Spans that only constrained wording were demoted to terms.
+# ---------------------------------------------------------------------------
+
+
+def test_wording_only_spans_are_demoted_to_terms():
+    """A hop whose fact is about phrasing must not be judged on a sentence.
+
+    The audit read the answers behind every failed hop and found five where the
+    fact was delivered and the declared span was not (`检查高度是否导致重心过高`
+    against the answer's `应检查重心是否过高`).  v7 fixed the mechanical damage
+    to those spans and the scores did not move: the gap was wording.  Demoting
+    them keeps one mechanism -- every hop is judged on terms.
+    """
+    from scripts.build_real_specs_v2 import SPAN_DEMOTIONS
+
+    contract = load(GROUPS["complete"]["contract"])
+    # A list, not a dict keyed by hop_id: hop ids repeat across cases, and
+    # keying by them silently collapses ten hops into two.
+    all_hops = [
+        hop for case in contract["cases"] for hop in case["required_hops"]
+    ]
+    demoted = [hop for hop in all_hops if not hop.get("expected_span")]
+    assert len(demoted) == len(SPAN_DEMOTIONS), (
+        f"降级的跳数应为 {len(SPAN_DEMOTIONS)}，实际 {len(demoted)}；"
+        "多一个或少一个都意味着有跳被悄悄改了计分方式"
+    )
+    for hop in demoted:
+        # Terms must be strengthened past the single topic word, because the
+        # span is no longer carrying the substance check.
+        assert len(hop["required_terms"]) >= 2, hop
+        assert hop.get("span_demoted_because"), hop
+
+
+def test_a_demoted_hop_is_judged_on_terms_not_on_an_empty_span():
+    """No span at all, rather than an empty one.
+
+    An empty `expected_span` would be scored as a failed span and the hop would
+    never be credited -- the opposite of the intent.
+    """
+    from src.frozen_evidence import AUDIT_VERSION, build_evidence_pack, load_cases, soft_audit
+
+    assert AUDIT_VERSION == "soft-audit-behaviour-v7"
+    cases = load_cases(GROUPS["complete"]["snapshot"])
+    contract = load(GROUPS["complete"]["contract"])
+    case = contract["cases"][3]  # r18: both hops demoted
+    pooled = cases[str(case["id"])]
+    pack = build_evidence_pack(pooled, max_items=99, max_chars_per_item=None)
+    answer = "应在杯架允许的外径范围内确定内径，再反推 h；并检查重心是否过高。"
+    audit = soft_audit(
+        answer,
+        pack,
+        expected_answer_spans=case["expected_answer_spans"],
+        required_hops=case["required_hops"],
+    )
+    for hop in audit["hop_results"]:
+        assert hop["expected_span"] == ""
+        assert hop["span_matched"] is None, "无跨段时不应判为跨度失败"
+        assert hop["matched"] is True, hop

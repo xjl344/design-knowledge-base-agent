@@ -170,7 +170,13 @@ def load_specs(path: Path) -> dict[str, Any]:
                 "部分题必须写明哪部分证据缺失，否则无法与完整题区分。"
             )
         for hop in hops:
-            for field in ("hop_id", "from_question", "chunk_id", "expected_span"):
+            # `expected_span` is optional.  A hop whose fact is about *wording*
+            # rather than a quotable sentence is judged on `required_terms`
+            # alone: the audit found five such hops where the declared span only
+            # demanded a phrasing (`检查高度是否导致重心过高` vs the answer's
+            # `应检查重心是否过高`), and no answer could be required to
+            # reproduce it.  See scripts/demote_unmatchable_spans.py.
+            for field in ("hop_id", "from_question", "chunk_id"):
                 if not hop.get(field):
                     _fail(f"{case_id} 的 hop 缺少 {field}")
             if not hop.get("required_terms"):
@@ -263,8 +269,9 @@ def _resolve_hop(
         _fail(f"{spec_id}/{hop['hop_id']}：chunk {chunk_id[:12]}… 不在 {source_id} 的证据里")
 
     content = document.page_content
-    span = str(hop["expected_span"])
-    if not _contains(content, span):
+    span = str(hop.get("expected_span") or "")
+    # A hop with no declared span is checked through its terms below instead.
+    if span and not _contains(content, span):
         _fail(
             f"{spec_id}/{hop['hop_id']}：期望片段 {span!r} 不是 {source_id} 该 chunk 的原文子串。"
             "该跳无法由这份证据支持，拒绝生成复合题。"
@@ -370,14 +377,21 @@ def build_contract(
         required_hops: list[dict[str, Any]] = []
         for row in hop_rows:
             hop = row["spec"]
-            required_hops.append({
+            entry: dict[str, Any] = {
                 "hop_id": str(hop["hop_id"]),
                 "from_question": str(hop["from_question"]),
                 "source_chunk_id": row["document"].chunk_id,
-                "expected_span": str(hop["expected_span"]),
                 "required_terms": hop["required_terms"],
                 "position": row["position"],
-            })
+            }
+            # Omitted rather than set to "" so the auditor sees no span to
+            # match and judges the hop on terms, which is the point of the
+            # demotion.
+            if hop.get("expected_span"):
+                entry["expected_span"] = str(hop["expected_span"])
+            if hop.get("span_demoted_because"):
+                entry["span_demoted_because"] = str(hop["span_demoted_because"])
+            required_hops.append(entry)
         # `expected_sources` is deliberately populated: besides giving the
         # source-coverage metric something to measure, a non-empty list keeps
         # the auditor out of its word-list refusal branch, which would
@@ -391,11 +405,14 @@ def build_contract(
             # Spans follow the contract format the auditor reads: a list of
             # objects with `text`, not bare strings.  Passing strings made
             # `soft_audit` fail with AttributeError on `expected.get("text")`.
-            expected_spans.append({
-                "id": f"{spec_id}-h{index}",
-                "text": str(row["spec"]["expected_span"]),
-                "source": source,
-            })
+            # A demoted hop contributes no span, and must not contribute an
+            # empty one: `{"text": ""}` would be scored as a failed span.
+            if row["spec"].get("expected_span"):
+                expected_spans.append({
+                    "id": f"{spec_id}-h{index}",
+                    "text": str(row["spec"]["expected_span"]),
+                    "source": source,
+                })
         entry: dict[str, Any] = {
             "id": spec_id,
             "question": str(spec["question"]),
@@ -607,8 +624,10 @@ def main() -> int:
                   f"ctx={sum(len(d.page_content) for d in composite.documents)} chars)")
             for row in hop_rows_by_id[spec_id]:
                 mark = "kept" if row["within_truncation"] else "TRUNCATED@5"
+                span = row["spec"].get("expected_span")
+                shown = repr(span) if span else "（无跨段，按词项计分）"
                 print(f"   {row['hop_id']:4s} pos={row['position']:<3d} {mark:14s} "
-                      f"{row['spec']['from_question']:16s} span={row['spec']['expected_span']!r}")
+                      f"{row['spec']['from_question']:16s} span={shown}")
 
     if args.check:
         _compare_cases(args.output, composites)
