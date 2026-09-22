@@ -241,6 +241,39 @@ def summarize_rows(rows: list[dict]) -> dict:
     }
 
 
+def execution_parameters(args: argparse.Namespace) -> dict:
+    """The knobs a stability-gate failure has to be diagnosed against.
+
+    These travel with every run because without them the numbers cannot be
+    interpreted after the fact: a timeout rate is meaningless without the
+    ceiling it was measured against, and a success rate is meaningless without
+    the retry policy.
+
+    This was learned the hard way.  Runs recorded before these fields existed
+    re-aggregate to ``latency_ceiling_seconds: None`` and
+    ``latency_headroom_seconds: None`` -- so "was the ceiling too tight, or did
+    the service break?" is unanswerable from the artifact, and the two have
+    opposite remedies.
+
+    Built as one function so the fields cannot be dropped one at a time: a
+    payload that silently loses the ceiling looks exactly like a healthy run.
+    """
+    return {
+        "llm_timeout_seconds": int(settings.llm_timeout_seconds),
+        "generation_max_retries": int(args.max_retries),
+        # The evidence cap is the one parameter that distinguishes the two arms
+        # of the multi-hop experiment, so it has to travel with the run.  It was
+        # absent, which made a 5-item run and an all-items run indistinguishable
+        # in their metadata.
+        "max_evidence": int(args.max_evidence),
+        # Character budget per chunk.  Distinct from max_evidence: that one
+        # trades latency for *more* chunks, this one shrinks each chunk.
+        "max_chars_per_item": (
+            None if args.max_chars_per_item is None else int(args.max_chars_per_item)
+        ),
+    }
+
+
 async def run(args: argparse.Namespace) -> dict:
     cases = load_cases(args.snapshot)
     evaluation = load_evaluation(Path(args.evaluation))
@@ -310,20 +343,9 @@ async def run(args: argparse.Namespace) -> dict:
         "evaluation_version": load_evaluation_version(Path(args.evaluation)),
         "repetition_index": int(args.repetition_index),
         # Execution parameters are recorded so a stability-gate failure can be
-        # diagnosed without guessing: the ceiling explains timeouts, and the
-        # retry count states whether a failed call was ever retried.
-        "llm_timeout_seconds": int(settings.llm_timeout_seconds),
-        "generation_max_retries": int(args.max_retries),
-        # The evidence cap is the one parameter that distinguishes the two arms
-        # of the multi-hop experiment, so it has to travel with the run.  It was
-        # absent, which made a 5-item run and an all-items run indistinguishable
-        # in their metadata.
-        "max_evidence": int(args.max_evidence),
-        # Character budget per chunk.  Distinct from max_evidence: that one
-        # trades latency for *more* chunks, this one shrinks each chunk.
-        "max_chars_per_item": (
-            None if args.max_chars_per_item is None else int(args.max_chars_per_item)
-        ),
+        # diagnosed without guessing.  Built in one place so a field cannot be
+        # dropped silently -- see `execution_parameters`.
+        **execution_parameters(args),
         "retrieval_calls": 0,
         "dry_run": bool(args.dry_run),
         "elapsed_seconds": round(time.perf_counter() - started, 3),
