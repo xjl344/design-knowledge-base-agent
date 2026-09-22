@@ -150,6 +150,43 @@
 - 导出：`export_replay_fixtures.py`，**带 `audit_version` 闸门**——旧口径的 fixture 会被拒绝而不是混入。缺这道闸门时，早于预清洗层的旧数据会被当作当前结果，制造出假的指标漂移
 - 用途：不调用模型即可验证判定逻辑未变
 - 局限：只覆盖判定层，不覆盖生成质量
+- **两条基线要分清**：`recorded_audit` 是运行当时的口径（历史记录，带
+  `recorded_audit_version`）；**`replayed_audit` 是导出时用当前规则对同一答案的重算值**，
+  漂移测试比的是它。跨口径去比 `recorded_audit` 会把版本变更报成回归。
+- **`--reaudit`**：允许来源运行口径与当前不同，用存下来的答案按当前规则重算。
+  **不需要 provider**——这是「全量重算」可负担的原因。
+- **覆盖面是硬要求**：fixture 必须包含真实题契约（`r*`）与降级跳
+  （无 `expected_span`、按词项计分）。曾经 19 条全来自单跳与合成集，
+  于是两次口径改动通过了全部测试却**一次都没被真正执行**。
+
+## 离线闸门：解释器与子集
+
+判据必须写清**用哪个解释器、跑哪个子集**，否则「全量通过」是个无法验收的说法。
+
+| 用途 | 解释器 | 子集 | 预期 |
+|---|---|---|---|
+| 全量 | `E:\venvs\design-kb-round2\Scripts\python.exe` | `tests/` 全部 | **只有 1 项失败**：`test_graph.py::test_web_policy_...`（旧链路，与本评测无关）|
+| 离线 | 项目内 `.venv` | 判定层与聚合层（`test_frozen_generation` / `test_generation_slices_and_gates` / `test_aggregate_slice_report` / `test_eval_report` / `test_replay_fixtures` / `test_generation_replay_aggregate` / `test_config_timeouts` / `test_eval_dependency_surface` / `test_multihop_*` / `test_span_*` / `test_provider_gate` / `test_offline_gates`）| 全通过 |
+
+⚠️ **两个解释器不等价**：项目 `.venv` 是 Python 3.14 且**未装 chromadb**，
+依赖模型的测试无法收集。**这不是缺陷**，是隔离设计——离线链路必须能在没有模型客户端的
+环境里验证，这一点由 `test_eval_dependency_surface.py` 守住。
+
+⚠️ **本环境 pytest 的最终统计行常常不回显**，只到 `short test summary info` 为止。
+**用失败列表判断，不要等那行 `N passed` 数字。**
+
+### 不变量闸门（`tests/test_offline_gates.py`）
+
+这些是「能不能聚合、能不能平均」的前提，全部离线、确定性：
+
+| 闸门 | 违反后果 |
+|---|---|
+| `retrieval_calls == 0` | 会拿检索质量冒充生成质量 |
+| `dry_run == false` | 干跑没有模型答案，平均进来等于平均空气 |
+| 同输入聚合两次必须逐字节一致 | 否则「变化」无法与聚合器自身的不确定性区分 |
+| provider 失败不进质量分母 | 兜底文案是**非空固定串**，不查状态就会被当成答案 |
+| `evaluation_sha256` 一致 | complete 与 partial 题集绝不可混合平均 |
+| `audit_version` 一致 | v6 的跨度分与 v7 不是同一个测量 |
 
 ## 相关文件
 
@@ -157,3 +194,5 @@
 - `scripts/New-GenerationReport.ps1`——聚合与出报告
 - `aggregate_generation_replays.py`——聚合 CLI
 - `docs/evaluation-contract.md`——判定口径
+- `scripts/interleaved_generation_rounds.py`——同轮交替运行 + `provider_gate`
+- `scripts/build_multihop_snapshot.py`——复合题构建 + `SPAN_DEMOTIONS`
