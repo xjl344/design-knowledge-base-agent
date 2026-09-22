@@ -1,11 +1,14 @@
 {
   "fixture_version": 1,
-  "audit_version": "soft-audit-behaviour-v6",
+  "audit_version": "soft-audit-behaviour-v7",
   "source_runs": [
     "E:\\设计知识库助手\\data\\runs\\p1_v6_compress600.json",
     "E:\\设计知识库助手\\data\\runs\\mh_g3_v6_compress300.json"
   ],
   "skipped_runs": [],
+  "reaudited_from": [
+    "soft-audit-behaviour-v6"
+  ],
   "snapshots": [
     "E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl",
     "E:\\设计知识库助手\\data\\frozen_multihop_cases.jsonl"
@@ -87,6 +90,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 115
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -152,6 +156,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 80
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -226,6 +231,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 156
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -300,6 +306,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 120
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -364,6 +371,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 107
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -439,6 +447,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 83
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -513,6 +522,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 73
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -578,6 +588,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 62
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -646,6 +657,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 286
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -718,6 +730,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 619
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -781,6 +794,7 @@
         "numeric_citation_metric_applicable": false,
         "answer_length": 539
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -885,6 +899,7 @@
         "numeric_citation_metric_applicable": false,
         "answer_length": 459
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1014,6 +1029,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 636
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1140,6 +1156,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 679
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1249,6 +1266,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 409
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1371,6 +1389,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 532
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1476,6 +1495,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 478
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1590,6 +1610,7 @@
         "numeric_citation_metric_applicable": true,
         "answer_length": 435
       },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1647,6 +1668,7 @@
         "ambiguity_requirements": []
       },
       "recorded_status": "provider_timeout",
+      "recorded_audit_version": "soft-audit-behaviour-v7",
       "recorded_audit": {
         "citation_status": "not_applicable",
         "citation_validity": null,

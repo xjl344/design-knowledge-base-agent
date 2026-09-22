@@ -51,6 +51,7 @@ if str(ROOT) not in sys.path:
 
 from src.frozen_evidence import (  # noqa: E402
     _normalise_text,
+    _span_matches,
     _SPAN_BARE_LABEL_RE,
     _SPAN_PARENTHETICAL_RE,
     _strip_span_noise,
@@ -91,20 +92,49 @@ def collect_spans(paths: list[Path]) -> list[dict[str, Any]]:
 
 
 def inspect(span: str) -> dict[str, Any]:
+    """Can any answer match this span?  Two independent tests.
+
+    **Identity.**  An answer that quotes the declared span verbatim must be
+    credited.  A span that fails this is unmatchable by construction.  This
+    catches damage applied to *both* sides equally.
+
+    **Variable preservation.**  Every `letter+digits` token in the declared span
+    must still be represented after normalisation.  This catches damage applied
+    to *one* side only -- which is the case that actually bit: the contract's
+    `D1` was deleted as a table label while the answer's LaTeX `D_1` survived,
+    so the two sides normalised to different things and no answer could match.
+    Identity alone does not catch that, because the span matches itself.
+    """
+    normalised = _normalise_text(_strip_span_noise(span))
     after_labels = _SPAN_BARE_LABEL_RE.sub("", span)
     after_parens = _SPAN_PARENTHETICAL_RE.sub("", span)
     labels_removed = re.findall(r"(?<![A-Za-z0-9])[A-Za-z]\d{1,2}(?![A-Za-z0-9])", span)
     parens_removed = _SPAN_PARENTHETICAL_RE.findall(span)
-    # A removed label is only *damage* if it was alphanumeric content.  A span
-    # that legitimately mentions a table label still loses it here, which is why
-    # this is reported for a human to accept rather than silently fixed.
+
+    # Tokens the normalised form no longer represents.  Only letters are
+    # required to survive: the operators and brackets are *meant* to go.
+    # A substring test comes first because the tokeniser is greedy -- `vhd12` is
+    # one token, so a startswith-only check would report the `h` inside it as
+    # lost.
+    normalised_tokens = re.findall(r"[a-z]+\d*|\d+", normalised)
+    lost: list[str] = []
+    for token in re.findall(r"[A-Za-z]+\d*", span):
+        lowered = token.lower()
+        if lowered in normalised:
+            continue
+        if any(item.startswith(lowered) for item in normalised_tokens):
+            continue
+        lost.append(token)
+
     return {
-        "normalised": _normalise_text(_strip_span_noise(span)),
+        "normalised": normalised,
         "after_labels": after_labels,
         "after_parens": after_parens,
         "labels_removed": sorted(set(labels_removed)),
         "parens_removed": parens_removed,
-        "labels_damage": bool(labels_removed),
+        "tokens_lost": sorted(set(lost)),
+        "matches_itself": _span_matches(span, span),
+        "labels_damage": bool(lost),
         "parens_damage": bool(parens_removed),
     }
 
@@ -126,37 +156,40 @@ def main(argv: list[str] | None = None) -> int:
     spans = collect_spans(paths)
     print(f"契约文件 {len(paths)} 个，声明的期望跨段 {len(spans)} 个\n")
 
-    damaged = []
+    unmatchable = []
+    informational = []
     for item in spans:
         report = inspect(item["span"])
         item.update(report)
-        if report["labels_damage"] or report["parens_damage"]:
-            damaged.append(item)
+        if not report["matches_itself"]:
+            unmatchable.append(item)
+        elif report["tokens_lost"] or report["parens_damage"]:
+            informational.append(item)
 
-    if not damaged:
-        print("所有期望跨段在规范化后内容完好。")
+    if not unmatchable and not informational:
+        print("所有期望跨段都能自匹配，且规范化未丢失词元。")
         return 0
 
-    for item in damaged:
+    for item in unmatchable + informational:
         print("-" * 76)
-        print(f"  [{item['source']}] {item['question_id']} {item['hop_id']}")
+        print(
+            f"  [{item['source']}] {item['question_id']} {item['hop_id']}"
+            + ("" if item["matches_itself"] else "   ← 无法自匹配")
+        )
         print(f"    原文        : {item['span']!r}")
-        if item["labels_damage"]:
-            print(f"    剥「标签」后: {item['after_labels']!r}")
-            print(f"      被当作标签删掉: {item['labels_removed']}")
-        if item["parens_damage"]:
-            print(f"    剥「括号」后: {item['after_parens']!r}")
-            print(f"      被当作括号删掉: {item['parens_removed']}")
         print(f"    最终规范化  : {item['normalised']!r}")
+        if item["tokens_lost"]:
+            print(f"    规范化后不再出现的词元: {item['tokens_lost']}")
+            print("      （两侧同样被剥离时无害；只在一侧剥离时任何答案都匹配不上）")
+        if item["parens_damage"]:
+            print(f"    被当作括号删掉: {item['parens_removed']}")
 
-    label_damage = [item for item in damaged if item["labels_damage"]]
-    paren_only = [item for item in damaged if not item["labels_damage"]]
     print()
-    print(f"标签剥离造成的损坏（必须处理）: {len(label_damage)}")
-    print(f"仅括号剥离（通常无害，需人确认）: {len(paren_only)}")
-    if label_damage:
+    print(f"无法自匹配（必须处理）: {len(unmatchable)}")
+    print(f"规范化后丢失词元（需人确认是否对称）: {len(informational)}")
+    if unmatchable:
         print()
-        print("这些跨段的变量被当成表标签删掉了，任何答案都无法匹配到它们。")
+        print("自匹配失败的跨段：连逐字引用契约原文的答案都拿不到分。")
         return 1
     return 0
 

@@ -156,6 +156,9 @@ def _synthesize_failure_fixtures(
                     "ambiguity_requirements": spec.get("ambiguity_requirements", []),
                 },
                 "recorded_status": status,
+                # Synthesized under the current rules, so this is not a
+                # re-audit and the drift comparison stays valid for it.
+                "recorded_audit_version": AUDIT_VERSION,
                 # No model call happened, so there is no generation-side row to
                 # copy.  The replay path is the only thing under test here, and
                 # its rule is the auditor's: recognise the substitute, emit no
@@ -174,6 +177,7 @@ def export(
     snapshots: list[Path],
     evaluations: list[Path],
     ensure_failure_coverage: bool = True,
+    reaudit: bool = False,
 ) -> dict[str, Any]:
     # Cases and their expectations can live in more than one file: the original
     # single-hop set and the composite multi-hop set are separate snapshots
@@ -202,8 +206,15 @@ def export(
         # their audits cannot be reproduced by this code -- replaying them
         # reports a drift that is really just a stale baseline.  Refuse the
         # whole run rather than silently mixing rule generations.
+        #
+        # ``reaudit`` is the deliberate exception, for rebuilding a baseline
+        # from answers that are already on disk.  It does not weaken the guard:
+        # the fixture keeps the *source* version per row, so the cross-version
+        # comparison is marked as unavailable instead of being reported as
+        # drift.  Re-scoring needs no provider -- only the answer text -- which
+        # is what makes a full recompute affordable.
         run_version = run.get("audit_version")
-        if run_version != AUDIT_VERSION:
+        if run_version != AUDIT_VERSION and not reaudit:
             skipped.append((run_path.name, str(run_version)))
             continue
         # The pack the run actually scored must be the pack the replay rebuilds.
@@ -265,6 +276,11 @@ def export(
                         for key in AUDIT_FIELDS
                         if key in recorded_audit
                     },
+                    # Which rules produced `recorded_audit`.  When this differs
+                    # from the file's `audit_version`, the two are not
+                    # comparable and the drift test must say so rather than
+                    # reporting a rule change as a regression.
+                    "recorded_audit_version": run_version,
                     "synthesized": False,
                     "recorded_status": status,
                 }
@@ -308,6 +324,18 @@ def export(
         "audit_version": AUDIT_VERSION,
         "source_runs": [str(path.resolve()) for path in run_paths],
         "skipped_runs": [name for name, _ in skipped],
+        # The versions the answers originally came from.  Non-empty means this
+        # file was rebuilt by re-scoring stored answers, so `recorded_audit`
+        # describes a different rule generation and must not be compared with
+        # the recomputed values.
+        "reaudited_from": sorted(
+            {
+                fixture["recorded_audit_version"]
+                for fixture in fixtures
+                if fixture.get("recorded_audit_version") not in (None, AUDIT_VERSION)
+            },
+            key=str,
+        ),
         "snapshots": [str(path.resolve()) for path in snapshots],
         "evaluations": [str(path.resolve()) for path in evaluations],
         "fixture_count": len(fixtures),
@@ -343,6 +371,15 @@ def main() -> int:
         ],
     )
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--reaudit",
+        action="store_true",
+        help=(
+            "允许来源运行的口径与当前不同：用存下来的答案按当前规则重算，"
+            "并逐条记录来源口径。跨口径的漂移比对会被标记为不可用，而不是报成回归。"
+            "重算不需要 provider，这是「全量重算」可负担的原因。"
+        ),
+    )
     args = parser.parse_args()
 
     snapshots = [path for path in args.snapshot if path.exists()]
@@ -350,14 +387,23 @@ def main() -> int:
     if not snapshots or not evaluations:
         raise SystemExit(f"快照或契约文件不存在：{args.snapshot} / {args.evaluation}")
 
-    payload = export(args.runs, snapshots=snapshots, evaluations=evaluations)
+    payload = export(
+        args.runs,
+        snapshots=snapshots,
+        evaluations=evaluations,
+        reaudit=args.reaudit,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
     )
     print(
         json.dumps(
-            {"output": str(args.output.resolve()), "fixtures": payload["fixture_count"]},
+            {
+                "output": str(args.output.resolve()),
+                "fixtures": payload["fixture_count"],
+                "reaudited_from": payload["reaudited_from"],
+            },
             ensure_ascii=False,
         )
     )

@@ -340,10 +340,13 @@ def test_audit_version_is_bumped_for_the_new_rule():
     v5: multi-hop questions gain per-hop coverage (``hop_recall``).
     v6: citation attribution is measured against the answer's own numeric
     claims rather than against the evidence count.
+    v7: normalisation stops deleting content it was never meant to touch
+    (answer parentheses, formula variables, exponents), and a contract may
+    declare accepted renderings via ``expected_span_alternatives``.
     """
     from src.frozen_evidence import AUDIT_VERSION
 
-    assert AUDIT_VERSION == "soft-audit-behaviour-v6"
+    assert AUDIT_VERSION == "soft-audit-behaviour-v7"
 
 
 def test_no_question_specific_branch_remains_in_the_audit():

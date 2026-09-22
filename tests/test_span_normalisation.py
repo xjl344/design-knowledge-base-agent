@@ -1,18 +1,20 @@
-"""The declared spans must survive normalisation with their content intact.
+"""The declared spans must be matchable, and the matcher must not invent credit.
 
-`hop_recall` compares an answer against `expected_span` only after normalising
-both.  Normalisation is lossy, and a *formula* is exactly the shape it damages:
-`_SPAN_BARE_LABEL_RE` cannot tell a formula variable (`D1`) from a table label
-(`T1`), and `_normalise_text` deletes the operators that separate numbers, so
-`/ 12 / 1000` fuses into `121000`.
+Two opposite failures are guarded here, and the second is the dangerous one:
 
-A span that has been destroyed this way is not scored harshly -- it cannot be
-scored at all.  These tests pin the damage so it cannot grow silently, and pin
-the mechanism so a future fix is recognised as a fix rather than a regression.
+* a span that **no answer can match** -- the target destroyed before comparison;
+* a matcher loose enough to credit an answer that never brought the fact out,
+  which would raise the score while looking like diligence.
+
+The audit (`data/span_audit.v1.json`) found 22 real paraphrases and 11 real
+misses in the same shape, so widening the regex to catch paraphrases credits
+both.  The resolution is that paraphrases are **declared by the contract**, which
+is what `expected_span_alternatives` is for.
 """
 
 from __future__ import annotations
 
+import glob
 import json
 from pathlib import Path
 import sys
@@ -24,114 +26,184 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.check_span_normalisation import collect_spans, inspect  # noqa: E402
-from src.frozen_evidence import _normalise_text, _span_matches  # noqa: E402
-
-# The spans the guard currently reports as damaged by label-stripping.  Every
-# one of these declares a formula whose variables look like table labels.
-# Adding a span to this list is a decision, not a convenience: it means a hop
-# can no longer be credited no matter how well it is answered.
-KNOWN_LABEL_DAMAGED = {
-    ("generation_eval.multihop.real.v1.json", "4", "h1"),
-    ("generation_eval.multihop.real.complete.v2.json", "4", "h1"),
-    ("generation_eval.multihop.real.partial.v2.json", "2", "h2"),
-}
-
-# Reported by the guard but *not* failed: the regex cannot tell a unit in
-# brackets from content in brackets, so these need a human to accept them.
-KNOWN_PARENS_ONLY = {
-    ("generation_eval.multihop.real.v1.json", "2", "h1"),
-    ("generation_eval.multihop.real.complete.v2.json", "2", "h1"),
-    ("generation_eval.multihop.real.partial.v2.json", "0", "h3"),
-    ("generation_eval.multihop.real.partial.v2.json", "5", "h1"),
-}
+from src.frozen_evidence import (  # noqa: E402
+    _normalise_text,
+    _span_matches,
+    _strip_span_noise,
+)
 
 TAPER_SPAN = "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000"
 
+# Spans that still lose tokens to normalisation.  All of these lose them on
+# *both* sides identically, which is harmless; the set is pinned so a new one
+# shows up as a diff to be judged rather than as a silent change in what the
+# metric can measure.
+KNOWN_TOKEN_LOSS = {
+    ("generation_eval.multihop.real.v1.json", "2", "h1", ("mL", "mm")),
+    ("generation_eval.multihop.real.complete.v2.json", "2", "h1", ("mL", "mm")),
+    ("generation_eval.multihop.real.partial.v2.json", "2", "h2", ("P5", "P50", "P95")),
+}
 
-def test_label_stripping_deletes_formula_variables():
-    """The mechanism: `D1`/`D2` are removed as if they were table labels."""
+
+def _all_spans():
+    return collect_spans(
+        sorted(Path(p) for p in glob.glob(str(ROOT / "data" / "generation_eval*.json")))
+    )
+
+
+# ---------------------------------------------------------------------------
+# No declared span may be unmatchable.
+# ---------------------------------------------------------------------------
+
+
+def test_no_declared_span_is_unmatchable():
+    """An answer quoting the contract verbatim must be credited.
+
+    This is the criterion that failed before v7: `_SPAN_BARE_LABEL_RE` deleted
+    `D1`/`D2` as if they were table labels, and `_normalise_text` deleted the
+    operators so `/ 12 / 1000` fused into `121000`.
+    """
+    broken = [
+        (item["source"], item["question_id"], item["hop_id"])
+        for item in _all_spans()
+        if not inspect(item["span"])["matches_itself"]
+    ]
+    assert broken == []
+
+
+def test_the_taper_formula_keeps_its_variables():
+    """The specific span that was destroyed, checked end to end."""
     report = inspect(TAPER_SPAN)
-    assert report["labels_removed"] == ["D1", "D2"]
-    assert "D1" not in report["after_labels"]
-    assert "D2" not in report["after_labels"]
+    assert report["matches_itself"] is True
+    assert report["tokens_lost"] == []
+    for variable in ("d1", "d2"):
+        assert variable in report["normalised"]
 
 
-def test_number_separators_fuse_after_normalisation():
-    """`/ 12 / 1000` loses its slashes and becomes the token `121000`."""
-    assert inspect(TAPER_SPAN)["normalised"] == "vh121000"
-    # Nothing can contain this: it is an artefact of deleting the operators.
-    assert "121000" not in "v=pi*h*(d1^2+d1*d2+d2^2)/12/1000"
+def test_superscript_and_latex_exponents_are_the_same_formula():
+    """`D1²` and `D_1^2` are one formula; a LaTeX-rendering model writes the second."""
+    assert _normalise_text("D1²") == _normalise_text("D_1^2")
+    assert _normalise_text("内径²(mm)") == _normalise_text("内径^2(mm)")
 
 
-def test_a_correctly_rendered_formula_still_fails_to_match():
-    """The defect, end to end: the model writes the formula and scores zero.
+def test_token_loss_is_pinned():
+    found = set()
+    for item in _all_spans():
+        report = inspect(item["span"])
+        if report["tokens_lost"]:
+            found.add(
+                (
+                    item["source"],
+                    item["question_id"],
+                    str(item["hop_id"]),
+                    tuple(report["tokens_lost"]),
+                )
+            )
+    assert found == KNOWN_TOKEN_LOSS
 
-    This is the LaTeX rendering taken from `data/runs/mhreal_r3.json` (r19).
-    It is the same formula; only the notation differs.  If this test ever starts
-    passing, the matcher has been fixed -- and that fix changes every historical
-    score, so `AUDIT_VERSION` must move with it.
+
+# ---------------------------------------------------------------------------
+# The answer keeps its parentheses.
+# ---------------------------------------------------------------------------
+
+
+def test_answer_parentheses_are_not_stripped():
+    """An answer's brackets hold facts; a contract's hold units.
+
+    `mh03 h2` scored zero with `未成年人（4～17岁）人体尺寸` plainly in the text,
+    because the same regex that removes `(mL)` from a contract also removed the
+    age range from the answer.
+    """
+    answer = "GB/T 26158—2010 覆盖中国未成年人（4～17岁）人体尺寸，分为五个年龄组"
+    assert _span_matches("4岁~17岁", answer) is True
+
+
+def test_only_the_contract_loses_its_parentheses():
+    """The brackets go on both sides; only the *content* is protected.
+
+    `_normalise_text` still deletes the bracket characters themselves -- it
+    deletes every symbol.  What v7 stopped doing is deleting what is *inside*
+    them on the answer side.
+    """
+    assert "4~17岁" in _normalise_text(_strip_span_noise("未成年人（4～17岁）", parens=False))
+    assert "4~17岁" not in _normalise_text(_strip_span_noise("未成年人（4～17岁）"))
+
+
+def test_a_contracts_unit_annotation_may_still_be_dropped():
+    """`内径(mm)` and `内径` are the same requirement."""
+    assert _span_matches("内径(mm)", "按内径计算") is True
+    assert _span_matches("有效液高(mm)", "有效液高为 120 mm") is True
+
+
+def test_number_fusion_is_still_unfixed():
+    """A known remaining defect, pinned rather than quietly tolerated.
+
+    `_normalise_text` deletes the operators that separate numbers, so `12 / 1000`
+    becomes the token `121000`, which appears in no answer.  It is not fixed here
+    because the numeric fallback usually recovers the case, and changing
+    number extraction would move scores far beyond the spans this version
+    targets.
+    """
+    assert _normalise_text("12 / 1000") == "121000"
+    assert _normalise_text("12 × 1000") == "121000"
+
+
+# ---------------------------------------------------------------------------
+# Alternatives are declared, reviewed decisions -- not a looser regex.
+# ---------------------------------------------------------------------------
+
+
+def test_a_declared_alternative_credits_a_reviewed_paraphrase():
+    answer = "若反推得到的有效液高使总高度过大，应检查重心是否过高、倾倒风险是否增加。"
+    assert _span_matches("检查高度是否导致重心过高", answer) is False
+    assert (
+        _span_matches("检查高度是否导致重心过高", answer, alternatives=["重心是否过高"])
+        is True
+    )
+
+
+def test_an_alternative_does_not_excuse_an_unrelated_answer():
+    """The guard against alternatives becoming a way to credit everything.
+
+    The audit found real misses next to real paraphrases; an alternative that
+    matched on a topic word alone would credit both.
+    """
+    assert (
+        _span_matches(
+            "检查高度是否导致重心过高", "座高应为 400~440 mm。", alternatives=["重心是否过高"]
+        )
+        is False
+    )
+
+
+def test_alternatives_are_empty_by_default():
+    """A hop that declares none must behave exactly as before."""
+    answer = "应检查重心是否过高"
+    assert _span_matches("检查高度是否导致重心过高", answer) is False
+    assert _span_matches("检查高度是否导致重心过高", answer, alternatives=()) is False
+
+
+# ---------------------------------------------------------------------------
+# Known limitation, pinned so it cannot be mistaken for a fix.
+# ---------------------------------------------------------------------------
+
+
+def test_a_latex_rendered_formula_still_needs_a_declared_alternative():
+    """`\\frac{...}{...}` inserts letters between the symbols.
+
+    The variables now survive, so the span is no longer destroyed -- but a LaTeX
+    rendering still does not contain the linear form, and fixing that is a
+    contract decision (`expected_span_alternatives`) rather than a regex one.
     """
     answer = (
-        "按锥台近似公式计算：  \\[ V=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}"
-        "{12\\times1000} \\] 代入： V≈332.3 mL"
+        "按锥台近似公式：\\[ V=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000} \\]"
+        " 得 332.3 mL"
     )
     assert _span_matches(TAPER_SPAN, answer) is False
-
-
-def test_a_plain_span_without_labels_is_untouched():
-    """The guard must not cry wolf: ordinary spans pass through unchanged."""
-    span = "本标准适用于扶手椅、靠背椅、折叠椅的设计和生产"
-    report = inspect(span)
-    assert report["labels_removed"] == []
-    assert report["parens_removed"] == []
-    assert report["normalised"] == _normalise_text(span)
-
-
-def test_parenthetical_removal_is_reported_separately_from_label_damage():
-    """`(mL)` is harmless; `(4岁~17岁)` is content.  The regex cannot tell them
-    apart, so the guard reports both and fails only on label damage."""
-    unit = inspect("有效容量 V(mL) = π × 内径² / 4 / 1000")
-    assert unit["parens_removed"] == ["(mL)"]
-    assert unit["labels_damage"] is False
-    assert unit["parens_damage"] is True
-
-    age = inspect("本标准给出了未成年人(4岁~17岁)72项人体尺寸")
-    assert age["parens_removed"] == ["(4岁~17岁)"]
-    assert age["labels_damage"] is False
-
-
-@pytest.mark.parametrize("path", sorted({name for name, _, _ in KNOWN_LABEL_DAMAGED}))
-def test_committed_contracts_contain_only_the_known_damaged_spans(path):
-    """A newly introduced formula span must fail here, not in a scored run."""
-    spans = collect_spans([ROOT / "data" / path])
-    damaged = {
-        (item["source"], item["question_id"], str(item["hop_id"]))
-        for item in spans
-        if inspect(item["span"])["labels_damage"]
-    }
-    expected = {
-        (name, question_id, hop_id)
-        for name, question_id, hop_id in KNOWN_LABEL_DAMAGED
-        if name == path
-    }
-    assert damaged == expected
-
-
-def test_parens_only_damage_is_pinned_too():
-    """Parenthetical removal must not grow silently either.
-
-    It does not fail the guard, because removing `(mL)` is right and removing
-    `(4岁~17岁)` is wrong and the regex sees them identically.  Pinning the set
-    means a new one shows up as a diff to be accepted, not as a quiet change in
-    what the metric can measure.
-    """
-    found = set()
-    for name, _, _ in KNOWN_LABEL_DAMAGED | KNOWN_PARENS_ONLY:
-        for item in collect_spans([ROOT / "data" / name]):
-            report = inspect(item["span"])
-            if report["parens_damage"] and not report["labels_damage"]:
-                found.add((item["source"], item["question_id"], str(item["hop_id"])))
-    assert found == KNOWN_PARENS_ONLY
+    # With the rendering declared, the same answer is credited.
+    assert (
+        _span_matches(TAPER_SPAN, answer, alternatives=["D_1^2+D_1D_2+D_2^2"]) is True
+    )
 
 
 # ---------------------------------------------------------------------------

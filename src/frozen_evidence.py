@@ -39,7 +39,20 @@ if TYPE_CHECKING:  # pragma: no cover - import-time only
 #   v6 -> citation attribution is measured against the answer's own numeric
 #         claims instead of against the evidence count, so it no longer moves
 #         when the amount of evidence changes
-AUDIT_VERSION = "soft-audit-behaviour-v6"
+#   v7 -> normalisation stops deleting content it was never meant to touch, and
+#         a contract may declare accepted renderings of a span:
+#           * parenthetical stripping is no longer applied to the *answer*,
+#             where brackets hold facts (`未成年人（4～17岁）`), only to the
+#             contract, where they hold units (`V(mL)`)
+#           * formula variables (`D1`) are no longer deleted as table labels
+#             (`T1`), which had made some spans unmatchable by construction
+#           * superscript exponents are read (`D1²` == `D_1^2`) instead of
+#             deleted, so a LaTeX rendering stops being a different formula
+#           * `expected_span_alternatives` lets a contract declare paraphrases
+#             it accepts, because a verbatim match cannot tell a paraphrase from
+#             a miss and widening the regex would credit both
+#         Every v6 span score is therefore not comparable with a v7 one.
+AUDIT_VERSION = "soft-audit-behaviour-v7"
 
 
 # Text substituted when the provider failed to produce an answer.  It lives
@@ -89,12 +102,40 @@ _SPAN_PARENTHETICAL_RE = re.compile(r"[（(][^）)]{1,12}[）)]")
 # values such as ``10mm`` or ``GB3326`` are not touched, and so that the
 # digits belonging to the label (``1340`` below) are not mistaken for data.
 _SPAN_BARE_LABEL_RE = re.compile(r"(?<![A-Za-z0-9])[A-Za-z]\d{1,2}(?![A-Za-z0-9])")
+# Markers that mean "this is a formula, not prose".  A formula's variables
+# (``D1``, ``D2``) are indistinguishable from table labels (``T1``, ``H2``) by
+# shape alone, and deleting them removes the formula's meaning: the declared
+# span ``V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000`` became
+# ``V = π × h × (² +  ×  + ²) / 12 / 1000``, which no answer can match.  The
+# guard is scripts/check_span_normalisation.py.
+_SPAN_MATH_RE = re.compile(r"[×÷=^]|[²³]|(?<=\d)\s*[+/]\s*(?=\d)")
 
 
-def _strip_span_noise(value: Any) -> str:
-    """Remove citation markers and table labels prior to normalising."""
-    text = _SPAN_LABEL_RE.sub("", str(value or ""))
-    text = _SPAN_PARENTHETICAL_RE.sub("", text)
+def _strip_citations(value: Any) -> str:
+    """Remove citation markers only.
+
+    Safe to apply to an answer: ``[L7]`` is harness scaffolding that neither the
+    contract nor the answer means as content.
+    """
+    return _SPAN_LABEL_RE.sub("", str(value or ""))
+
+
+def _strip_span_noise(value: Any, *, parens: bool = True) -> str:
+    """Remove citation markers, unit annotations and table labels.
+
+    **Only valid for the expected span when ``parens`` is left True.**  The same
+    brackets hold different things on the two sides: a contract writes units in
+    them (``V(mL)``), an answer writes facts in them
+    (``未成年人（4～17岁）人体尺寸``).  Stripping the answer deletes the fact and
+    makes a correct answer unmatchable -- that is how ``mh03 h2`` scored zero
+    with the age range plainly present in the text.  Pass ``parens=False`` for
+    answers.
+    """
+    text = _strip_citations(value)
+    if parens:
+        text = _SPAN_PARENTHETICAL_RE.sub("", text)
+    if _SPAN_MATH_RE.search(text):
+        return text
     return _SPAN_BARE_LABEL_RE.sub("", text)
 
 
@@ -134,6 +175,10 @@ def _normalise_text(value: Any) -> str:
     text = text.replace(">=", "ge").replace("≤", "le").replace("≥", "ge")
     text = text.replace("<=", "le")
     text = text.replace("毫米", "mm").replace("厘米", "cm")
+    # Superscript exponents: `D1²` and `D_1^2` are the same formula written two
+    # ways, and a model rendering LaTeX always uses the second.  Deleting the
+    # superscript rather than reading it made the two notations unequal.
+    text = text.replace("²", "2").replace("³", "3")
     text = text.replace("～", "~").replace("至", "~").replace("到", "~")
     text = text.replace("−", "-").replace("–", "-").replace("—", "-")
     text = re.sub(r"\s+", "", text)
@@ -143,10 +188,46 @@ def _normalise_text(value: Any) -> str:
     return re.sub(r"[^0-9a-z\u4e00-\u9fff~%-]+", "", text)
 
 
-def _span_matches(expected: str, answer: str) -> bool:
-    # Strip citation markers and table labels first; see _strip_span_noise.
-    expected_normalised = _normalise_text(_strip_span_noise(expected))
-    answer_normalised = _normalise_text(_strip_span_noise(answer))
+def _expected_variants(expected: str) -> list[str]:
+    """The declared span, plus the same span with unit annotations removed.
+
+    Dropping ``(mL)``/``(mm)`` is a legitimate reading of the *contract*, which
+    uses brackets for units.  The answer is never treated this way -- see
+    ``_strip_span_noise`` -- because there the same brackets hold facts.
+    """
+    as_written = _strip_span_noise(expected)
+    without_units = _strip_span_noise(expected, parens=False)
+    return [as_written] if without_units == as_written else [as_written, without_units]
+
+
+def _span_matches(
+    expected: str, answer: str, *, alternatives: Iterable[Any] = ()
+) -> bool:
+    """Does the answer bring this span out, in the declared wording or an accepted one?
+
+    The answer keeps its parentheses: an answer's brackets carry content
+    (`未成年人（4～17岁）`), and deleting them is how a correct answer scores
+    zero.  Only the expected side may have unit annotations dropped.
+
+    ``alternatives`` are **accepted renderings declared by the contract**.  They
+    exist because a verbatim match cannot distinguish a paraphrase from a miss,
+    and widening the regex to catch paraphrases would also credit real misses:
+    the audit found 22 real paraphrases and 11 real misses in the same shape.  A
+    declared alternative is a reviewed decision, so the fix is evidence-driven
+    instead of a tolerance knob nobody can audit.
+    """
+    answer_normalised = _normalise_text(_strip_span_noise(answer, parens=False))
+    for span in (expected, *alternatives):
+        if not str(span or "").strip():
+            continue
+        for candidate in _expected_variants(str(span)):
+            if _span_matches_one(candidate, answer_normalised):
+                return True
+    return False
+
+
+def _span_matches_one(expected: str, answer_normalised: str) -> bool:
+    expected_normalised = _normalise_text(expected)
     if not expected_normalised:
         return False
     if expected_normalised in answer_normalised:
@@ -804,7 +885,9 @@ def soft_audit(
 
     def _match_groups(groups: Iterable[Any]) -> list[dict[str, Any]]:
         results = []
-        answer_normalised = _normalise_text(_strip_span_noise(answer))
+        # The answer keeps its parentheses, for the same reason as in
+        # `_span_matches`: there the brackets hold facts, not unit annotations.
+        answer_normalised = _normalise_text(_strip_span_noise(answer, parens=False))
 
         def _hit(terms: Iterable[str]) -> list[str]:
             return [
@@ -936,7 +1019,17 @@ def soft_audit(
             continue
         hop_term_results = _match_groups(hop.get("required_terms") or [])
         hop_span = str(hop.get("expected_span") or "")
-        span_matched = _span_matches(hop_span, answer) if hop_span else None
+        # Accepted renderings the contract declares explicitly.  Recorded on the
+        # hop so a reader can see *which* wording was accepted rather than
+        # having to trust that the matcher was reasonable.
+        hop_alternatives = [
+            str(item) for item in (hop.get("expected_span_alternatives") or [])
+            if str(item).strip()
+        ]
+        span_matched = (
+            _span_matches(hop_span, answer, alternatives=hop_alternatives)
+            if (hop_span or hop_alternatives) else None
+        )
         # A hop with declared terms must match all of them; a hop with a
         # declared span must also bring that span out.  ``span_matched is not
         # False`` keeps hops that declare no span judgeable on terms alone.
@@ -948,6 +1041,7 @@ def soft_audit(
             "from_question": str(hop.get("from_question") or ""),
             "source_chunk_id": str(hop.get("source_chunk_id") or ""),
             "expected_span": hop_span,
+            "expected_span_alternatives": hop_alternatives,
             "span_matched": span_matched,
             "terms": hop_term_results,
             "matched": terms_matched and span_matched is not False,
