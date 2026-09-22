@@ -13,6 +13,7 @@ the mechanism so a future fix is recognised as a fix rather than a regression.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 import sys
 
@@ -131,3 +132,78 @@ def test_parens_only_damage_is_pinned_too():
             if report["parens_damage"] and not report["labels_damage"]:
                 found.add((item["source"], item["question_id"], str(item["hop_id"])))
     assert found == KNOWN_PARENS_ONLY
+
+
+# ---------------------------------------------------------------------------
+# The sensitivity analysis must keep bracketing the answer.
+# ---------------------------------------------------------------------------
+
+
+def _write_run(tmp_path, hops):
+    """A minimal replay-shaped run whose single question carries `hops`."""
+    row = {
+        "question_id": "q",
+        "status": "completed",
+        "answer": "answer",
+        "audit": {
+            "hop_metric_applicable": True,
+            "hop_results": [
+                {"hop_id": f"h{index}", "matched": matched, "expected_span": span}
+                for index, (span, matched) in enumerate(hops)
+            ],
+        },
+    }
+    path = tmp_path / "run.json"
+    path.write_text(json.dumps({"rows": [row]}, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+def test_a_damaged_hop_is_removed_from_the_clean_denominator(tmp_path):
+    """The upper bound must drop the unmeasurable observation, not the hit."""
+    from scripts.quantify_span_defect import measure
+
+    path = _write_run(tmp_path, [(TAPER_SPAN, False), ("干净跨段", True)])
+    result = measure(path, {TAPER_SPAN})
+    assert result["hops_total"] == 2
+    assert result["hops_matched"] == 1
+    assert result["hops_on_damaged_span"] == 1
+    assert result["hops_on_clean_span"] == 1
+    assert result["ratio_lower"] == 0.5
+    assert result["ratio_upper"] == 1.0
+
+
+def test_the_upper_bound_is_never_below_the_lower_bound(tmp_path):
+    """Removing observations can only shrink the denominator.
+
+    If this inverts, the bracket is meaningless -- and a meaningless bracket is
+    worse than no bracket, because it looks like a result.
+    """
+    from scripts.quantify_span_defect import measure
+
+    for hops in (
+        [(TAPER_SPAN, False)],
+        [(TAPER_SPAN, True)],
+        [(TAPER_SPAN, False), ("干净", False)],
+        [("干净", True), ("干净2", True)],
+        [],
+    ):
+        result = measure(_write_run(tmp_path, hops), {TAPER_SPAN})
+        lower, upper = result["ratio_lower"], result["ratio_upper"]
+        if lower is None or upper is None:
+            continue
+        assert upper >= lower, f"{hops} -> {lower} > {upper}"
+
+
+def test_a_clean_span_failure_is_not_excused_by_the_analysis(tmp_path):
+    """A hop that fails on a *clean* span must stay in the denominator.
+
+    This is the guard against the analysis quietly becoming a way to write off
+    every failure as a metric problem.
+    """
+    from scripts.quantify_span_defect import measure
+
+    path = _write_run(tmp_path, [("干净但答错了", False)])
+    result = measure(path, {TAPER_SPAN})
+    assert result["hops_on_damaged_span"] == 0
+    assert result["ratio_lower"] == 0.0
+    assert result["ratio_upper"] == 0.0
