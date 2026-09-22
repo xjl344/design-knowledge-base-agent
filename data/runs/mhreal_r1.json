@@ -1,0 +1,963 @@
+{
+  "experiment": "generation-replay",
+  "run_id": "20260922T105901+0800_2ae25e98",
+  "started_at": "2026-09-22T10:59:01.503044+08:00",
+  "finished_at": "2026-09-22T11:07:50.610225+08:00",
+  "model": "gpt-5.6",
+  "snapshot": "E:\\设计知识库助手\\data\\frozen_multihop_real_cases.jsonl",
+  "snapshot_sha256": "0827fae76db446f5c153773b4c349ba04b5f43c5fcfcbc1140a067e1ae5d4854",
+  "evaluation": "E:\\设计知识库助手\\data\\generation_eval.multihop.real.v1.json",
+  "evaluation_sha256": "8e46eeaa58f9e26ada9b2829a81a33849035140d11d92695a25afbd85abf1adc",
+  "prompt_version": "generator-v2-20260919-r2",
+  "audit_version": "soft-audit-behaviour-v6",
+  "evaluation_version": 1,
+  "repetition_index": 1,
+  "llm_timeout_seconds": 180,
+  "generation_max_retries": 0,
+  "max_evidence": 99,
+  "max_chars_per_item": null,
+  "retrieval_calls": 0,
+  "dry_run": false,
+  "elapsed_seconds": 528.913,
+  "summary": {
+    "total": 5,
+    "completed": 4,
+    "generation_success_rate": 0.8,
+    "status_counts": {
+      "completed": 4,
+      "provider_timeout": 1
+    },
+    "provider_timeout_rate": 0.2,
+    "provider_error_rate": 0.0,
+    "generation_latency_seconds": {
+      "p50": 54.001,
+      "p95": 137.042,
+      "max": 137.042
+    },
+    "citation_status_counts": {
+      "pass": 4
+    },
+    "citation_metric_sample_size": 4,
+    "citation_validity_rate": 1.0,
+    "citation_id_usage_ratio_mean": 0.325,
+    "span_metric_sample_size": 4,
+    "answer_span_recall_mean": 0.125,
+    "required_term_recall_mean": null,
+    "required_term_metric_sample_size": 0,
+    "hop_recall_mean": 0.125,
+    "hop_metric_sample_size": 4,
+    "numeric_citation_coverage_mean": 0.833,
+    "numeric_citation_metric_sample_size": 4,
+    "truncation_lost_fact_count": 0,
+    "truncation_lost_fact_question_ids": [],
+    "truncation_lost_fact_details": [],
+    "malformed_output_count": 0,
+    "malformed_output_question_ids": [],
+    "sanitization_rule_counts": {},
+    "first_try_success_count": 4,
+    "retried_success_count": 0,
+    "retried_success_question_ids": [],
+    "failed_attempt_count_total": 0,
+    "refusal_correctness_rate": null,
+    "ambiguity_safety_rate": null
+  },
+  "rows": [
+    {
+      "question_id": "r03_office_chair_constraints",
+      "question": "办公椅座高、座深和扶手高的设定，哪些参数可由GB/T 3326—2016直接约束，哪些还需要用GB/T 10000—2023校核？",
+      "snapshot_id": "82fd87f471c78192",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10",
+        "L11",
+        "L12",
+        "L13",
+        "L14",
+        "L15",
+        "L16",
+        "L17",
+        "L18",
+        "L19",
+        "L20"
+      ],
+      "evidence_count": 20,
+      "truncation_lost_facts": [],
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 20
+      },
+      "answer": "- **座高：可由 GB/T 3326—2016 直接约束。**资料给出的座高 \\(H1\\) 为 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2]  \n  同时应使用 GB/T 10000—2023 校核目标人群的**坐姿腘高**，因为该标准提供坐姿人体尺寸及不同年龄组、百分位数数据。[L12][L13] 这是人体适配校核，不是对 GB/T 3326 数值的替代。\n\n- **座深：可由 GB/T 3326—2016 直接约束。**靠背椅座深 \\(T1\\) 为 **340～460 mm**。[L1]  \n  还应结合 GB/T 10000—2023 的**坐姿臀—腘距**进行人体适配校核；该项目属于坐姿测量项目。[L6][L10]具体采用哪个百分位及由此得到的座深结论，当前资料无法确认。\n\n- **扶手高：当前资料无法确认 GB/T 3326—2016 的直接限值。**现有摘录仅明确扶手椅的章节存在，但未给出扶手高度数值。[L2]  \n  可用 GB/T 10000—2023 的**坐姿肘高**作为人体尺寸校核相关参数；该项目在标准中列为坐姿测量项目。[L6][L10]但扶手高还涉及扶手垫厚度、坐姿、支撑方式和调节范围，现有资料不足以直接推出具体尺寸。\n\n**结论：**座高、座深有 GB/T 3326—2016 的产品尺寸约束，并需用人体百分位数据复核；扶手高在当前证据中没有可引用的 GB/T 3326 直接数值，只能先以坐姿肘高等人体数据作为待验证校核依据。",
+      "raw_answer": "- **座高：可由 GB/T 3326—2016 直接约束。**资料给出的座高 \\(H1\\) 为 **400～440 mm**；软面最大座高为 **460 mm（包括下沉量）**。[L2]  \n  同时应使用 GB/T 10000—2023 校核目标人群的**坐姿腘高**，因为该标准提供坐姿人体尺寸及不同年龄组、百分位数数据。[L12][L13] 这是人体适配校核，不是对 GB/T 3326 数值的替代。\n\n- **座深：可由 GB/T 3326—2016 直接约束。**靠背椅座深 \\(T1\\) 为 **340～460 mm**。[L1]  \n  还应结合 GB/T 10000—2023 的**坐姿臀—腘距**进行人体适配校核；该项目属于坐姿测量项目。[L6][L10]具体采用哪个百分位及由此得到的座深结论，当前资料无法确认。\n\n- **扶手高：当前资料无法确认 GB/T 3326—2016 的直接限值。**现有摘录仅明确扶手椅的章节存在，但未给出扶手高度数值。[L2]  \n  可用 GB/T 10000—2023 的**坐姿肘高**作为人体尺寸校核相关参数；该项目在标准中列为坐姿测量项目。[L6][L10]但扶手高还涉及扶手垫厚度、坐姿、支撑方式和调节范围，现有资料不足以直接推出具体尺寸。\n\n**结论：**座高、座深有 GB/T 3326—2016 的产品尺寸约束，并需用人体百分位数据复核；扶手高在当前证据中没有可引用的 GB/T 3326 直接数值，只能先以坐姿肘高等人体数据作为待验证校核依据。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 54.001,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17",
+          "L18",
+          "L19",
+          "L20"
+        ],
+        "used_citations": [
+          "L1",
+          "L2",
+          "L6",
+          "L10",
+          "L12",
+          "L13"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.3,
+        "expected_answer_spans": [
+          {
+            "id": "r03_office_chair_constraints-h1",
+            "text": "400~440",
+            "matched": true,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "r03_office_chair_constraints-h2",
+            "text": "坐姿膝高",
+            "matched": false,
+            "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 0.5,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [],
+        "unsupported_number_count": 0,
+        "unsupported_claim_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "expected_span": "400~440",
+            "span_matched": true,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "座高"
+                ],
+                "hits": [
+                  "座高"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": true
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q08_hit",
+            "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+            "expected_span": "坐姿膝高",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "坐姿膝高"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": 0.5,
+        "hop_metric_applicable": true,
+        "numeric_claim_blocks": 3,
+        "attributed_numeric_claim_blocks": 3,
+        "uncited_numeric_claim_blocks": 0,
+        "numeric_claim_citation_coverage": 1.0,
+        "uncited_numeric_claim_excerpts": [],
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 660,
+        "length_limit_exceeded": false,
+        "warnings": [],
+        "model_error": null,
+        "raw_answer_length": 660,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 53.996
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "r04_child_chair_flow",
+      "question": "儿童座椅不能直接套用成人椅标准。请提出从GB/T 26158—2010、GB/T 3326—2016到样机测试的尺寸决策流程，并说明证据边界。",
+      "snapshot_id": "c9c97ed4f80ae388",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10"
+      ],
+      "evidence_count": 10,
+      "truncation_lost_facts": [],
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 10
+      },
+      "answer": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具标准的**对照边界**，不能据此直接确定儿童尺寸。\n\n4. **形成儿童专用初始方案**  \n   依据儿童人体数据、目标姿态和安全需求，确定座高、座深、座宽、靠背角度、扶手及脚踏等尺寸。若标准与儿童人体需求冲突，应记录偏离理由；具体儿童数值当前资料无法确认。\n\n5. **样机测试与迭代**  \n   制作样机，开展实际坐姿、进出、稳定性、操作及长期使用评估，记录不同目标儿童的适配结果，再修订尺寸。资料强调产品设计应进行需求、环境和风险调查，调查是设计依据。[L8]\n\n### 证据边界\n\n上述流程是基于资料的有限推导，不是 GB/T 26158 或 GB/T 3326 对儿童座椅的直接规定。当前资料无法确认儿童百分位数据、适用年龄范围、具体安全尺寸、承载要求及测试判定值，必须通过儿童人体数据、相关儿童座椅标准和样机试验补齐。",
+      "raw_answer": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具标准的**对照边界**，不能据此直接确定儿童尺寸。\n\n4. **形成儿童专用初始方案**  \n   依据儿童人体数据、目标姿态和安全需求，确定座高、座深、座宽、靠背角度、扶手及脚踏等尺寸。若标准与儿童人体需求冲突，应记录偏离理由；具体儿童数值当前资料无法确认。\n\n5. **样机测试与迭代**  \n   制作样机，开展实际坐姿、进出、稳定性、操作及长期使用评估，记录不同目标儿童的适配结果，再修订尺寸。资料强调产品设计应进行需求、环境和风险调查，调查是设计依据。[L8]\n\n### 证据边界\n\n上述流程是基于资料的有限推导，不是 GB/T 26158 或 GB/T 3326 对儿童座椅的直接规定。当前资料无法确认儿童百分位数据、适用年龄范围、具体安全尺寸、承载要求及测试判定值，必须通过儿童人体数据、相关儿童座椅标准和样机试验补齐。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 104.983,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "used_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L8",
+          "L10"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.7,
+        "expected_answer_spans": [
+          {
+            "id": "r04_child_chair_flow-h1",
+            "text": "小腿加足高",
+            "matched": false,
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "r04_child_chair_flow-h2",
+            "text": "680~760",
+            "matched": false,
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "cited_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf",
+          "08_设计决策/General_Design/产品设计方法学——兼论产品的顶层设计与系统化设计 (闻邦椿) (z-library.sk, 1lib.sk, z-lib.sk).pdf"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "18岁"
+        ],
+        "unsupported_number_count": 1,
+        "unsupported_claim_count": 1,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "expected_span": "小腿加足高",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "小腿加足高"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "expected_span": "680~760",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "桌面高"
+                ],
+                "hits": [
+                  "桌面高"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_blocks": 4,
+        "attributed_numeric_claim_blocks": 4,
+        "uncited_numeric_claim_blocks": 0,
+        "numeric_claim_citation_coverage": 1.0,
+        "uncited_numeric_claim_excerpts": [],
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 881,
+        "length_limit_exceeded": true,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "18岁"
+            ]
+          },
+          {
+            "status": "answer_too_long",
+            "limit": 800,
+            "actual": 881
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 881,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 104.981
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "r17_cylinder_capacity",
+      "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
+      "snapshot_id": "c9c97ed4f80ae388",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10"
+      ],
+      "evidence_count": 10,
+      "truncation_lost_facts": [],
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 10
+      },
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 180.038,
+      "error": "Request timed out.",
+      "error_type": "provider_timeout",
+      "attempt_count": 1,
+      "generation_status": "provider_timeout",
+      "answer_status": "fallback",
+      "generation_success": false,
+      "provider_error_type": "provider_timeout",
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "used_citations": [],
+        "invalid_citations": [],
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": null,
+        "expected_answer_spans": [
+          {
+            "id": "r17_cylinder_capacity-h1",
+            "text": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+            "matched": false,
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          },
+          {
+            "id": "r17_cylinder_capacity-h2",
+            "text": "额定容量应低于杯口溢流前的最大容量",
+            "matched": false,
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          }
+        ],
+        "expected_answer_span_recall": null,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": false,
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "cited_sources": [],
+        "source_coverage": null,
+        "unsupported_numbers": [],
+        "unsupported_number_count": null,
+        "unsupported_claim_count": null,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "内径"
+                ],
+                "hits": [],
+                "matched": false
+              },
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "有效液高"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "expected_span": "额定容量应低于杯口溢流前的最大容量",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "额定容量"
+                ],
+                "hits": [],
+                "matched": false
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_blocks": 0,
+        "attributed_numeric_claim_blocks": 0,
+        "uncited_numeric_claim_blocks": 0,
+        "numeric_claim_citation_coverage": null,
+        "uncited_numeric_claim_excerpts": [],
+        "numeric_citation_metric_applicable": false,
+        "answer_length": null,
+        "length_limit_exceeded": null,
+        "warnings": [
+          {
+            "status": "source_not_cited",
+            "expected_sources": [
+              "08_设计决策/水杯尺寸推导规则.md"
+            ]
+          },
+          {
+            "status": "not_audited",
+            "reason": "生成失败（provider_timeout），兜底文案不参与质量与行为判定"
+          }
+        ],
+        "model_error": "Request timed out.",
+        "raw_answer_length": 33,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": false,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "provider_timeout",
+            "error": "Request timed out.",
+            "latency_seconds": 180.037
+          }
+        ],
+        "failed_attempt_count": 1
+      },
+      "status": "provider_timeout"
+    },
+    {
+      "question_id": "r18_height_adjustment",
+      "question": "设计500 mL便携杯时，握持外径受杯架限制不能增大，应如何利用容量公式、杯底和重心规则调整高度，并保留哪些风险？",
+      "snapshot_id": "c9c97ed4f80ae388",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10"
+      ],
+      "evidence_count": 10,
+      "truncation_lost_facts": [],
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 10
+      },
+      "answer": "- **先固定外部约束，再反推内部高度。** 500 mL 应按有效容量计算，而不是按总尺寸估算。若杯体近似圆柱，应使用内径 \\(D\\) 和有效液高 \\(h\\)：  \n  \\[\n  V=\\pi D^2h/4/1000\n  \\]\n  因此应在杯架允许的外径范围内，扣除杯壁、保温层和结构件后确定内径，再反推 \\(h\\)。[L7]  \n  仅凭“500 mL”和受限外径，当前资料无法确认具体总高度；还需要内径、有效液高及结构占用尺寸。\n\n- **高度调整策略。** 若反推的有效高度过大，不应无限增加杯身高度；应优先检查能否减少结构占用、优化杯型或调整杯底，并同步检查重心、倾倒风险和单手操作困难。[L7] 这里“调整杯底”的具体方向和尺寸，当前资料无法确认，需通过结构计算或样机验证。\n\n- **容量余量。** 额定容量应低于杯口溢流前的最大容量；便携、易晃动或带吸管时应预留防溢空间。余量不能直接套用固定百分比，应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n- **必须保留的风险。**  \n  1. 杯壁、保温层或结构件占用空间，导致实际有效容量不足；[L9]  \n  2. 为满足容量而增加高度，可能造成重心过高、倾倒风险增加或单手操作困难；[L7]  \n  3. 装满热水后存在烫手或重心偏移风险；[L9]  \n  4. 杯底、杯盖和防溢设计仍需通过结构计算、模具试制及产品测试验证，当前资料无法确认最终尺寸。[L7]",
+      "raw_answer": "- **先固定外部约束，再反推内部高度。** 500 mL 应按有效容量计算，而不是按总尺寸估算。若杯体近似圆柱，应使用内径 \\(D\\) 和有效液高 \\(h\\)：  \n  \\[\n  V=\\pi D^2h/4/1000\n  \\]\n  因此应在杯架允许的外径范围内，扣除杯壁、保温层和结构件后确定内径，再反推 \\(h\\)。[L7]  \n  仅凭“500 mL”和受限外径，当前资料无法确认具体总高度；还需要内径、有效液高及结构占用尺寸。\n\n- **高度调整策略。** 若反推的有效高度过大，不应无限增加杯身高度；应优先检查能否减少结构占用、优化杯型或调整杯底，并同步检查重心、倾倒风险和单手操作困难。[L7] 这里“调整杯底”的具体方向和尺寸，当前资料无法确认，需通过结构计算或样机验证。\n\n- **容量余量。** 额定容量应低于杯口溢流前的最大容量；便携、易晃动或带吸管时应预留防溢空间。余量不能直接套用固定百分比，应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n- **必须保留的风险。**  \n  1. 杯壁、保温层或结构件占用空间，导致实际有效容量不足；[L9]  \n  2. 为满足容量而增加高度，可能造成重心过高、倾倒风险增加或单手操作困难；[L7]  \n  3. 装满热水后存在烫手或重心偏移风险；[L9]  \n  4. 杯底、杯盖和防溢设计仍需通过结构计算、模具试制及产品测试验证，当前资料无法确认最终尺寸。[L7]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 52.834,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "used_citations": [
+          "L7",
+          "L9"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "expected_answer_spans": [
+          {
+            "id": "r18_height_adjustment-h1",
+            "text": "再用容量公式反推有效高度",
+            "matched": false,
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          },
+          {
+            "id": "r18_height_adjustment-h2",
+            "text": "检查高度是否导致重心过高",
+            "matched": false,
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "cited_sources": [
+          "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md",
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "500 mL"
+        ],
+        "unsupported_number_count": 1,
+        "unsupported_claim_count": 1,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "expected_span": "再用容量公式反推有效高度",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "反推"
+                ],
+                "hits": [
+                  "反推"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": false
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "expected_span": "检查高度是否导致重心过高",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "重心"
+                ],
+                "hits": [
+                  "重心"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_blocks": 5,
+        "attributed_numeric_claim_blocks": 5,
+        "uncited_numeric_claim_blocks": 0,
+        "numeric_claim_citation_coverage": 1.0,
+        "uncited_numeric_claim_excerpts": [],
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 614,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "500 mL"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 614,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 52.832
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    },
+    {
+      "question_id": "r19_taper_capacity",
+      "question": "锥台杯上下端内径70 mm和60 mm、有效液高100 mm，如何计算理想容量？复杂曲面如何改变方法？",
+      "snapshot_id": "c9c97ed4f80ae388",
+      "allowed_citations": [
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6",
+        "L7",
+        "L8",
+        "L9",
+        "L10"
+      ],
+      "evidence_count": 10,
+      "truncation_lost_facts": [],
+      "retrieval_timing": {
+        "composite": true,
+        "document_count": 10
+      },
+      "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，\\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)、\\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，该杯按锥台近似得到的**有效几何容量约为332.5 mL**。计算应使用上下端**内径**和有效液高，而不是外径和总高度。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式；应使用CAD计算内部体积，或通过实际注水测量获得容量。[L7]此外，额定容量应低于溢流前最大容量；若产品需要携带、使用吸管或容易晃动，还应预留防溢空间，具体余量需结合杯盖、倾倒姿态和测试结果确定，当前资料无法确认固定百分比。[L7]",
+      "raw_answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，\\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)、\\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100\\times12700}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，该杯按锥台近似得到的**有效几何容量约为332.5 mL**。计算应使用上下端**内径**和有效液高，而不是外径和总高度。[L7]\n\n如果杯体是复杂曲面，不能直接套用上述锥台公式；应使用CAD计算内部体积，或通过实际注水测量获得容量。[L7]此外，额定容量应低于溢流前最大容量；若产品需要携带、使用吸管或容易晃动，还应预留防溢空间，具体余量需结合杯盖、倾倒姿态和测试结果确定，当前资料无法确认固定百分比。[L7]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "model": "gpt-5.6",
+      "generation_latency_seconds": 137.042,
+      "error": null,
+      "error_type": null,
+      "attempt_count": 1,
+      "generation_status": "completed",
+      "answer_status": "generated",
+      "generation_success": true,
+      "provider_error_type": null,
+      "audit": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "used_citations": [
+          "L7"
+        ],
+        "invalid_citations": [],
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.1,
+        "expected_answer_spans": [
+          {
+            "id": "r19_taper_capacity-h1",
+            "text": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+            "matched": false,
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          },
+          {
+            "id": "r19_taper_capacity-h2",
+            "text": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+            "matched": false,
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          }
+        ],
+        "expected_answer_span_recall": 0.0,
+        "required_terms": [],
+        "required_term_recall": null,
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "span_metric_applicable": true,
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "cited_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "source_coverage": 1.0,
+        "unsupported_numbers": [
+          "000",
+          "70",
+          "60",
+          "00",
+          "70",
+          "70",
+          "60",
+          "000",
+          "00",
+          "2700",
+          "12000",
+          "32.5",
+          "332.5 mL"
+        ],
+        "unsupported_number_count": 13,
+        "unsupported_claim_count": 13,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_results": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "锥台"
+                ],
+                "hits": [
+                  "锥台"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": false
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+            "span_matched": false,
+            "terms": [
+              {
+                "kind": "alternatives",
+                "alternatives": [
+                  "复杂曲面"
+                ],
+                "hits": [
+                  "复杂曲面"
+                ],
+                "matched": true
+              }
+            ],
+            "matched": false
+          }
+        ],
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_blocks": 6,
+        "attributed_numeric_claim_blocks": 2,
+        "uncited_numeric_claim_blocks": 4,
+        "numeric_claim_citation_coverage": 0.333,
+        "uncited_numeric_claim_excerpts": [
+          "\\[ V=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000} \\]",
+          "其中，\\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)、\\(h=100\\text{ mm}\\)。代入：",
+          "\\[ V=\\frac{\\pi\\times100\\times(70^2+70\\times60+60^2)}{12\\times1000} \\]",
+          "\\[ =\\frac{\\pi\\times100\\times12700}{12000} \\approx332.5\\text{ mL} \\]"
+        ],
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 487,
+        "length_limit_exceeded": false,
+        "warnings": [
+          {
+            "status": "unsupported_number",
+            "numbers": [
+              "000",
+              "70",
+              "60",
+              "00",
+              "70",
+              "70",
+              "60",
+              "000",
+              "00",
+              "2700",
+              "12000",
+              "32.5",
+              "332.5 mL"
+            ]
+          }
+        ],
+        "model_error": null,
+        "raw_answer_length": 487,
+        "sanitization_applied": false,
+        "sanitization_rules": [],
+        "generation_success": true,
+        "attempts": [
+          {
+            "attempt": 1,
+            "status": "completed",
+            "error": null,
+            "latency_seconds": 137.04
+          }
+        ],
+        "failed_attempt_count": 0
+      },
+      "status": "completed"
+    }
+  ]
+}

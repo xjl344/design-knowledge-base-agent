@@ -562,3 +562,70 @@ def test_builder_accepts_a_span_split_by_table_layout():
     }
     document, _ = builder._resolve_hop("mh-z", hop, cases)
     assert document.chunk_id == "chunk-z"
+
+
+# --- the builder's own guards --------------------------------------------
+
+
+def test_check_compares_a_jsonl_snapshot_case_by_case(tmp_path):
+    """`--check` used to read the JSONL snapshot with `json.loads`.
+
+    The snapshot has one case per line, so parsing it as a single JSON document
+    raised "Extra data" on every run: the guard meant to catch a stale snapshot
+    failed unconditionally instead, which is worse than not having it.
+    """
+    import scripts.build_multihop_snapshot as builder
+
+    cases = [_case("mh-a", (_document("甲", "chunk-a"),)), _case("mh-b", (_document("乙", "chunk-b"),))]
+    path = tmp_path / "snapshot.jsonl"
+    path.write_text(
+        "\n".join(json.dumps(case.as_dict(), ensure_ascii=False) for case in cases) + "\n",
+        encoding="utf-8",
+    )
+    assert builder._compare_cases(path, cases) is True
+
+    stale = [_case("mh-a", (_document("改过了", "chunk-a"),))]
+    with pytest.raises(SystemExit, match="不一致"):
+        builder._compare_cases(path, stale)
+
+
+def test_a_partial_case_must_name_what_it_cannot_cover(tmp_path):
+    """The label alone is dangerous: a partial question is easier than a complete one."""
+    import scripts.build_multihop_snapshot as builder
+
+    payload = {
+        "version": "multihop-specs.v1",
+        "cases": [{
+            "id": "p01",
+            "coverage": "partial",
+            "question": "问题？",
+            "sources": ["q01_hit"],
+            "hops": [
+                {"hop_id": "h1", "from_question": "q01_hit", "chunk_id": "c1",
+                 "expected_span": "甲", "required_terms": [["甲"]]},
+                {"hop_id": "h2", "from_question": "q01_hit", "chunk_id": "c2",
+                 "expected_span": "乙", "required_terms": [["乙"]]},
+            ],
+        }],
+    }
+    path = tmp_path / "specs.json"
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    with pytest.raises(SystemExit, match="unsupported_needs"):
+        builder.load_specs(path)
+
+    payload["cases"][0]["unsupported_needs"] = ["缺失的文档不在快照里"]
+    path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    assert builder.load_specs(path)["cases"][0]["coverage"] == "partial"
+
+
+def test_select_cases_splits_by_coverage(tmp_path):
+    import scripts.build_multihop_snapshot as builder
+
+    specs = [
+        {"id": "a", "coverage": "complete"},
+        {"id": "b", "coverage": "partial"},
+        {"id": "c"},  # written before the field existed; treated as complete
+    ]
+    assert [spec["id"] for spec in builder.select_cases(specs, "complete")] == ["a", "c"]
+    assert [spec["id"] for spec in builder.select_cases(specs, "partial")] == ["b"]
+    assert len(builder.select_cases(specs, "all")) == 3

@@ -31,6 +31,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+from dataclasses import replace
 import hashlib
 import json
 import re
@@ -155,6 +156,19 @@ def load_specs(path: Path) -> dict[str, Any]:
         hops = case.get("hops")
         if not isinstance(hops, list) or len(hops) < 2:
             _fail(f"{case_id} 至少需要 2 跳（多跳题的定义）")
+        # A case labelled partial states that the frozen evidence covers only
+        # part of it.  The label is worthless -- and dangerous, because a
+        # partial case scores better than a complete one on the same evidence
+        # -- unless the uncovered part is named.  Requiring the list makes the
+        # gap part of the record instead of something a reader has to infer.
+        coverage = str(case.get("coverage") or "complete")
+        if coverage not in ("complete", "partial"):
+            _fail(f"{case_id} 的 coverage 只能是 complete 或 partial，实际 {coverage!r}")
+        if coverage == "partial" and not case.get("unsupported_needs"):
+            _fail(
+                f"{case_id} 标为 partial，但没有列出 unsupported_needs。"
+                "部分题必须写明哪部分证据缺失，否则无法与完整题区分。"
+            )
         for hop in hops:
             for field in ("hop_id", "from_question", "chunk_id", "expected_span"):
                 if not hop.get(field):
@@ -167,6 +181,70 @@ def load_specs(path: Path) -> dict[str, Any]:
                     "不在 sources 里；证据必须来自声明的来源，否则溯源不成立"
                 )
     return payload
+
+
+def case_coverage(spec: dict[str, Any]) -> str:
+    """``complete`` unless the spec says otherwise.
+
+    Specs written before the field existed have no label and are all complete,
+    so defaulting keeps them building byte-identically.
+    """
+    return str(spec.get("coverage") or "complete")
+
+
+def declares_coverage(spec: dict[str, Any]) -> bool:
+    """Whether the spec opts into the coverage distinction at all."""
+    return "coverage" in spec
+
+
+def select_cases(specs: list[dict[str, Any]], coverage: str) -> list[dict[str, Any]]:
+    if coverage == "all":
+        return list(specs)
+    selected = [spec for spec in specs if case_coverage(spec) == coverage]
+    if not selected:
+        _fail(f"没有 coverage={coverage} 的 case")
+    return selected
+
+
+# Per-chunk bookkeeping of the *source* question's retrieval, rather than
+# anything this composite did.  `retrieval_candidate_audit` alone serialises to
+# about 178,000 characters -- roughly 250x the chunk's own text -- and every
+# field here is written once per pooled document, so the snapshot ends up 99.9%
+# diagnostics.  They are also untrue of the composite: this case was never
+# retrieved, so carrying the source question's candidate lists into it reads as
+# this case's retrieval evidence.
+#
+# Verified unused on the generation path: the only readers are `src/retriever.py`
+# (which *writes* them) and the chunking-experiment evaluators, which read their
+# own retrieval results rather than a multi-hop snapshot.
+HEAVY_RETRIEVAL_DIAGNOSTICS = (
+    "retrieval_candidate_audit",
+    "retrieval_bm25_query_hits",
+    "bm25_query_hits",
+    "bm25_query_plan",
+    "retrieval_union_ids",
+    "retrieval_dense_top_ids",
+    "retrieval_bm25_top_ids",
+    "retrieval_reranked_top20_ids",
+    "retrieval_fallback_rrf_top20_ids",
+    "retrieval_final_top10_ids",
+    "candidate_entity_diagnostics",
+)
+
+
+def slim_document(document: FrozenDocument) -> FrozenDocument:
+    """Drop the per-chunk retrieval diagnostics from a pooled document."""
+    present = [key for key in HEAVY_RETRIEVAL_DIAGNOSTICS if key in document.metadata]
+    if not present:
+        return document
+    return replace(
+        document,
+        metadata={
+            key: value
+            for key, value in document.metadata.items()
+            if key not in HEAVY_RETRIEVAL_DIAGNOSTICS
+        },
+    )
 
 
 def _resolve_hop(
@@ -206,6 +284,8 @@ def _resolve_hop(
 def build_composite(
     spec: dict[str, Any],
     cases: dict[str, FrozenRetrievalCase],
+    *,
+    slim: bool = False,
 ) -> tuple[FrozenRetrievalCase, list[dict[str, Any]]]:
     spec_id = str(spec["id"])
     source_ids = [str(item) for item in spec["sources"]]
@@ -227,7 +307,7 @@ def build_composite(
             if document.chunk_id in seen_chunks:
                 continue
             seen_chunks.add(document.chunk_id)
-            documents.append(document)
+            documents.append(slim_document(document) if slim else document)
 
     missing = needed_chunk_ids - seen_chunks
     if missing:
@@ -265,6 +345,10 @@ def build_composite(
                 for row in hop_rows
             ],
             "note": "由冻结的单跳 case 池化而成，未执行检索（retrieval_calls=0）",
+            **(
+                {"retrieval_diagnostics_dropped": list(HEAVY_RETRIEVAL_DIAGNOSTICS)}
+                if slim else {}
+            ),
         },
         retrieval_timing={"composite": True, "document_count": len(documents)},
     )
@@ -274,6 +358,10 @@ def build_composite(
 def build_contract(
     specs: list[dict[str, Any]],
     hop_rows_by_id: dict[str, list[dict[str, Any]]],
+    *,
+    family: str = CONTRACT_VERSION,
+    version: int = 1,
+    generated_from: str = "",
 ) -> dict[str, Any]:
     contract_cases: list[dict[str, Any]] = []
     for spec in specs:
@@ -308,7 +396,7 @@ def build_contract(
                 "text": str(row["spec"]["expected_span"]),
                 "source": source,
             })
-        contract_cases.append({
+        entry: dict[str, Any] = {
             "id": spec_id,
             "question": str(spec["question"]),
             "expected_answer_spans": expected_spans,
@@ -320,15 +408,26 @@ def build_contract(
             "refusal_requirements": [],
             "ambiguity_requirements": [],
             "required_hops": required_hops,
-        })
+        }
+        # Only emitted when the spec declares a coverage.  The v1 specs do not,
+        # and their outputs are recorded in run metadata by hash: adding a field
+        # to them would change the hash and orphan every run already recorded
+        # against those files.  New specs declare it, so new contracts carry it.
+        if declares_coverage(spec):
+            entry["coverage"] = case_coverage(spec)
+            if case_coverage(spec) == "partial":
+                entry["unsupported_needs"] = [
+                    str(item) for item in (spec.get("unsupported_needs") or [])
+                ]
+        contract_cases.append(entry)
     return {
         # Integer version, matching every other contract file.  A string like
         # "multihop.v1" broke `load_evaluation_version`, which parses the field
         # as an int; `family` carries the disambiguation instead.
-        "version": 1,
-        "family": CONTRACT_VERSION,
+        "version": int(version),
+        "family": family,
         "generated_by": "scripts/build_multihop_snapshot.py",
-        "generated_from": str(DEFAULT_SPECS.relative_to(ROOT)).replace("\\", "/"),
+        "generated_from": generated_from,
         "note": (
             "复合多跳题契约：证据由冻结的单跳 case 池化而成，未执行检索。"
             "required_hops 逐跳声明该跳的事实必须来自哪个 chunk。"
@@ -337,19 +436,29 @@ def build_contract(
     }
 
 
-def build_slices(specs: list[dict[str, Any]]) -> dict[str, Any]:
+def build_slices(specs: list[dict[str, Any]], *, version: str = SLICE_VERSION) -> dict[str, Any]:
     slices = []
     for spec in specs:
-        slices.append({
+        coverage = case_coverage(spec)
+        tags = [str(item) for item in (spec.get("slice_tags") or [])]
+        entry: dict[str, Any] = {
             "id": str(spec["id"]),
             "case_type": "multi_hop",
             "risk_level": str(spec.get("risk_level") or "medium"),
-            "slice_tags": list(spec.get("slice_tags") or []),
+            "slice_tags": tags,
             "flaky": False,
             "notes": str(spec.get("notes") or ""),
-        })
+        }
+        if declares_coverage(spec):
+            # A partial question is easier than a complete one on the same
+            # evidence, so the split has to survive every route into the data:
+            # a tag for anything that groups by tag, a field for a reader.
+            if coverage == "partial" and "partial_coverage" not in tags:
+                entry["slice_tags"] = tags + ["partial_coverage"]
+            entry["coverage"] = coverage
+        slices.append(entry)
     return {
-        "version": SLICE_VERSION,
+        "version": version,
         "generated_by": "scripts/build_multihop_snapshot.py",
         # Must equal `CASE_TYPE_VALUES` in src/generation_slices.py, which
         # load_slices enforces.  Adding multi_hop there is part of this change.
@@ -407,6 +516,24 @@ def _compare(path: Path, payload: dict[str, Any]) -> bool:
     return False
 
 
+def _compare_cases(path: Path, composites: list[FrozenRetrievalCase]) -> bool:
+    """Compare a JSONL snapshot line by line.
+
+    The snapshot is JSONL, so reading it with ``json.loads`` raises "Extra
+    data" on the second case and ``--check`` could never pass -- the guard
+    meant to catch a stale snapshot failed on every run instead.  Comparing
+    the parsed cases keeps the guard honest.
+    """
+    if not path.exists():
+        _fail(f"--check 失败：{path} 不存在")
+    expected = [case.as_dict() for case in composites]
+    actual = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    if actual == expected:
+        return True
+    _fail(f"--check 失败：{path} 与由 spec 重新生成的结果不一致（文件已过期或被手改）")
+    return False
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="由冻结单跳快照池化出复合多跳题")
     parser.add_argument("--specs", type=Path, default=DEFAULT_SPECS)
@@ -414,23 +541,62 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--evaluation", type=Path, default=DEFAULT_EVAL)
     parser.add_argument("--slices", type=Path, default=DEFAULT_SLICES)
+    parser.add_argument(
+        "--coverage",
+        choices=("all", "complete", "partial"),
+        default="all",
+        help=(
+            "只构建某一类覆盖度的题。部分题与完整题必须分开成两个契约文件："
+            "部分题只在自身需求的一个子集上计分，其 hop_recall 与完整题不可比，"
+            "放进同一个均值就等于让难度随入选比例漂移。"
+        ),
+    )
+    parser.add_argument(
+        "--contract-family",
+        default=CONTRACT_VERSION,
+        help="契约 family 字段。改了题集内容就必须改它，否则两版契约无法区分",
+    )
+    parser.add_argument("--contract-version", type=int, default=1)
+    parser.add_argument("--slice-version", default=SLICE_VERSION)
+    parser.add_argument(
+        "--slim-retrieval-diagnostics",
+        action="store_true",
+        help=(
+            "去掉每个 chunk 的 retrieval_candidate_audit（约 17.8 万字符/条，"
+            "是源题检索的诊断，对复合题不成立）。默认关闭，以免改变已按哈希"
+            "记入历史运行的既有产物。"
+        ),
+    )
     parser.add_argument("--check", action="store_true", help="只校验，不写文件")
     parser.add_argument("--positions", action="store_true", help="打印每跳在上下文中的位置")
     args = parser.parse_args()
 
     specs_payload = load_specs(args.specs)
-    specs = specs_payload["cases"]
+    specs = select_cases(specs_payload["cases"], args.coverage)
     cases = load_cases(args.snapshot)
 
     composites: list[FrozenRetrievalCase] = []
     hop_rows_by_id: dict[str, list[dict[str, Any]]] = {}
     for spec in specs:
-        composite, hop_rows = build_composite(spec, cases)
+        composite, hop_rows = build_composite(
+            spec, cases, slim=bool(args.slim_retrieval_diagnostics)
+        )
         composites.append(composite)
         hop_rows_by_id[str(spec["id"])] = hop_rows
 
-    contract = build_contract(specs, hop_rows_by_id)
-    slices = build_slices(specs)
+    # Derived from the path actually used.  It used to be hardcoded to the
+    # default spec, so the real-question contract claimed to be generated from
+    # the synthetic spec -- a record that was simply wrong about its own input.
+    generated_from = str(args.specs.resolve().relative_to(ROOT)).replace("\\", "/") \
+        if args.specs.resolve().is_relative_to(ROOT) else str(args.specs)
+    contract = build_contract(
+        specs,
+        hop_rows_by_id,
+        family=args.contract_family,
+        version=args.contract_version,
+        generated_from=generated_from,
+    )
+    slices = build_slices(specs, version=args.slice_version)
 
     if args.positions:
         for spec in specs:
@@ -445,7 +611,7 @@ def main() -> int:
                       f"{row['spec']['from_question']:16s} span={row['spec']['expected_span']!r}")
 
     if args.check:
-        _compare(args.output, {"cases": [c.as_dict() for c in composites]})
+        _compare_cases(args.output, composites)
         _compare(args.evaluation, contract)
         _compare(args.slices, slices)
         print(json.dumps({"check": "ok", "cases": len(composites)}, ensure_ascii=False))

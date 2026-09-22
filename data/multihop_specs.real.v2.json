@@ -1,0 +1,689 @@
+{
+  "version": "multihop-specs.v1",
+  "content_version": "multihop-specs.real.v2",
+  "description": "真实用户提问的多跳题集 v2。题目原文取自 data/test_qa_35_complex.json，逐字不改。与 v1 的区别是引入了「按跳准入」：证据只能支撑问题一部分的题，以 coverage=partial 入选，并逐条列出未覆盖的需求。部分题只在自身需求的一个子集上计分，比完整题容易，因此两类题构建成两个独立契约，绝不可混合平均。",
+  "provenance": {
+    "source_file": "data/test_qa_35_complex.json",
+    "source_ids": [
+      "c03",
+      "c04",
+      "c17",
+      "c18",
+      "c19"
+    ],
+    "partial_ids": [
+      "c01",
+      "c07",
+      "c08",
+      "c20",
+      "c21",
+      "c27",
+      "c32"
+    ],
+    "excluded": {
+      "ids": [
+        "c02",
+        "c05",
+        "c06",
+        "c09",
+        "c10",
+        "c11",
+        "c12",
+        "c13",
+        "c14",
+        "c15",
+        "c16",
+        "c22",
+        "c23",
+        "c24",
+        "c25",
+        "c26",
+        "c28",
+        "c29",
+        "c30",
+        "c31",
+        "c33",
+        "c34",
+        "c35"
+      ],
+      "per_id": {
+        "c02": "需要手宽/手长推导杯径；GB/T 10000 在快照里只有食指长、掌围、足部等项目，没有手宽手长",
+        "c05": "需要 GB/T 16252 手部尺寸；该标准在快照里只有封面与前言两个 chunk，没有任何数据",
+        "c06": "4 个来源里只有 GB/T 10000 在快照里，开启力/杯盖结构/密封可靠性均无证据，凑不出两跳",
+        "c09": "所需来源全部不在冻结快照中：PC与Tritan选择规则.md、玻璃与塑料选择规则.md、水杯材料选择规则.md、GB_4806.7-2023.pdf",
+        "c10": "所需来源全部不在冻结快照中：PP与Tritan选择规则.md、水杯材料选择规则.md、LyondellBasell_PP_3486-01_TDS.pdf、Eastman_Tritan_TX1001_TDS_Official_Page.txt",
+        "c11": "所需来源全部不在冻结快照中：PC与Tritan选择规则.md、Eastman_Tritan_TX1001_TDS_Official_Page.txt、LEXAN™ Resin_123_Asia_Technical_Data_Sheet.pdf、水杯设计验证规则.md",
+        "c12": "所需来源全部不在冻结快照中：304与316选择规则.md、worldstainless_Stainless_Steel_Design_Guidelines.pdf、GB_4806.9-2023.pdf",
+        "c13": "所需来源全部不在冻结快照中：玻璃与塑料选择规则.md、SCHOTT_BOROFLOAT_33_Technical_Data.pdf、水杯材料选择规则.md",
+        "c14": "所需来源全部不在冻结快照中：Syensqo_Radel_PPSU_Design_Guide.pdf、Eastman_Tritan_TX1001_TDS_Official_Page.txt、LyondellBasell_PP_3486-01_TDS.pdf、水杯材料选择规则.md",
+        "c15": "所需来源全部不在冻结快照中：水杯材料选择规则.md、GB_4806.7-2023.pdf、EU_Food_Contact_Materials_Brochure.pdf",
+        "c16": "所需来源全部不在冻结快照中：水杯材料选择规则.md、水杯密封设计规则.md、WACKER_ELASTOSIL_R_plus_4305-60_S_Product_Data_Page.txt、GB_4806.11-2023.pdf",
+        "c22": "所需来源全部不在冻结快照中：水杯注塑设计规则.md、Eastman_Tritan_Processing_Mold_Design_Guidelines.pdf、Eastman_Tritan_Drying_Extrusion_Processing_Guide.pdf",
+        "c23": "所需来源全部不在冻结快照中：水杯注塑设计规则.md、LyondellBasell_PP_3486-01_TDS.pdf、水杯密封设计规则.md",
+        "c24": "3 个来源里只有水杯尺寸推导规则在快照里，挤出吹塑与模具设计指南均缺失，问题本身无证据",
+        "c25": "所需来源全部不在冻结快照中：水杯注塑设计规则.md、水杯密封设计规则.md、水杯设计验证规则.md",
+        "c26": "所需来源全部不在冻结快照中：水杯密封设计规则.md、水杯设计验证规则.md",
+        "c28": "需要 GB/T 16252 手部尺寸；该标准在快照里只有封面与前言两个 chunk，没有任何数据",
+        "c29": "所需来源全部不在冻结快照中：水杯材料选择规则.md、水杯设计验证规则.md、GB_4806.7-2023.pdf、EU_Food_Contact_Materials_Brochure.pdf",
+        "c30": "所需来源全部不在冻结快照中：水杯材料选择规则.md、PC与Tritan选择规则.md、Eastman_Tritan_TX1001_TDS_Official_Page.txt",
+        "c31": "所需来源全部不在冻结快照中：GB_4806.1-2016.pdf、GB_4806.7-2023.pdf、FDA_Food_Contact_Official_Entry.md、EU_Food_Contact_Materials_Brochure.pdf",
+        "c33": "所需来源全部不在冻结快照中：水杯材料选择规则.md、GB_4806.7-2023.pdf、EU_Food_Contact_Materials_Brochure.pdf",
+        "c34": "所需来源全部不在冻结快照中：水杯材料选择规则.md、PC与Tritan选择规则.md",
+        "c35": "8 个来源里只有水杯尺寸推导规则在快照里，材料/杯盖/密封/注塑/验证五份规则全部缺失"
+      }
+    },
+    "note": "v1 只收完全可覆盖的 5 题，并给出一句概括性的排除理由。v2 逐题给出排除原因：来源全缺、来源在但内容为空（c02/c05/c28）、或来源不足两跳（c06/c24/c35）——这三类是不同的结论，不应共用一个理由。另外 v1 的真实契约 generated_from 字段写成 data/multihop_specs.json（合成集），与自身输入不符；该文件已按哈希记入历史运行，故不重写，仅在此记录。"
+  },
+  "cases": [
+    {
+      "id": "r03_office_chair_constraints",
+      "question": "办公椅座高、座深和扶手高的设定，哪些参数可由GB/T 3326—2016直接约束，哪些还需要用GB/T 10000—2023校核？",
+      "sources": [
+        "q17_ambiguous",
+        "q08_hit"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "expected_span": "400~440",
+          "required_terms": [
+            [
+              "座高"
+            ]
+          ]
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q08_hit",
+          "chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+          "expected_span": "坐姿膝高",
+          "required_terms": [
+            [
+              "坐姿膝高"
+            ]
+          ]
+        }
+      ],
+      "coverage": "complete",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "risk_level": "medium",
+      "theme": "",
+      "notes": ""
+    },
+    {
+      "id": "r04_child_chair_flow",
+      "question": "儿童座椅不能直接套用成人椅标准。请提出从GB/T 26158—2010、GB/T 3326—2016到样机测试的尺寸决策流程，并说明证据边界。",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+          "expected_span": "小腿加足高",
+          "required_terms": [
+            [
+              "小腿加足高"
+            ]
+          ]
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "expected_span": "680~760",
+          "required_terms": [
+            [
+              "桌面高"
+            ]
+          ]
+        }
+      ],
+      "coverage": "complete",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "risk_level": "medium",
+      "theme": "",
+      "notes": ""
+    },
+    {
+      "id": "r17_cylinder_capacity",
+      "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+          "required_terms": [
+            [
+              "内径"
+            ],
+            [
+              "有效液高"
+            ]
+          ]
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "额定容量应低于杯口溢流前的最大容量",
+          "required_terms": [
+            [
+              "额定容量"
+            ]
+          ]
+        }
+      ],
+      "coverage": "complete",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "risk_level": "medium",
+      "theme": "",
+      "notes": ""
+    },
+    {
+      "id": "r18_height_adjustment",
+      "question": "设计500 mL便携杯时，握持外径受杯架限制不能增大，应如何利用容量公式、杯底和重心规则调整高度，并保留哪些风险？",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "再用容量公式反推有效高度",
+          "required_terms": [
+            [
+              "反推"
+            ]
+          ]
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "检查高度是否导致重心过高",
+          "required_terms": [
+            [
+              "重心"
+            ]
+          ]
+        }
+      ],
+      "coverage": "complete",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "risk_level": "medium",
+      "theme": "",
+      "notes": ""
+    },
+    {
+      "id": "r19_taper_capacity",
+      "question": "锥台杯上下端内径70 mm和60 mm、有效液高100 mm，如何计算理想容量？复杂曲面如何改变方法？",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+          "required_terms": [
+            [
+              "锥台"
+            ]
+          ]
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+          "required_terms": [
+            [
+              "复杂曲面"
+            ]
+          ]
+        }
+      ],
+      "coverage": "complete",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "risk_level": "medium",
+      "theme": "",
+      "notes": ""
+    },
+    {
+      "id": "p01_child_grip_dimensions",
+      "coverage": "partial",
+      "question": "面向6至12岁儿童设计500 mL单手水杯，如何结合儿童手部尺寸、握持稳定性、容量和防倾倒要求确定首轮样机的关键尺寸与验证项目？",
+      "sources": [
+        "q17_ambiguous",
+        "q06_hit"
+      ],
+      "risk_level": "high",
+      "theme": "儿童人体数据与容量推导",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "population"
+      ],
+      "notes": "儿童手部数据缺失：可覆盖容量公式、验证要求与未成年人百分位制度，不能给出握持区间数值。",
+      "unsupported_needs": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf 不在冻结快照中，无法给出儿童握持区间的具体数值",
+        "儿童实测握持与防倾倒实验"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "必须使用内径和有效液高，不要直接使用外径和总高度",
+          "required_terms": [
+            [
+              "内径"
+            ],
+            [
+              "有效液高"
+            ]
+          ],
+          "why": "容量推导的输入口径：答案若用外径/总高算容量，这一跳就不该命中。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试",
+          "required_terms": [
+            [
+              "握持实验"
+            ]
+          ],
+          "why": "首轮样机该验证什么：握持结论必须来自实验/测试而不是推导。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q06_hit",
+          "chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "expected_span": "本标准给出了未成年人(4岁~17岁)72项人体尺寸所涉及的11个百分位数",
+          "required_terms": [
+            [
+              "百分位数"
+            ]
+          ],
+          "why": "目标人群与百分位：儿童侧唯一可用的证据制度来源。"
+        }
+      ]
+    },
+    {
+      "id": "p07_child_straw_cup_evidence",
+      "coverage": "partial",
+      "question": "儿童吸管杯的吸嘴直径、握持区和开启方式不能只看成人经验。应检索哪些本地证据，哪些结论必须儿童实测？",
+      "sources": [
+        "q06_hit",
+        "q17_ambiguous"
+      ],
+      "risk_level": "high",
+      "theme": "证据检索范围与实测边界",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "population"
+      ],
+      "notes": "吸嘴直径与开启方式无证据（杯盖规则不在快照里）；可覆盖的只有证据范围与分组。",
+      "unsupported_needs": [
+        "水杯杯盖选择规则.md 不在冻结快照中，吸嘴直径与开启方式没有任何证据",
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf 不在冻结快照中"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q06_hit",
+          "chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "expected_span": "本标准将未成年人分为五个年龄组",
+          "required_terms": [
+            [
+              "年龄组"
+            ]
+          ],
+          "why": "分组：儿童不是单一人群，五个年龄组是本地证据自带的分组方式。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "先根据目标人群和握持方式确定候选外径范围",
+          "required_terms": [
+            [
+              "目标人群"
+            ]
+          ],
+          "why": "可支持输入：候选外径的推导起点是人群与握持方式。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "不要只根据手长、手宽直接推导杯径",
+          "required_terms": [
+            [
+              "手长",
+              "手宽"
+            ]
+          ],
+          "why": "实测项目：这一条正是「不能只看成人经验/不能凭手部数据直推」的书面依据。"
+        }
+      ]
+    },
+    {
+      "id": "p08_child_adult_conflict",
+      "coverage": "partial",
+      "question": "同一款水杯要覆盖儿童和成人两个群体，如何处理人体数据、杯径候选和产品定位冲突？",
+      "sources": [
+        "q17_ambiguous",
+        "q08_hit"
+      ],
+      "risk_level": "medium",
+      "theme": "多人群共用一型的冲突处理",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "comparison",
+        "population"
+      ],
+      "notes": "儿童侧只有制度与分组，没有手部数据；成人侧有完整标准范围。",
+      "unsupported_needs": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf 不在冻结快照中，儿童侧无法给出握持数据",
+        "水杯杯盖选择规则.md 不在冻结快照中"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "先根据目标人群和握持方式确定候选外径范围",
+          "required_terms": [
+            [
+              "握持方式"
+            ]
+          ],
+          "why": "分群：候选杯径必须先按人群与握持方式分开取。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "是否需要针对 P5、P50、P95 人群分别验证",
+          "required_terms": [
+            [
+              "P5",
+              "P50",
+              "P95"
+            ]
+          ],
+          "why": "冲突的处置方式：不同百分位分别验证，而不是取一个折中值。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q08_hit",
+          "chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
+          "expected_span": "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品",
+          "required_terms": [
+            [
+              "成年人"
+            ]
+          ],
+          "why": "成人侧的数据来源与适用范围。"
+        }
+      ]
+    },
+    {
+      "id": "p20_child_adult_diameter_variables",
+      "coverage": "partial",
+      "question": "同一杯型兼顾儿童和成人，容量不变但儿童握持外径必须更小，应优先调整哪些结构变量？哪些不能凭经验确定？",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "risk_level": "medium",
+      "theme": "尺寸联动与结构变量",
+      "slice_tags": [
+        "multi_hop",
+        "derivation",
+        "dimension"
+      ],
+      "notes": "只覆盖推导规则一侧：儿童握持外径的候选区间无证据。",
+      "unsupported_needs": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf 不在冻结快照中，儿童握持外径的候选区间无证据"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决",
+          "required_terms": [
+            [
+              "结构占用"
+            ]
+          ],
+          "why": "可调整的结构变量：直径受约束时的第一顺位解法。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "若高度过大，优先扩大握持区域或调整杯底",
+          "required_terms": [
+            [
+              "杯底"
+            ]
+          ],
+          "why": "联动：容量不变时，外径与高度互相牵制，改高度会牵出重心与杯底。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "不要只根据手长、手宽直接推导杯径",
+          "required_terms": [
+            [
+              "手长",
+              "手宽"
+            ]
+          ],
+          "why": "「哪些不能凭经验确定」的正面回答。"
+        }
+      ]
+    },
+    {
+      "id": "p21_tip_over_triage",
+      "coverage": "partial",
+      "question": "杯体外径满足杯架但装满后容易倾倒，请区分尺寸、容量、杯底和重心问题给出排查顺序。",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "risk_level": "medium",
+      "theme": "倾倒问题的排查顺序",
+      "slice_tags": [
+        "multi_hop",
+        "derivation",
+        "dimension"
+      ],
+      "notes": "验证项目清单缺失（水杯设计验证规则不在快照里），排查顺序可覆盖。",
+      "unsupported_needs": [
+        "水杯设计验证规则.md 不在冻结快照中，没有对应的验证项目清单"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "检查高度是否导致重心过高、倾倒风险增加或单手操作困难",
+          "required_terms": [
+            [
+              "倾倒"
+            ]
+          ],
+          "why": "顺序：高度是第一个要查的变量，且直接连着倾倒。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "额定容量应低于杯口溢流前的最大容量",
+          "required_terms": [
+            [
+              "额定容量"
+            ]
+          ],
+          "why": "容量侧的约束：装满后的状态才是倾倒问题的输入。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "是否存在装满热水后烫手或重心偏移",
+          "required_terms": [
+            [
+              "重心"
+            ]
+          ],
+          "why": "杯底与重心的检查项，来自决策记录模板的风险清单。"
+        }
+      ]
+    },
+    {
+      "id": "p27_standard_applicability_layers",
+      "coverage": "partial",
+      "question": "儿童水杯尺寸同时检索到GB/T 3326—2016、GB/T 26158—2010和儿童手部研究，如何判断适用层级并避免把椅子座高迁移成杯子握持直径？",
+      "sources": [
+        "q01_hit",
+        "q06_hit",
+        "q17_ambiguous"
+      ],
+      "risk_level": "high",
+      "theme": "标准适用层级与禁止迁移",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "comparison"
+      ],
+      "notes": "三份证据的适用对象互不相同，正好构成层级判断；儿童手部数据本身仍缺失。",
+      "unsupported_needs": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf 不在冻结快照中，无法给出儿童手部数据本身"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q01_hit",
+          "chunk_id": "eb5d0ff3d6ceb05745243f0ca7db6b34792b81be7cf22ef77e20cb722bab93af",
+          "expected_span": "本标准适用于双柜桌、单柜桌、梳妆桌(梳妆台)、单层桌、扶手椅、靠背椅、折叠椅、长方凳、方凳、圆凳的设计和生产",
+          "required_terms": [
+            [
+              "家具"
+            ]
+          ],
+          "why": "层级一：3326 的适用对象是家具，不是人体，也不是容器。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q06_hit",
+          "chunk_id": "c665e7582f9d1f2dcd82831d3ed0ed96cb76a10f9fb6fcfa4962ae35762ee022",
+          "expected_span": "本标准适用于未成年人用品的设计与生产",
+          "required_terms": [
+            [
+              "未成年人用品"
+            ]
+          ],
+          "why": "层级二：26158 的适用对象是未成年人用品，给出的是人体尺寸制度。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "不要只根据手长、手宽直接推导杯径",
+          "required_terms": [
+            [
+              "手长",
+              "手宽"
+            ]
+          ],
+          "why": "禁止迁移：把椅子座高或手部尺寸直接搬成杯径正是这一条禁止的做法。"
+        }
+      ]
+    },
+    {
+      "id": "p32_insufficient_evidence_answer",
+      "coverage": "partial",
+      "question": "用户要求给出‘儿童500 mL水杯最佳握持直径精确值’，但知识库只有人体数据和设计原则，Agent应如何回答？",
+      "sources": [
+        "q17_ambiguous"
+      ],
+      "risk_level": "high",
+      "theme": "证据不足时的作答方式",
+      "slice_tags": [
+        "multi_hop",
+        "evidence_boundary"
+      ],
+      "notes": "本题的正确答案形态是「拒绝给出精确值并说明方法」。契约按跳计分（证据/方法/不编造），未声明 refusal_requirements——一旦声明，hop 计分会被关闭（refusal 与 hop 互斥），本题就退出 hop 均值。",
+      "unsupported_needs": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf 不在冻结快照中，连「人体数据」也只有成人标准可查"
+      ],
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "不要只根据手长、手宽直接推导杯径",
+          "required_terms": [
+            [
+              "手长",
+              "手宽"
+            ]
+          ],
+          "why": "证据不足：手部尺寸不足以定杯径，这正是「不能给精确值」的依据。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
+          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试",
+          "required_terms": [
+            [
+              "产品测试"
+            ]
+          ],
+          "why": "方法：给出可执行替代路径，而不是只拒答。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "q17_ambiguous",
+          "chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "本文件用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准",
+          "required_terms": [
+            [
+              "不替代"
+            ]
+          ],
+          "why": "不编造：规则文件自己的免责边界，就是不能补写精确值的原因。"
+        }
+      ]
+    }
+  ]
+}

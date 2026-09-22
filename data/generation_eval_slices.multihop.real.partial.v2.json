@@ -1,0 +1,171 @@
+{
+  "version": "multihop.real.partial.v2",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "case_type_values": [
+    "ambiguous",
+    "fact_enumeration",
+    "fact_numeric",
+    "multi_hop",
+    "refusal"
+  ],
+  "risk_level_values": [
+    "high",
+    "low",
+    "medium"
+  ],
+  "metric_groups": {
+    "retrieval": {
+      "metrics": [
+        "retrieval_calls"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "hard"
+    },
+    "usability": {
+      "metrics": [
+        "generation_success_rate",
+        "provider_timeout_rate",
+        "provider_hard_error_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "quality": {
+      "metrics": [
+        "answer_span_recall_mean",
+        "required_term_recall_mean"
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    },
+    "multi_hop": {
+      "metrics": [
+        "hop_recall_mean"
+      ],
+      "allowed_change": 0.1,
+      "enforcement": "gate"
+    },
+    "safety": {
+      "metrics": [
+        "refusal_correctness_rate",
+        "ambiguity_safety_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "citation": {
+      "metrics": [
+        "citation_validity_rate",
+        "numeric_citation_coverage_mean"
+      ],
+      "diagnostics": [
+        {
+          "metric": "citation_id_usage_ratio_mean",
+          "reason": "用到的引用 / 允许的引用。允许数 = 证据条数，所以证据变多时分母机械变大、比值必然下降——实测证据上限从 5 放宽到 9~20 条时该指标 0.767 → 0.307，那是分母效应不是引用退化。跨证据条数不可比，故只报不卡。"
+        }
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    }
+  },
+  "slices": [
+    {
+      "id": "p01_child_grip_dimensions",
+      "case_type": "multi_hop",
+      "risk_level": "high",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "population",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "儿童手部数据缺失：可覆盖容量公式、验证要求与未成年人百分位制度，不能给出握持区间数值。",
+      "coverage": "partial"
+    },
+    {
+      "id": "p07_child_straw_cup_evidence",
+      "case_type": "multi_hop",
+      "risk_level": "high",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "population",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "吸嘴直径与开启方式无证据（杯盖规则不在快照里）；可覆盖的只有证据范围与分组。",
+      "coverage": "partial"
+    },
+    {
+      "id": "p08_child_adult_conflict",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "comparison",
+        "population",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "儿童侧只有制度与分组，没有手部数据；成人侧有完整标准范围。",
+      "coverage": "partial"
+    },
+    {
+      "id": "p20_child_adult_diameter_variables",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "derivation",
+        "dimension",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "只覆盖推导规则一侧：儿童握持外径的候选区间无证据。",
+      "coverage": "partial"
+    },
+    {
+      "id": "p21_tip_over_triage",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "derivation",
+        "dimension",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "验证项目清单缺失（水杯设计验证规则不在快照里），排查顺序可覆盖。",
+      "coverage": "partial"
+    },
+    {
+      "id": "p27_standard_applicability_layers",
+      "case_type": "multi_hop",
+      "risk_level": "high",
+      "slice_tags": [
+        "multi_hop",
+        "cross_standard",
+        "comparison",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "三份证据的适用对象互不相同，正好构成层级判断；儿童手部数据本身仍缺失。",
+      "coverage": "partial"
+    },
+    {
+      "id": "p32_insufficient_evidence_answer",
+      "case_type": "multi_hop",
+      "risk_level": "high",
+      "slice_tags": [
+        "multi_hop",
+        "evidence_boundary",
+        "partial_coverage"
+      ],
+      "flaky": false,
+      "notes": "本题的正确答案形态是「拒绝给出精确值并说明方法」。契约按跳计分（证据/方法/不编造），未声明 refusal_requirements——一旦声明，hop 计分会被关闭（refusal 与 hop 互斥），本题就退出 hop 均值。",
+      "coverage": "partial"
+    }
+  ]
+}

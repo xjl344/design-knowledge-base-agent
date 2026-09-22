@@ -1,0 +1,128 @@
+{
+  "version": "multihop.real.complete.v2",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "case_type_values": [
+    "ambiguous",
+    "fact_enumeration",
+    "fact_numeric",
+    "multi_hop",
+    "refusal"
+  ],
+  "risk_level_values": [
+    "high",
+    "low",
+    "medium"
+  ],
+  "metric_groups": {
+    "retrieval": {
+      "metrics": [
+        "retrieval_calls"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "hard"
+    },
+    "usability": {
+      "metrics": [
+        "generation_success_rate",
+        "provider_timeout_rate",
+        "provider_hard_error_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "quality": {
+      "metrics": [
+        "answer_span_recall_mean",
+        "required_term_recall_mean"
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    },
+    "multi_hop": {
+      "metrics": [
+        "hop_recall_mean"
+      ],
+      "allowed_change": 0.1,
+      "enforcement": "gate"
+    },
+    "safety": {
+      "metrics": [
+        "refusal_correctness_rate",
+        "ambiguity_safety_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "citation": {
+      "metrics": [
+        "citation_validity_rate",
+        "numeric_citation_coverage_mean"
+      ],
+      "diagnostics": [
+        {
+          "metric": "citation_id_usage_ratio_mean",
+          "reason": "用到的引用 / 允许的引用。允许数 = 证据条数，所以证据变多时分母机械变大、比值必然下降——实测证据上限从 5 放宽到 9~20 条时该指标 0.767 → 0.307，那是分母效应不是引用退化。跨证据条数不可比，故只报不卡。"
+        }
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    }
+  },
+  "slices": [
+    {
+      "id": "r03_office_chair_constraints",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "flaky": false,
+      "notes": "",
+      "coverage": "complete"
+    },
+    {
+      "id": "r04_child_chair_flow",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "flaky": false,
+      "notes": "",
+      "coverage": "complete"
+    },
+    {
+      "id": "r17_cylinder_capacity",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "flaky": false,
+      "notes": "",
+      "coverage": "complete"
+    },
+    {
+      "id": "r18_height_adjustment",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "flaky": false,
+      "notes": "",
+      "coverage": "complete"
+    },
+    {
+      "id": "r19_taper_capacity",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop"
+      ],
+      "flaky": false,
+      "notes": "",
+      "coverage": "complete"
+    }
+  ]
+}

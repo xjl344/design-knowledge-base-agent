@@ -1,0 +1,259 @@
+{
+  "version": 2,
+  "family": "multihop.real.complete.v2",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "generated_from": "data/multihop_specs.real.v2.json",
+  "note": "复合多跳题契约：证据由冻结的单跳 case 池化而成，未执行检索。required_hops 逐跳声明该跳的事实必须来自哪个 chunk。",
+  "cases": [
+    {
+      "id": "r03_office_chair_constraints",
+      "question": "办公椅座高、座深和扶手高的设定，哪些参数可由GB/T 3326—2016直接约束，哪些还需要用GB/T 10000—2023校核？",
+      "expected_answer_spans": [
+        {
+          "id": "r03_office_chair_constraints-h1",
+          "text": "400~440",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        },
+        {
+          "id": "r03_office_chair_constraints-h2",
+          "text": "坐姿膝高",
+          "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        }
+      ],
+      "expected_sources": [
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+        "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "expected_span": "400~440",
+          "required_terms": [
+            [
+              "座高"
+            ]
+          ],
+          "position": 2
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q08_hit",
+          "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+          "expected_span": "坐姿膝高",
+          "required_terms": [
+            [
+              "坐姿膝高"
+            ]
+          ],
+          "position": 14
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r04_child_chair_flow",
+      "question": "儿童座椅不能直接套用成人椅标准。请提出从GB/T 26158—2010、GB/T 3326—2016到样机测试的尺寸决策流程，并说明证据边界。",
+      "expected_answer_spans": [
+        {
+          "id": "r04_child_chair_flow-h1",
+          "text": "小腿加足高",
+          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+        },
+        {
+          "id": "r04_child_chair_flow-h2",
+          "text": "680~760",
+          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        }
+      ],
+      "expected_sources": [
+        "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+        "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+          "expected_span": "小腿加足高",
+          "required_terms": [
+            [
+              "小腿加足高"
+            ]
+          ],
+          "position": 4
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+          "expected_span": "680~760",
+          "required_terms": [
+            [
+              "桌面高"
+            ]
+          ],
+          "position": 2
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r17_cylinder_capacity",
+      "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
+      "expected_answer_spans": [
+        {
+          "id": "r17_cylinder_capacity-h1",
+          "text": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+          "source": "08_设计决策/水杯尺寸推导规则.md"
+        },
+        {
+          "id": "r17_cylinder_capacity-h2",
+          "text": "额定容量应低于杯口溢流前的最大容量",
+          "source": "08_设计决策/水杯尺寸推导规则.md"
+        }
+      ],
+      "expected_sources": [
+        "08_设计决策/水杯尺寸推导规则.md"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "有效容量 V(mL) = π × 内径²(mm) × 有效液高(mm) / 4 / 1000",
+          "required_terms": [
+            [
+              "内径"
+            ],
+            [
+              "有效液高"
+            ]
+          ],
+          "position": 7
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "额定容量应低于杯口溢流前的最大容量",
+          "required_terms": [
+            [
+              "额定容量"
+            ]
+          ],
+          "position": 7
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r18_height_adjustment",
+      "question": "设计500 mL便携杯时，握持外径受杯架限制不能增大，应如何利用容量公式、杯底和重心规则调整高度，并保留哪些风险？",
+      "expected_answer_spans": [
+        {
+          "id": "r18_height_adjustment-h1",
+          "text": "再用容量公式反推有效高度",
+          "source": "08_设计决策/水杯尺寸推导规则.md"
+        },
+        {
+          "id": "r18_height_adjustment-h2",
+          "text": "检查高度是否导致重心过高",
+          "source": "08_设计决策/水杯尺寸推导规则.md"
+        }
+      ],
+      "expected_sources": [
+        "08_设计决策/水杯尺寸推导规则.md"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "再用容量公式反推有效高度",
+          "required_terms": [
+            [
+              "反推"
+            ]
+          ],
+          "position": 7
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "检查高度是否导致重心过高",
+          "required_terms": [
+            [
+              "重心"
+            ]
+          ],
+          "position": 7
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r19_taper_capacity",
+      "question": "锥台杯上下端内径70 mm和60 mm、有效液高100 mm，如何计算理想容量？复杂曲面如何改变方法？",
+      "expected_answer_spans": [
+        {
+          "id": "r19_taper_capacity-h1",
+          "text": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+          "source": "08_设计决策/水杯尺寸推导规则.md"
+        },
+        {
+          "id": "r19_taper_capacity-h2",
+          "text": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+          "source": "08_设计决策/水杯尺寸推导规则.md"
+        }
+      ],
+      "expected_sources": [
+        "08_设计决策/水杯尺寸推导规则.md"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000",
+          "required_terms": [
+            [
+              "锥台"
+            ]
+          ],
+          "position": 7
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "q17_ambiguous",
+          "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+          "expected_span": "复杂曲面杯体应使用 CAD 体积或实测注水体积",
+          "required_terms": [
+            [
+              "复杂曲面"
+            ]
+          ],
+          "position": 7
+        }
+      ],
+      "coverage": "complete"
+    }
+  ]
+}
