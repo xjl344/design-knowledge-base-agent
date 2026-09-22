@@ -3,7 +3,14 @@
   "audit_version": "soft-audit-behaviour-v7",
   "source_runs": [
     "E:\\设计知识库助手\\data\\runs\\p1_v6_compress600.json",
-    "E:\\设计知识库助手\\data\\runs\\mh_g3_v6_compress300.json"
+    "E:\\设计知识库助手\\data\\runs\\mh_g3_v6_compress300.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_g3_notrunc.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_g1_notrunc.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_r1.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_r2.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_r3.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_g3_evidenceall.json",
+    "E:\\设计知识库助手\\data\\runs\\mhreal_g1_evidence5.json"
   ],
   "skipped_runs": [],
   "reaudited_from": [
@@ -11,13 +18,15 @@
   ],
   "snapshots": [
     "E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl",
-    "E:\\设计知识库助手\\data\\frozen_multihop_cases.jsonl"
+    "E:\\设计知识库助手\\data\\frozen_multihop_cases.jsonl",
+    "E:\\设计知识库助手\\data\\frozen_multihop_real_complete.v2.jsonl"
   ],
   "evaluations": [
     "E:\\设计知识库助手\\data\\generation_eval.v2.json",
-    "E:\\设计知识库助手\\data\\generation_eval.multihop.v1.json"
+    "E:\\设计知识库助手\\data\\generation_eval.multihop.v1.json",
+    "E:\\设计知识库助手\\data\\generation_eval.multihop.real.complete.v2.json"
   ],
-  "fixture_count": 19,
+  "fixture_count": 27,
   "fixtures": [
     {
       "fixture_id": "q01_hit__completed",
@@ -91,6 +100,24 @@
         "answer_length": 115
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.4,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 115
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -157,6 +184,24 @@
         "answer_length": 80
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 80
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -232,6 +277,24 @@
         "answer_length": 156
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 156
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -307,6 +370,24 @@
         "answer_length": 120
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 120
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -372,6 +453,24 @@
         "answer_length": 107
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 0.5,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 107
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -448,6 +547,24 @@
         "answer_length": 83
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 83
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -523,6 +640,24 @@
         "answer_length": 73
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.25,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 73
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -589,6 +724,24 @@
         "answer_length": 62
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 62
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -658,6 +811,24 @@
         "answer_length": 286
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.8,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 286
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -731,6 +902,24 @@
         "answer_length": 619
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.8,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": 1.0,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 619
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -795,6 +984,24 @@
         "answer_length": 539
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": 0.8,
+        "span_metric_applicable": false,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 1,
+        "refusal_correctness": true,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": 539
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -900,6 +1107,24 @@
         "answer_length": 459
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": 1.0,
+        "span_metric_applicable": false,
+        "expected_answer_span_recall": 0.333,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": true,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": 459
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1030,6 +1255,24 @@
         "answer_length": 636
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.235,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.667,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 636
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1157,6 +1400,24 @@
         "answer_length": 679
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.353,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 4,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 679
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1267,6 +1528,24 @@
         "answer_length": 409
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.15,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 409
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1390,6 +1669,24 @@
         "answer_length": 532
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.294,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.667,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.333,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 532
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1496,6 +1793,24 @@
         "answer_length": 478
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.235,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 2,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 478
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
@@ -1611,21 +1926,606 @@
         "answer_length": 435
       },
       "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.444,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.667,
+        "required_term_recall": null,
+        "source_coverage": 0.5,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.667,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 435
+      },
       "synthesized": false,
       "recorded_status": "completed"
     },
     {
-      "fixture_id": "q01_hit__provider_timeout",
-      "question_id": "q01_hit",
-      "question": "按照国家标准 GB/T 3326—2016，椅凳类家具的座高标准（座面高度）是多少？",
+      "fixture_id": "r03_office_chair_constraints__completed",
+      "question_id": "r03_office_chair_constraints",
+      "question": "办公椅座高、座深和扶手高的设定，哪些参数可由GB/T 3326—2016直接约束，哪些还需要用GB/T 10000—2023校核？",
+      "status": "completed",
+      "source_run": "mhreal_g3_notrunc.json",
+      "raw_answer": "- **座高：可由 GB/T 3326—2016 直接约束。**资料给出的桌椅主要尺寸为：座高 **400～440 mm**；软面座椅最大座高为 **460 mm（包括下沉量）**。[L2] 因此，办公椅座高可先按该范围进行标准尺寸约束。若存在特殊要求或合同约定，标准允许由供需双方另行明示。[L2]\n\n- **座深：可由 GB/T 3326—2016 直接约束，但需确认椅类分类。**资料中靠背椅座深为 **340～460 mm**，折叠椅座深为 **340～440 mm**。[L1] 资料没有明确“办公椅”应直接采用哪一类，因此具体取值范围当前资料无法确认；应先确认产品对应的标准椅类。\n\n- **扶手高：当前资料无法确认 GB/T 3326—2016 的直接限值。**现有证据只显示“扶手椅尺寸见图2、表3”，但未提供表3中的扶手高度数值。[L2] 因而不能据此编造扶手高范围。\n\n- **GB/T 10000—2023 的作用：主要是人体尺寸校核，不是本资料中明确给出的椅子尺寸限值。**该标准提供用于技术设计的成人静态人体尺寸和人体功能尺寸，并适用于消费用品、家居等设计。[L13] 与座椅相关的坐高、坐姿膝高、坐姿腘高、坐姿肘高、坐姿臀宽及坐姿臀—腘距等数据均有统计值。[L10][L14][L16][L18] 因此，座高应结合坐姿腘高/膝高校核，座深应结合坐姿臀—腘距校核，扶手高应结合坐姿肘高校核；但具体百分位选择、计算方法和合格判据，当前资料无法确认。\n\n**结论：**GB/T 3326—2016直接约束座高和相应椅类的座深；扶手高的直接限值当前资料不足。GB/T 10000—2023应作为目标人群人体尺寸校核依据，不能替代已明确的椅类标准限值。",
+      "answer": "- **座高：可由 GB/T 3326—2016 直接约束。**资料给出的桌椅主要尺寸为：座高 **400～440 mm**；软面座椅最大座高为 **460 mm（包括下沉量）**。[L2] 因此，办公椅座高可先按该范围进行标准尺寸约束。若存在特殊要求或合同约定，标准允许由供需双方另行明示。[L2]\n\n- **座深：可由 GB/T 3326—2016 直接约束，但需确认椅类分类。**资料中靠背椅座深为 **340～460 mm**，折叠椅座深为 **340～440 mm**。[L1] 资料没有明确“办公椅”应直接采用哪一类，因此具体取值范围当前资料无法确认；应先确认产品对应的标准椅类。\n\n- **扶手高：当前资料无法确认 GB/T 3326—2016 的直接限值。**现有证据只显示“扶手椅尺寸见图2、表3”，但未提供表3中的扶手高度数值。[L2] 因而不能据此编造扶手高范围。\n\n- **GB/T 10000—2023 的作用：主要是人体尺寸校核，不是本资料中明确给出的椅子尺寸限值。**该标准提供用于技术设计的成人静态人体尺寸和人体功能尺寸，并适用于消费用品、家居等设计。[L13] 与座椅相关的坐高、坐姿膝高、坐姿腘高、坐姿肘高、坐姿臀宽及坐姿臀—腘距等数据均有统计值。[L10][L14][L16][L18] 因此，座高应结合坐姿腘高/膝高校核，座深应结合坐姿臀—腘距校核，扶手高应结合坐姿肘高校核；但具体百分位选择、计算方法和合格判据，当前资料无法确认。\n\n**结论：**GB/T 3326—2016直接约束座高和相应椅类的座深；扶手高的直接限值当前资料不足。GB/T 10000—2023应作为目标人群人体尺寸校核依据，不能替代已明确的椅类标准限值。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 58.66,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10",
+          "L11",
+          "L12",
+          "L13",
+          "L14",
+          "L15",
+          "L16",
+          "L17",
+          "L18",
+          "L19",
+          "L20"
+        ],
+        "expected_answer_spans": [
+          {
+            "id": "r03_office_chair_constraints-h1",
+            "text": "400~440",
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          },
+          {
+            "id": "r03_office_chair_constraints-h2",
+            "text": "坐姿膝高",
+            "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+          }
+        ],
+        "expected_sources": [
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "required_terms": [
+              [
+                "座高"
+              ]
+            ],
+            "position": 2,
+            "expected_span": "400~440"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q08_hit",
+            "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+            "required_terms": [
+              [
+                "坐姿膝高"
+              ]
+            ],
+            "position": 14,
+            "expected_span": "坐姿膝高"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.35,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 735
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.35,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 735
+      },
+      "synthesized": false,
+      "recorded_status": "completed"
+    },
+    {
+      "fixture_id": "r04_child_chair_flow__provider_timeout",
+      "question_id": "r04_child_chair_flow",
+      "question": "儿童座椅不能直接套用成人椅标准。请提出从GB/T 26158—2010、GB/T 3326—2016到样机测试的尺寸决策流程，并说明证据边界。",
       "status": "provider_timeout",
-      "source_run": "synthesized",
-      "synthesized": true,
+      "source_run": "mhreal_g3_notrunc.json",
       "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
       "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
       "sanitization_applied": false,
       "sanitization_rules": [],
-      "generation_latency_seconds": null,
+      "generation_latency_seconds": 180.033,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "expected_answer_spans": [
+          {
+            "id": "r04_child_chair_flow-h1",
+            "text": "小腿加足高",
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "r04_child_chair_flow-h2",
+            "text": "680~760",
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_sources": [
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "required_terms": [
+              [
+                "小腿加足高"
+              ]
+            ],
+            "position": 4,
+            "expected_span": "小腿加足高"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "required_terms": [
+              [
+                "桌面高"
+              ]
+            ],
+            "position": 2,
+            "expected_span": "680~760"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": null,
+        "span_metric_applicable": false,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": null,
+        "unsupported_number_count": null,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": null
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.0,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 0.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": 33
+      },
+      "synthesized": false,
+      "recorded_status": "provider_timeout"
+    },
+    {
+      "fixture_id": "r17_cylinder_capacity__completed",
+      "question_id": "r17_cylinder_capacity",
+      "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
+      "status": "completed",
+      "source_run": "mhreal_g3_notrunc.json",
+      "raw_answer": "按直筒杯公式：\n\n\\[\nV=\\pi\\times65^2\\times120\\div4\\div1000\\approx398.2\\text{ mL}\n\\]\n\n因此，估算的有效容量约为 **398 mL**（可近似写作 **400 mL**）。该计算使用的是内径和有效液高，符合知识库公式。[L7]\n\n但它不能直接作为额定容量，因为额定容量应低于杯口溢流前的最大容量；实际还需考虑防溢空间，尤其是晃动、倾倒、携带或使用吸管时。[L7] 防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7] 因此，当前资料无法确认该杯的具体额定容量，约 **398 mL** 只能作为初始估算值，不能替代实测或产品定义。",
+      "answer": "按直筒杯公式：\n\n\\[\nV=\\pi\\times65^2\\times120\\div4\\div1000\\approx398.2\\text{ mL}\n\\]\n\n因此，估算的有效容量约为 **398 mL**（可近似写作 **400 mL**）。该计算使用的是内径和有效液高，符合知识库公式。[L7]\n\n但它不能直接作为额定容量，因为额定容量应低于杯口溢流前的最大容量；实际还需考虑防溢空间，尤其是晃动、倾倒、携带或使用吸管时。[L7] 防溢余量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7] 因此，当前资料无法确认该杯的具体额定容量，约 **398 mL** 只能作为初始估算值，不能替代实测或产品定义。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 74.954,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "expected_answer_spans": [
+          {
+            "id": "r17_cylinder_capacity-h2",
+            "text": "额定容量应低于杯口溢流前的最大容量",
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          }
+        ],
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "内径"
+              ],
+              [
+                "有效液高"
+              ],
+              [
+                "1000"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "额定容量"
+              ]
+            ],
+            "position": 7,
+            "expected_span": "额定容量应低于杯口溢流前的最大容量"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.1,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.5,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 4,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.5,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 0.5,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 311
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.1,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 1.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 4,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 0.5,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 311
+      },
+      "synthesized": false,
+      "recorded_status": "completed"
+    },
+    {
+      "fixture_id": "r18_height_adjustment__completed",
+      "question_id": "r18_height_adjustment",
+      "question": "设计500 mL便携杯时，握持外径受杯架限制不能增大，应如何利用容量公式、杯底和重心规则调整高度，并保留哪些风险？",
+      "status": "completed",
+      "source_run": "mhreal_g3_notrunc.json",
+      "raw_answer": "设计思路可按以下顺序处理：\n\n1. **先固定外部约束，再确定有效内径。**杯架限制的是外径，但容量计算必须使用杯体**内径**和**有效液高**，不能直接用外径和总高度。[L7] 若按直筒杯体估算，500 mL额定容量对应的有效液高可由  \n   `h = 4V×1000 / (π×内径²)`  \n   推得；这是由资料公式换算得到的有限推导，实际仍需考虑杯型和结构占用。[L7]\n\n2. **高度不足时优先调整杯底和内部结构，而不是单纯增高。**资料明确要求检查高度增加是否造成重心过高、倾倒风险增加或单手操作困难；若高度过大，应优先扩大握持区域或调整杯底，而不是无限增加高度。[L7] 但“杯底”应调整多少、采用何种具体结构，当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n3. **容量应区分额定容量与最大容量。**500 mL应作为目标额定容量时，杯口溢流前的最大容量必须更大；易晃动、带吸管或需携带时应保留防溢空间，但资料不支持直接套用固定百分比，余量应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n4. **应保留的风险：**\n   - 杯壁、保温层或结构件占用空间，导致有效容量不足；[L9]\n   - 为达到500 mL而增加高度，造成重心过高、倾倒或单手操作困难；[L7]\n   - 装满热水后烫手、重心偏移；[L9]\n   - 携带、晃动或倾倒时溢漏；[L7]\n   - 是否需要针对P5、P50、P95人群验证，当前资料无法确认，建议列为待验证项。[L9]",
+      "answer": "设计思路可按以下顺序处理：\n\n1. **先固定外部约束，再确定有效内径。**杯架限制的是外径，但容量计算必须使用杯体**内径**和**有效液高**，不能直接用外径和总高度。[L7] 若按直筒杯体估算，500 mL额定容量对应的有效液高可由  \n   `h = 4V×1000 / (π×内径²)`  \n   推得；这是由资料公式换算得到的有限推导，实际仍需考虑杯型和结构占用。[L7]\n\n2. **高度不足时优先调整杯底和内部结构，而不是单纯增高。**资料明确要求检查高度增加是否造成重心过高、倾倒风险增加或单手操作困难；若高度过大，应优先扩大握持区域或调整杯底，而不是无限增加高度。[L7] 但“杯底”应调整多少、采用何种具体结构，当前资料无法确认，需通过结构计算、试制和测试确定。[L7]\n\n3. **容量应区分额定容量与最大容量。**500 mL应作为目标额定容量时，杯口溢流前的最大容量必须更大；易晃动、带吸管或需携带时应保留防溢空间，但资料不支持直接套用固定百分比，余量应结合杯盖、倾倒姿态和测试结果确定。[L7]\n\n4. **应保留的风险：**\n   - 杯壁、保温层或结构件占用空间，导致有效容量不足；[L9]\n   - 为达到500 mL而增加高度，造成重心过高、倾倒或单手操作困难；[L7]\n   - 装满热水后烫手、重心偏移；[L9]\n   - 携带、晃动或倾倒时溢漏；[L7]\n   - 是否需要针对P5、P50、P95人群验证，当前资料无法确认，建议列为待验证项。[L9]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 76.228,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "expected_answer_spans": [],
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "反推"
+              ],
+              [
+                "内径"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "重心"
+              ],
+              [
+                "过高"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 3,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 648
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.2,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 3,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.5,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 648
+      },
+      "synthesized": false,
+      "recorded_status": "completed"
+    },
+    {
+      "fixture_id": "r19_taper_capacity__completed",
+      "question_id": "r19_taper_capacity",
+      "question": "锥台杯上下端内径70 mm和60 mm、有效液高100 mm，如何计算理想容量？复杂曲面如何改变方法？",
+      "status": "completed",
+      "source_run": "mhreal_g3_notrunc.json",
+      "raw_answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端**内径** \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100(4900+4200+3600)}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，按理想锥台几何模型，容量约为 **332 mL**。该结果是理论有效容量，前提是所给尺寸均为内尺寸，且液体有效高度确为100 mm。[L7]\n\n对于复杂曲面，不能直接套用锥台公式；资料建议使用 **CAD 体积计算**或**实测注水体积**。实测时应以实际内部空间和目标液位为准。[L7]\n\n此外，额定容量应低于杯口溢流前的最大容量；若产品需要携带、带吸管或容易晃动，还应预留防溢空间。预留量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+      "answer": "按锥台近似公式计算：\n\n\\[\nV=\\frac{\\pi h(D_1^2+D_1D_2+D_2^2)}{12\\times1000}\n\\]\n\n其中，上下端**内径** \\(D_1=70\\text{ mm}\\)、\\(D_2=60\\text{ mm}\\)，有效液高 \\(h=100\\text{ mm}\\)。代入：\n\n\\[\nV=\\frac{\\pi\\times100(70^2+70\\times60+60^2)}{12\\times1000}\n\\]\n\n\\[\n=\\frac{\\pi\\times100(4900+4200+3600)}{12000}\n\\approx332.5\\text{ mL}\n\\]\n\n因此，按理想锥台几何模型，容量约为 **332 mL**。该结果是理论有效容量，前提是所给尺寸均为内尺寸，且液体有效高度确为100 mm。[L7]\n\n对于复杂曲面，不能直接套用锥台公式；资料建议使用 **CAD 体积计算**或**实测注水体积**。实测时应以实际内部空间和目标液位为准。[L7]\n\n此外，额定容量应低于杯口溢流前的最大容量；若产品需要携带、带吸管或容易晃动，还应预留防溢空间。预留量不能直接套用固定百分比，应结合杯盖结构、倾倒姿态和测试结果确定。[L7]",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 110.558,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "expected_answer_spans": [],
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "锥台"
+              ],
+              [
+                "1000"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "复杂曲面"
+              ],
+              [
+                "CAD"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.1,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 15,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 0.429,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 527
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.1,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 15,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 1.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 0.429,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 527
+      },
+      "synthesized": false,
+      "recorded_status": "completed"
+    },
+    {
+      "fixture_id": "r03_office_chair_constraints__provider_timeout",
+      "question_id": "r03_office_chair_constraints",
+      "question": "办公椅座高、座深和扶手高的设定，哪些参数可由GB/T 3326—2016直接约束，哪些还需要用GB/T 10000—2023校核？",
+      "status": "provider_timeout",
+      "source_run": "mhreal_g1_notrunc.json",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 181.793,
       "pack": {
         "max_items": 5,
         "max_chars_per_item": null
@@ -1640,43 +2540,77 @@
         ],
         "expected_answer_spans": [
           {
-            "id": "q01-s1",
-            "text": "400mm~440mm",
-            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+            "id": "r03_office_chair_constraints-h1",
+            "text": "400~440",
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
           },
           {
-            "id": "q01-s2",
-            "text": "软面最大座高为460mm",
-            "source": "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+            "id": "r03_office_chair_constraints-h2",
+            "text": "坐姿膝高",
+            "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
           }
         ],
         "expected_sources": [
-          "设计规范与标准/3326-2016-gbt-cd-300.pdf"
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
+          "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
         ],
-        "required_terms": [
-          [
-            "400mm~440mm",
-            "400 mm~440 mm",
-            "400～440 mm"
-          ],
-          [
-            "460mm",
-            "460 mm"
-          ]
-        ],
+        "required_terms": [],
         "refusal_requirements": [],
-        "ambiguity_requirements": []
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "required_terms": [
+              [
+                "座高"
+              ]
+            ],
+            "position": 2,
+            "expected_span": "400~440"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q08_hit",
+            "source_chunk_id": "5f5e23631fab60f363c889938c05a1e658cd9c404e404c390df959e1d579facb",
+            "required_terms": [
+              [
+                "坐姿膝高"
+              ]
+            ],
+            "position": 14,
+            "expected_span": "坐姿膝高"
+          }
+        ]
       },
-      "recorded_status": "provider_timeout",
-      "recorded_audit_version": "soft-audit-behaviour-v7",
       "recorded_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": null,
+        "span_metric_applicable": false,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": null,
+        "unsupported_number_count": null,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": null
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
         "citation_status": "not_applicable",
         "citation_validity": null,
         "citation_metric_applicable": true,
         "citation_id_usage_ratio": 0.0,
         "span_metric_applicable": true,
         "expected_answer_span_recall": 0.0,
-        "required_term_recall": 0.0,
+        "required_term_recall": null,
         "source_coverage": 0.0,
         "unsupported_number_count": 0,
         "refusal_correctness": null,
@@ -1686,7 +2620,340 @@
         "numeric_claim_citation_coverage": null,
         "numeric_citation_metric_applicable": false,
         "answer_length": 33
-      }
+      },
+      "synthesized": false,
+      "recorded_status": "provider_timeout"
+    },
+    {
+      "fixture_id": "r18_height_adjustment__provider_timeout",
+      "question_id": "r18_height_adjustment",
+      "question": "设计500 mL便携杯时，握持外径受杯架限制不能增大，应如何利用容量公式、杯底和重心规则调整高度，并保留哪些风险？",
+      "status": "provider_timeout",
+      "source_run": "mhreal_g1_notrunc.json",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 180.026,
+      "pack": {
+        "max_items": 5,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5"
+        ],
+        "expected_answer_spans": [],
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "反推"
+              ],
+              [
+                "内径"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "重心"
+              ],
+              [
+                "过高"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": null,
+        "span_metric_applicable": false,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": null,
+        "unsupported_number_count": null,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": null
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.0,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": 0.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": 33
+      },
+      "synthesized": false,
+      "recorded_status": "provider_timeout"
+    },
+    {
+      "fixture_id": "r04_child_chair_flow__completed",
+      "question_id": "r04_child_chair_flow",
+      "question": "儿童座椅不能直接套用成人椅标准。请提出从GB/T 26158—2010、GB/T 3326—2016到样机测试的尺寸决策流程，并说明证据边界。",
+      "status": "completed",
+      "source_run": "mhreal_r1.json",
+      "raw_answer": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具标准的**对照边界**，不能据此直接确定儿童尺寸。\n\n4. **形成儿童专用初始方案**  \n   依据儿童人体数据、目标姿态和安全需求，确定座高、座深、座宽、靠背角度、扶手及脚踏等尺寸。若标准与儿童人体需求冲突，应记录偏离理由；具体儿童数值当前资料无法确认。\n\n5. **样机测试与迭代**  \n   制作样机，开展实际坐姿、进出、稳定性、操作及长期使用评估，记录不同目标儿童的适配结果，再修订尺寸。资料强调产品设计应进行需求、环境和风险调查，调查是设计依据。[L8]\n\n### 证据边界\n\n上述流程是基于资料的有限推导，不是 GB/T 26158 或 GB/T 3326 对儿童座椅的直接规定。当前资料无法确认儿童百分位数据、适用年龄范围、具体安全尺寸、承载要求及测试判定值，必须通过儿童人体数据、相关儿童座椅标准和样机试验补齐。",
+      "answer": "### 尺寸决策流程\n\n1. **明确目标人群与场景**  \n   先定义儿童年龄/身高范围、坐姿、使用时长、是否需要扶手及安全约束。资料明确指出，儿童产品存在特殊要求，设计时应充分考虑；但当前资料未给出具体儿童人体尺寸数据或年龄分组方法。[L5]\n\n2. **建立人体尺寸输入**  \n   从 GB/T 26158—2010 的坐姿测量项目中选取坐高、膝高、腘高、臀宽、臀—腘距等指标，作为座高、座深、座宽和靠背相关尺寸的输入。[L3][L4]  \n   但当前摘录未明确这些数据是否为儿童样本，因此不能直接用于儿童座椅定值。GB/T 10000—2023 摘录明确涉及“18岁～25岁成年女性”，不应替代儿童数据。[L10]\n\n3. **将人体需求与 GB/T 3326—2016 对照**  \n   将人体数据形成候选尺寸，再与椅类标准中的桌面高、座高、配合高差等要求进行对照；该标准给出座高 400～440 mm、软面最大座高 460 mm，以及相关净空和高差范围。[L2]  \n   靠背椅还给出座前宽≥400 mm、座深340～460 mm、背长≥350 mm等范围。[L1]  \n   这些只能作为成人或通用家具标准的**对照边界**，不能据此直接确定儿童尺寸。\n\n4. **形成儿童专用初始方案**  \n   依据儿童人体数据、目标姿态和安全需求，确定座高、座深、座宽、靠背角度、扶手及脚踏等尺寸。若标准与儿童人体需求冲突，应记录偏离理由；具体儿童数值当前资料无法确认。\n\n5. **样机测试与迭代**  \n   制作样机，开展实际坐姿、进出、稳定性、操作及长期使用评估，记录不同目标儿童的适配结果，再修订尺寸。资料强调产品设计应进行需求、环境和风险调查，调查是设计依据。[L8]\n\n### 证据边界\n\n上述流程是基于资料的有限推导，不是 GB/T 26158 或 GB/T 3326 对儿童座椅的直接规定。当前资料无法确认儿童百分位数据、适用年龄范围、具体安全尺寸、承载要求及测试判定值，必须通过儿童人体数据、相关儿童座椅标准和样机试验补齐。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 104.983,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "expected_answer_spans": [
+          {
+            "id": "r04_child_chair_flow-h1",
+            "text": "小腿加足高",
+            "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
+          },
+          {
+            "id": "r04_child_chair_flow-h2",
+            "text": "680~760",
+            "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+          }
+        ],
+        "expected_sources": [
+          "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
+          "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "6a4a8f74d0b9884aaf5b67a39e1e6786c4f0219f607a35cd2d3e358dcb25365f",
+            "required_terms": [
+              [
+                "小腿加足高"
+              ]
+            ],
+            "position": 4,
+            "expected_span": "小腿加足高"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "8c3e478671889ef850e10f1e2317060f0a24422fe54740ac3802e4e270532b18",
+            "required_terms": [
+              [
+                "桌面高"
+              ]
+            ],
+            "position": 2,
+            "expected_span": "680~760"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.7,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 1,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 881
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "pass",
+        "citation_validity": true,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.7,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 1.0,
+        "unsupported_number_count": 1,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": 0.0,
+        "hop_metric_applicable": true,
+        "numeric_claim_citation_coverage": 1.0,
+        "numeric_citation_metric_applicable": true,
+        "answer_length": 881
+      },
+      "synthesized": false,
+      "recorded_status": "completed"
+    },
+    {
+      "fixture_id": "r17_cylinder_capacity__provider_timeout",
+      "question_id": "r17_cylinder_capacity",
+      "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
+      "status": "provider_timeout",
+      "source_run": "mhreal_r1.json",
+      "raw_answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "answer": "当前生成模型不可用，无法生成正式回答；冻结证据已保留，请稍后重试。",
+      "sanitization_applied": false,
+      "sanitization_rules": [],
+      "generation_latency_seconds": 180.038,
+      "pack": {
+        "max_items": 99,
+        "max_chars_per_item": null
+      },
+      "expected": {
+        "allowed_citations": [
+          "L1",
+          "L2",
+          "L3",
+          "L4",
+          "L5",
+          "L6",
+          "L7",
+          "L8",
+          "L9",
+          "L10"
+        ],
+        "expected_answer_spans": [
+          {
+            "id": "r17_cylinder_capacity-h2",
+            "text": "额定容量应低于杯口溢流前的最大容量",
+            "source": "08_设计决策/水杯尺寸推导规则.md"
+          }
+        ],
+        "expected_sources": [
+          "08_设计决策/水杯尺寸推导规则.md"
+        ],
+        "required_terms": [],
+        "refusal_requirements": [],
+        "ambiguity_requirements": [],
+        "required_hops": [
+          {
+            "hop_id": "h1",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "内径"
+              ],
+              [
+                "有效液高"
+              ],
+              [
+                "1000"
+              ]
+            ],
+            "position": 7,
+            "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+          },
+          {
+            "hop_id": "h2",
+            "from_question": "q17_ambiguous",
+            "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
+            "required_terms": [
+              [
+                "额定容量"
+              ]
+            ],
+            "position": 7,
+            "expected_span": "额定容量应低于杯口溢流前的最大容量"
+          }
+        ]
+      },
+      "recorded_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": false,
+        "citation_id_usage_ratio": null,
+        "span_metric_applicable": false,
+        "expected_answer_span_recall": null,
+        "required_term_recall": null,
+        "source_coverage": null,
+        "unsupported_number_count": null,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": null
+      },
+      "recorded_audit_version": "soft-audit-behaviour-v6",
+      "replayed_audit": {
+        "citation_status": "not_applicable",
+        "citation_validity": null,
+        "citation_metric_applicable": true,
+        "citation_id_usage_ratio": 0.0,
+        "span_metric_applicable": true,
+        "expected_answer_span_recall": 0.0,
+        "required_term_recall": null,
+        "source_coverage": 0.0,
+        "unsupported_number_count": 0,
+        "refusal_correctness": null,
+        "ambiguity_safety": null,
+        "hop_recall": null,
+        "hop_metric_applicable": false,
+        "numeric_claim_citation_coverage": null,
+        "numeric_citation_metric_applicable": false,
+        "answer_length": 33
+      },
+      "synthesized": false,
+      "recorded_status": "provider_timeout"
     }
   ]
 }

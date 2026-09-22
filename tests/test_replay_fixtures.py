@@ -113,6 +113,24 @@ def test_replay_reproduces_recorded_audit(fixture_id):
     if fixture["status"] != "completed":
         pytest.skip("provider failure rows carry a fallback string, not a model answer")
 
+    # The baseline is the *live* re-audit recorded at export time, not the
+    # historical `recorded_audit`: the answers may have been produced under
+    # older rules, and comparing across rule generations reports a version
+    # change as a regression.  Comparing against a same-rule baseline is what
+    # makes this test able to catch a real drift later.
+    from src.frozen_evidence import AUDIT_VERSION
+
+    baseline = fixture.get("replayed_audit")
+    if baseline is None:
+        # Fixtures exported before `replayed_audit` existed.  Their recorded
+        # values are comparable only if they came from the current rules.
+        if fixture.get("recorded_audit_version") not in (None, AUDIT_VERSION):
+            pytest.skip(
+                f"记录口径 {fixture.get('recorded_audit_version')} 与当前 {AUDIT_VERSION} 不同，"
+                "且该 fixture 无 replayed_audit 基线；重新导出即可覆盖"
+            )
+        baseline = fixture["recorded_audit"]
+
     cases = load_fixture_cases()
     # Rebuild the evidence exactly as the run did.  The fixture records the pack
     # configuration because a compressed run and an uncompressed one produce
@@ -138,11 +156,10 @@ def test_replay_reproduces_recorded_audit(fixture_id):
         # recorded (absent) hop verdict exactly.
         required_hops=expected.get("required_hops", []),
     )
-    recorded = fixture["recorded_audit"]
-    for key, value in recorded.items():
+    for key, value in baseline.items():
         assert audit.get(key) == value, (
             f"{fixture_id}: audit field {key!r} drifted "
-            f"(recorded={value!r}, replayed={audit.get(key)!r})"
+            f"(baseline={value!r}, replayed={audit.get(key)!r})"
         )
 
 
@@ -374,3 +391,97 @@ def test_failure_coverage_is_synthesized_when_no_run_fails(tmp_path):
         # And the synthesized baseline must already obey the v4 rule.
         assert fixture["recorded_audit"]["refusal_correctness"] is None
         assert fixture["recorded_audit"]["ambiguity_safety"] is None
+
+
+# ---------------------------------------------------------------------------
+# Coverage of the real-question contracts.
+#
+# The fixture set used to hold only single-hop and *synthetic* multi-hop rows,
+# so the v7 normalisation change and the span demotion passed every test without
+# being exercised once: the questions in the set happened not to be affected.
+# A regression suite that cannot see the rule you just changed is not a
+# regression suite.
+# ---------------------------------------------------------------------------
+
+
+def test_fixtures_cover_the_real_question_contract(fixtures):
+    real = [f for f in fixtures if str(f["question_id"]).startswith("r")]
+    assert real, "真实题契约没有 fixture 覆盖"
+    # Every real question must appear, not just the ones that happened to fail.
+    assert len({f["question_id"] for f in real}) >= 5, sorted(
+        {f["question_id"] for f in real}
+    )
+
+
+def test_fixtures_cover_demoted_hops(fixtures):
+    """The demoted hops must be replayed, or the demotion is unguarded.
+
+    A hop with no `expected_span` is scored on terms alone; nothing else in the
+    suite would notice if that path stopped working.
+    """
+    demoted = [
+        f
+        for f in fixtures
+        if any(
+            not hop.get("expected_span")
+            for hop in (f["expected"].get("required_hops") or [])
+        )
+    ]
+    assert len(demoted) >= 3, "降级的跳没有被 fixture 覆盖"
+
+
+def test_every_fixture_has_a_live_replay_baseline(fixtures):
+    """`replayed_audit` is what the drift test compares against.
+
+    Without it a fixture re-audited from older rules can only be skipped, and a
+    suite where every fixture is skipped asserts nothing while looking green.
+    """
+    for fixture in fixtures:
+        assert fixture.get("replayed_audit"), fixture["fixture_id"]
+
+
+# ---------------------------------------------------------------------------
+# Coverage of the real-question contracts.
+#
+# The fixture set used to hold only single-hop and *synthetic* multi-hop rows,
+# so the v7 normalisation change and the span demotion passed every test without
+# being exercised once: the questions in the set happened not to be affected.
+# A regression suite that cannot see the rule you just changed is not a
+# regression suite.
+# ---------------------------------------------------------------------------
+
+
+def test_fixtures_cover_the_real_question_contract(fixtures):
+    real = [f for f in fixtures if str(f["question_id"]).startswith("r")]
+    assert real, "真实题契约没有 fixture 覆盖"
+    # Every real question must appear, not just the ones that happened to fail.
+    assert len({f["question_id"] for f in real}) >= 5, sorted(
+        {f["question_id"] for f in real}
+    )
+
+
+def test_fixtures_cover_demoted_hops(fixtures):
+    """The demoted hops must be replayed, or the demotion is unguarded.
+
+    A hop with no `expected_span` is scored on terms alone; nothing else in the
+    suite would notice if that path stopped working.
+    """
+    demoted = [
+        f
+        for f in fixtures
+        if any(
+            not hop.get("expected_span")
+            for hop in (f["expected"].get("required_hops") or [])
+        )
+    ]
+    assert len(demoted) >= 3, "降级的跳没有被 fixture 覆盖"
+
+
+def test_every_fixture_has_a_live_replay_baseline(fixtures):
+    """`replayed_audit` is what the drift test compares against.
+
+    Without it a fixture re-audited from older rules can only be skipped, and a
+    suite where every fixture is skipped asserts nothing while looking green.
+    """
+    for fixture in fixtures:
+        assert fixture.get("replayed_audit"), fixture["fixture_id"]

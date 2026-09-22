@@ -166,6 +166,11 @@ def _synthesize_failure_fixtures(
                 "recorded_audit": {
                     key: audit.get(key) for key in AUDIT_FIELDS if key in audit
                 },
+                # Identical to `recorded_audit` here, and present anyway so the
+                # regression test has one baseline field to read instead of two.
+                "replayed_audit": {
+                    key: audit.get(key) for key in AUDIT_FIELDS if key in audit
+                },
             }
         )
     return fixtures
@@ -243,6 +248,22 @@ def export(
                 max_chars_per_item=pack_config["max_chars_per_item"],
             )
             recorded_audit = row.get("audit") or {}
+            # The baseline a replay is compared against has to come from the
+            # *current* rules, or a rule change reads as a regression.  The
+            # recorded audit is history (and is kept, with its version); this is
+            # the live expectation, and it is what makes the fixture a usable
+            # regression check even when the answers were produced under older
+            # rules.
+            replayed_audit = soft_audit(
+                row.get("answer") or "",
+                pack,
+                expected_answer_spans=spec.get("expected_answer_spans", []),
+                expected_sources=spec.get("expected_sources", []),
+                required_terms=spec.get("required_terms", []),
+                refusal_requirements=spec.get("refusal_requirements", []),
+                ambiguity_requirements=spec.get("ambiguity_requirements", []),
+                required_hops=spec.get("required_hops", []),
+            )
             fixtures.append(
                 {
                     "fixture_id": f"{question_id}__{status}",
@@ -281,6 +302,15 @@ def export(
                     # comparable and the drift test must say so rather than
                     # reporting a rule change as a regression.
                     "recorded_audit_version": run_version,
+                    # What the current rules produce for the same answer.  This
+                    # is the regression baseline; `recorded_audit` is the
+                    # historical record and is not comparable when the versions
+                    # differ.
+                    "replayed_audit": {
+                        key: replayed_audit.get(key)
+                        for key in AUDIT_FIELDS
+                        if key in replayed_audit
+                    },
                     "synthesized": False,
                     "recorded_status": status,
                 }
