@@ -307,6 +307,72 @@ def round_stability(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+# The admission gate for running a new question set.  It lives here, next to the
+# run that measures it, so the criteria cannot drift away from the numbers.
+#
+# Why each threshold, rather than a general "feels healthy":
+#   * a hard error is the service refusing, which no configuration change fixes;
+#   * a timeout is our deadline being hit, and the aggregator already gates at
+#     the same 0.10 (`provider_stability_gate_threshold`);
+#   * a round with zero completions contributes no quality data at all.  That
+#     happened once -- round 3 of the first interleaved run -- and the run looked
+#     unremarkable in aggregate, which is exactly why it is checked separately;
+#   * the paired-cell share is what the arm comparison actually rests on.
+#
+# Reporting the four numbers is mandatory, not optional: a gate that does not
+# fire and a gate that passes look identical in a summary that only says
+# "passed".
+PROVIDER_GATE = {
+    "provider_error_rate": 0.10,
+    "provider_timeout_rate": 0.10,
+    "rounds_with_no_completions": 0,
+    "paired_cell_share": 0.60,
+}
+
+
+def provider_gate(
+    rows: list[dict[str, Any]], rounds: int, paired: int, cells: int
+) -> dict[str, Any]:
+    total = len(rows) or 1
+    errors = sum(1 for row in rows if row.get("status") == "provider_error")
+    timeouts = sum(1 for row in rows if row.get("status") == "provider_timeout")
+    by_round: dict[int, int] = {}
+    for row in rows:
+        index = int(row.get("round", 0))
+        by_round.setdefault(index, 0)
+        if row.get("status") == COMPLETED:
+            by_round[index] += 1
+    empty_rounds = sorted(index for index, done in by_round.items() if done == 0)
+
+    error_rate = errors / total
+    timeout_rate = timeouts / total
+    paired_share = paired / cells if cells else 0.0
+
+    checks = {
+        "provider_error_rate": (error_rate, error_rate < PROVIDER_GATE["provider_error_rate"]),
+        "provider_timeout_rate": (
+            timeout_rate,
+            timeout_rate < PROVIDER_GATE["provider_timeout_rate"],
+        ),
+        "rounds_with_no_completions": (
+            len(empty_rounds),
+            len(empty_rounds) == PROVIDER_GATE["rounds_with_no_completions"],
+        ),
+        "paired_cell_share": (round(paired_share, 3), paired_share >= PROVIDER_GATE["paired_cell_share"]),
+    }
+    return {
+        "thresholds": dict(PROVIDER_GATE),
+        "observed": {name: value for name, (value, _) in checks.items()},
+        "failed": sorted(name for name, (_, ok) in checks.items() if not ok),
+        "empty_rounds": empty_rounds,
+        "passed": all(ok for _, ok in checks.values()),
+        "note": (
+            "未通过时不应启动新的题集运行：可用性故障会与质量差异混在一起。"
+            "四条都要报出实际值——闸门不触发与闸门通过看起来一样。"
+        ),
+    }
+
+
 async def run(args: argparse.Namespace) -> dict[str, Any]:
     sets = [parse_case_set(spec) for spec in args.case_set]
     arms = [parse_arm(spec) for spec in args.arm]
@@ -438,6 +504,9 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             "paired": summarise_pairs(pairs, names),
             "paired_cells_dropped": dropped,
             "round_stability": round_stability(rows),
+            "provider_gate": provider_gate(
+                rows, args.rounds, len(pairs), len(pairs) + dropped
+            ),
         },
         "rows": rows,
     }
@@ -501,6 +570,7 @@ def main() -> int:
             if key != "pairs"
         },
         "paired_cells_dropped": result["summary"]["paired_cells_dropped"],
+        "provider_gate": result["summary"]["provider_gate"],
     }, ensure_ascii=False, indent=2))
     return 0
 
