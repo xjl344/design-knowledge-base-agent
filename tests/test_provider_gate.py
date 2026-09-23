@@ -137,7 +137,11 @@ def test_a_single_arm_run_is_allowed_and_declares_no_pairing(tmp_path):
     assert "paired_cell_share" in payload["summary"]["provider_gate"]["observed"]
 
 
-def test_three_arms_are_rejected(tmp_path):
+def test_zero_arms_is_rejected(tmp_path):
+    """Three arms became legal when caps needed comparing in one window.
+
+    What must still fail is a run with nothing to run.
+    """
     import subprocess
     import sys
 
@@ -146,8 +150,8 @@ def test_three_arms_are_rejected(tmp_path):
             sys.executable,
             str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
             "--case-set",
-            "name=s,snapshot=x,evaluation=y",
-            "--arm", "a=1:none", "--arm", "b=2:none", "--arm", "c=3:none",
+            f"name=real_complete,snapshot={ROOT / 'data' / 'frozen_multihop_real_complete.v2.jsonl'},"
+            f"evaluation={ROOT / 'data' / 'generation_eval.multihop.real.complete.v2.json'}",
             "--rounds", "1",
             "--dry-run",
             "--output", str(tmp_path / "x.json"),
@@ -159,7 +163,6 @@ def test_three_arms_are_rejected(tmp_path):
     if "ModuleNotFoundError" in combined:
         pytest.skip("运行脚本需要模型依赖")
     assert result.returncode != 0
-    assert "1 或 2 个臂" in combined
 
 
 # ---------------------------------------------------------------------------
@@ -209,7 +212,11 @@ def test_a_single_arm_run_is_allowed_and_declares_no_pairing(tmp_path):
     assert "paired_cell_share" in payload["summary"]["provider_gate"]["observed"]
 
 
-def test_three_arms_are_rejected(tmp_path):
+def test_zero_arms_is_rejected(tmp_path):
+    """Three arms became legal when caps needed comparing in one window.
+
+    What must still fail is a run with nothing to run.
+    """
     import subprocess
     import sys
 
@@ -218,8 +225,8 @@ def test_three_arms_are_rejected(tmp_path):
             sys.executable,
             str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
             "--case-set",
-            "name=s,snapshot=x,evaluation=y",
-            "--arm", "a=1:none", "--arm", "b=2:none", "--arm", "c=3:none",
+            f"name=real_complete,snapshot={ROOT / 'data' / 'frozen_multihop_real_complete.v2.jsonl'},"
+            f"evaluation={ROOT / 'data' / 'generation_eval.multihop.real.complete.v2.json'}",
             "--rounds", "1",
             "--dry-run",
             "--output", str(tmp_path / "x.json"),
@@ -231,4 +238,43 @@ def test_three_arms_are_rejected(tmp_path):
     if "ModuleNotFoundError" in combined:
         pytest.skip("运行脚本需要模型依赖")
     assert result.returncode != 0
-    assert "1 或 2 个臂" in combined
+
+
+def test_four_arms_are_allowed_so_caps_can_be_compared_in_one_window(tmp_path):
+    """Four evidence caps in one run cost half of three separate two-arm runs.
+
+    The built-in pairing is for two arms, so a multi-arm run declares the pairing
+    unavailable and leaves it to the analysis script -- rather than reporting a
+    comparison it cannot make.
+    """
+    import json
+    import subprocess
+    import sys
+
+    output = tmp_path / "four.json"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts" / "interleaved_generation_rounds.py"),
+            "--case-set",
+            f"name=real_complete,snapshot={ROOT / 'data' / 'frozen_multihop_real_complete.v2.jsonl'},"
+            f"evaluation={ROOT / 'data' / 'generation_eval.multihop.real.complete.v2.json'}",
+            "--arm", "cap5=5:none",
+            "--arm", "cap10=10:none",
+            "--arm", "cap18=18:none",
+            "--arm", "capall=99:none",
+            "--rounds", "1",
+            "--dry-run",
+            "--output", str(output),
+        ],
+        capture_output=True,
+        text=True,
+    )
+    combined = (result.stdout or "") + (result.stderr or "")
+    if result.returncode != 0 and "ModuleNotFoundError" in combined:
+        pytest.skip("运行脚本需要模型依赖")
+    assert result.returncode == 0, combined[-800:]
+    payload = json.loads(output.read_text(encoding="utf-8"))
+    assert len(payload["arms"]) == 4
+    assert payload["summary"]["paired"]["comparable_pairs"] == 0
+    assert "分析脚本" in payload["summary"]["paired"]["definition"]

@@ -412,8 +412,12 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
     # compare a number against a structural zero.  A single-arm run reports
     # availability and coverage and declares the pairing not applicable, rather
     # than inventing a comparison it cannot support.
-    if len(arms) not in (1, 2):
-        raise SystemExit("需要 1 或 2 个臂")
+    # Any number of arms may be run; the built-in pairing only makes sense for
+    # two, so more than two is left to the analysis script.  Running four caps in
+    # one window and comparing each against the reference is half the calls of
+    # three separate two-arm runs, and keeps every comparison inside one window.
+    if len(arms) < 1:
+        raise SystemExit("至少需要 1 个臂")
     names = [arm["name"] for arm in arms]
     if len(set(names)) != len(names):
         raise SystemExit(f"臂名必须互不相同：{names}")
@@ -562,7 +566,14 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             "paired": (
                 summarise_pairs(pairs, names)
                 if len(names) == 2
-                else {"definition": "单臂运行，无配对", "comparable_pairs": 0}
+                else {
+                    "definition": (
+                        "单臂运行，无配对"
+                        if len(names) == 1
+                        else f"{len(names)} 臂运行，配对交由分析脚本处理"
+                    ),
+                    "comparable_pairs": 0,
+                }
             ),
             "paired_cells_dropped": dropped,
             "round_stability": round_stability(rows),
