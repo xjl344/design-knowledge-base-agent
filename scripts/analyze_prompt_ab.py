@@ -34,13 +34,35 @@ if str(ROOT) not in sys.path:
 
 from src.frozen_evidence import build_evidence_pack, load_cases, soft_audit  # noqa: E402
 
-# Pre-registered: the three real hops the prompt change targets all name the
-# category and stop, and these are the questions that carry them.
+# Pre-registered targets.
+#
+# ⚠️ Corrected before the A/B run was read, and the reason matters.
+#
+# The first version of this list was derived from `data/span_audit.v1.json` --
+# written before the r17 h2 span was demoted.  Re-checking against the *current*
+# contract (before any A/B output existed; the log was empty and the output file
+# absent) showed it was wrong in both directions:
+#
+#   r17_cylinder_capacity  h2   no longer fails at all (the demotion fixed it)
+#   r18_height_adjustment  h1   fails 1 of 3  -- and was not in the list
+#   r18_height_adjustment  h2   fails 1 of 3  -- and was not in the list
+#
+# Leaving r17 in would have diluted the target set with a question that cannot
+# move; leaving r18 out would have hidden a question that can.  Correcting a
+# pre-registration because it was derived from a stale input is legitimate;
+# correcting it *after* seeing the result would not be.
+#
+# The four hops these questions carry, all of which name the category and stop:
 #
 #   r03 h2  `坐姿膝高`   never written, although the evidence lists it
 #   r04 h2  `680~760`    never written, although the answer says `桌面高`
-#   r17 h2  the capacity relation named but not stated
-TARGET_QUESTIONS = ("r03_office_chair_constraints", "r04_child_chair_flow", "r17_cylinder_capacity")
+#   r18 h1  `再用容量公式反推有效高度`  back-derivation named but not performed
+#   r18 h2  `检查高度是否导致重心过高`  the check named but not stated
+TARGET_QUESTIONS = (
+    "r03_office_chair_constraints",
+    "r04_child_chair_flow",
+    "r18_height_adjustment",
+)
 
 CASE_SETS = {
     "real_complete": (
