@@ -35,12 +35,17 @@ def fake_retriever(monkeypatch):
     """Replace the retriever and the question list with fixed inputs."""
 
     def install(sources_by_question: dict[str, list[str]], questions: list[dict]):
-        monkeypatch.setattr(
-            "src.retriever.retrieve_documents",
-            lambda question, top_k=None: [
-                _Doc(source) for source in sources_by_question[question]
-            ],
-        )
+        def _docs(question, *args, **kwargs):
+            return [_Doc(source) for source in sources_by_question[question]]
+
+        async def _docs_multi(question, *args, **kwargs):
+            return _docs(question)
+
+        # Both entry points are patched: the script defaults to the multi-query
+        # path because that is what production calls, and `--single-query`
+        # switches to the other one.
+        monkeypatch.setattr("src.retriever.retrieve_documents", _docs)
+        monkeypatch.setattr("src.retriever.retrieve_documents_multi", _docs_multi)
         monkeypatch.setattr(
             measure, "QUESTIONS", _FakeQuestions(questions)
         )

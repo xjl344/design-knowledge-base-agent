@@ -79,6 +79,7 @@ def measure(
     output: Path | None = None,
     progress: bool = True,
     only: set[str] | None = None,
+    multi: bool = True,
 ) -> dict[str, Any]:
     """Run the measurement, reporting and persisting progress as it goes.
 
@@ -87,9 +88,25 @@ def measure(
     lost everything.  Each question now prints a line and rewrites the output
     file, so partial results are usable and the remaining time is visible.
     """
+    import asyncio
     import time as _time
 
-    from src.retriever import retrieve_documents
+    # ⚠️ Measure the function production actually calls.
+    #
+    # `Services.retrieve` -> the `local_retrieval` tool -> `retrieve_documents_multi`,
+    # which appends the sources surfaced by LLM-decomposed facet sub-queries.
+    # An earlier version of this script measured `retrieve_documents` -- the
+    # single-query path -- and duly reported 16 sources as unretrievable, when
+    # the sub-query path exists precisely to recover multi-facet sources.
+    # Measuring the wrong entry point produced a confident wrong answer.
+    from src.retriever import retrieve_documents, retrieve_documents_multi
+
+    def _retrieve(question: str) -> list[Any]:
+        if not multi:
+            return retrieve_documents(question, top_k=top_k)
+        return asyncio.run(
+            retrieve_documents_multi(question, query_decompose_enabled=True)
+        )
 
     payload = json.loads(QUESTIONS.read_text(encoding="utf-8"))
     questions = payload.get("questions") or payload.get("cases") or []
@@ -110,7 +127,7 @@ def measure(
         question = str(item.get("question") or "")
         expected = [str(x) for x in item.get("expected_sources") or []]
         began = _time.perf_counter()
-        documents = retrieve_documents(question, top_k=top_k)
+        documents = _retrieve(question)
         sources = [str(doc.metadata.get("source") or "") for doc in documents]
         ranks = {name: _first_rank(name, sources) for name in expected}
         entry = {
@@ -152,6 +169,7 @@ def measure(
 def _summarise(per_question: list[dict[str, Any]], top_k: int) -> dict[str, Any]:
     if not per_question:
         return {"top_k_requested": top_k, "questions": 0}
+    # `top_k` is only the requested ceiling; the multi-query path has its own.
 
     def recall_at(cutoff: int) -> float:
         """Share of expected sources found at or above `cutoff`."""
@@ -212,6 +230,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--quiet", action="store_true", help="不打印逐题进度")
     parser.add_argument(
+        "--single-query",
+        action="store_true",
+        help="用单查询路径（retrieve_documents）而非生产用的多查询路径",
+    )
+    parser.add_argument(
         "--only",
         default=None,
         help="只测这些题 id（逗号分隔）；用于只重测有缺失来源的题",
@@ -229,6 +252,7 @@ def main(argv: list[str] | None = None) -> int:
         output=args.output,
         progress=not args.quiet,
         only=only,
+        multi=not args.single_query,
     )
 
     if args.json:
