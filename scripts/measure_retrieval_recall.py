@@ -53,7 +53,21 @@ def _first_rank(expected: str, sources: list[str]) -> int | None:
     return None
 
 
-def measure(top_k: int, limit: int | None = None) -> dict[str, Any]:
+def measure(
+    top_k: int,
+    limit: int | None = None,
+    output: Path | None = None,
+    progress: bool = True,
+) -> dict[str, Any]:
+    """Run the measurement, reporting and persisting progress as it goes.
+
+    The first version of this printed only at the end, and a full run takes over
+    an hour on CPU -- so "how far along is it" was unanswerable, and killing it
+    lost everything.  Each question now prints a line and rewrites the output
+    file, so partial results are usable and the remaining time is visible.
+    """
+    import time as _time
+
     from src.retriever import retrieve_documents
 
     payload = json.loads(QUESTIONS.read_text(encoding="utf-8"))
@@ -62,13 +76,19 @@ def measure(top_k: int, limit: int | None = None) -> dict[str, Any]:
         questions = questions[:limit]
 
     per_question: list[dict[str, Any]] = []
-    for item in questions:
+    started = _time.perf_counter()
+
+    def snapshot() -> dict[str, Any]:
+        return _summarise(per_question, top_k)
+
+    for index, item in enumerate(questions, 1):
         question = str(item.get("question") or "")
         expected = [str(x) for x in item.get("expected_sources") or []]
+        began = _time.perf_counter()
         documents = retrieve_documents(question, top_k=top_k)
         sources = [str(doc.metadata.get("source") or "") for doc in documents]
         ranks = {name: _first_rank(name, sources) for name in expected}
-        per_question.append({
+        entry = {
             "id": str(item.get("id")),
             "category": str(item.get("category") or ""),
             "difficulty": str(item.get("difficulty") or ""),
@@ -77,7 +97,32 @@ def measure(top_k: int, limit: int | None = None) -> dict[str, Any]:
             "ranks": ranks,
             "found": sum(1 for rank in ranks.values() if rank is not None),
             "missing": [name for name, rank in ranks.items() if rank is None],
-        })
+            "seconds": round(_time.perf_counter() - began, 1),
+        }
+        per_question.append(entry)
+        if progress:
+            elapsed = _time.perf_counter() - started
+            rate = elapsed / index
+            remaining = rate * (len(questions) - index)
+            print(
+                f"[{index}/{len(questions)}] {entry['id']} 返回 {entry['returned']} 条 "
+                f"命中 {entry['found']}/{len(expected)} "
+                f"({entry['seconds']}s，已用 {elapsed / 60:.1f} 分，"
+                f"预计还需 {remaining / 60:.1f} 分)",
+                flush=True,
+            )
+        if output:
+            output.parent.mkdir(parents=True, exist_ok=True)
+            output.write_text(
+                json.dumps(snapshot(), ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+
+    return snapshot()
+
+
+def _summarise(per_question: list[dict[str, Any]], top_k: int) -> dict[str, Any]:
+    if not per_question:
+        return {"top_k_requested": top_k, "questions": 0}
 
     def recall_at(cutoff: int) -> float:
         """Share of expected sources found at or above `cutoff`."""
@@ -115,9 +160,12 @@ def measure(top_k: int, limit: int | None = None) -> dict[str, Any]:
         "questions": len(per_question),
         "returned_mean": round(
             statistics.mean([q["returned"] for q in per_question]), 2
-        ) if per_question else 0,
-        "returned_min": min((q["returned"] for q in per_question), default=0),
-        "returned_max": max((q["returned"] for q in per_question), default=0),
+        ),
+        "returned_min": min(q["returned"] for q in per_question),
+        "returned_max": max(q["returned"] for q in per_question),
+        "seconds_mean": round(
+            statistics.mean([q["seconds"] for q in per_question]), 1
+        ),
         "source_recall_at": {str(c): recall_at(c) for c in CUTOFFS},
         "all_sources_present_at": {str(c): question_hit_at(c) for c in CUTOFFS},
         "expected_sources_total": sum(len(q["expected"]) for q in per_question),
@@ -133,15 +181,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--output", type=Path, default=None)
+    parser.add_argument("--quiet", action="store_true", help="不打印逐题进度")
     args = parser.parse_args(argv)
 
-    result = measure(args.top_k, args.limit)
-
-    if args.output:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(
-            json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+    result = measure(
+        args.top_k, args.limit, output=args.output, progress=not args.quiet
+    )
 
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
