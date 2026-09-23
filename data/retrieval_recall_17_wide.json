@@ -1,24 +1,24 @@
 {
   "top_k_requested": 30,
-  "questions": 10,
+  "questions": 17,
   "returned_mean": 30,
   "returned_min": 30,
   "returned_max": 30,
-  "seconds_mean": 118.1,
+  "seconds_mean": 118.5,
   "source_recall_at": {
-    "5": 0.3529,
-    "10": 0.4412,
-    "20": 0.6176,
-    "30": 0.6765
+    "5": 0.2903,
+    "10": 0.4516,
+    "20": 0.6452,
+    "30": 0.7097
   },
   "all_sources_present_at": {
     "5": 0.0,
     "10": 0.0,
     "20": 0.0,
-    "30": 0.1
+    "30": 0.1176
   },
-  "expected_sources_total": 34,
-  "expected_sources_found": 23,
+  "expected_sources_total": 62,
+  "expected_sources_found": 44,
   "by_category": {
     "人体工学综合": {
       "questions": 3,
@@ -34,6 +34,26 @@
       "questions": 1,
       "expected": 2,
       "found_at_all": 1
+    },
+    "制造工艺验证": {
+      "questions": 2,
+      "expected": 6,
+      "found_at_all": 5
+    },
+    "标准冲突与证据边界": {
+      "questions": 3,
+      "expected": 11,
+      "found_at_all": 7
+    },
+    "证据不足与拒答": {
+      "questions": 1,
+      "expected": 3,
+      "found_at_all": 2
+    },
+    "端到端方案": {
+      "questions": 1,
+      "expected": 8,
+      "found_at_all": 7
     }
   },
   "per_question": [
@@ -254,6 +274,166 @@
         "儿童手部尺寸与握力研究_中国儿童_2020.pdf"
       ],
       "seconds": 133.1
+    },
+    {
+      "id": "c23",
+      "category": "制造工艺验证",
+      "difficulty": "L4",
+      "returned": 30,
+      "expected": [
+        "水杯注塑设计规则.md",
+        "LyondellBasell_PP_3486-01_TDS.pdf",
+        "水杯密封设计规则.md"
+      ],
+      "ranks": {
+        "水杯注塑设计规则.md": 1,
+        "LyondellBasell_PP_3486-01_TDS.pdf": 25,
+        "水杯密封设计规则.md": 6
+      },
+      "found": 3,
+      "missing": [],
+      "seconds": 136.8
+    },
+    {
+      "id": "c24",
+      "category": "制造工艺验证",
+      "difficulty": "L4",
+      "returned": 30,
+      "expected": [
+        "Eastman_Copolyester_Extrusion_Blow_Molding_Guide.pdf",
+        "Eastman_Tritan_Processing_Mold_Design_Guidelines.pdf",
+        "水杯尺寸推导规则.md"
+      ],
+      "ranks": {
+        "Eastman_Copolyester_Extrusion_Blow_Molding_Guide.pdf": 7,
+        "Eastman_Tritan_Processing_Mold_Design_Guidelines.pdf": 20,
+        "水杯尺寸推导规则.md": null
+      },
+      "found": 2,
+      "missing": [
+        "水杯尺寸推导规则.md"
+      ],
+      "seconds": 145.6
+    },
+    {
+      "id": "c29",
+      "category": "标准冲突与证据边界",
+      "difficulty": "L5",
+      "returned": 30,
+      "expected": [
+        "水杯材料选择规则.md",
+        "水杯设计验证规则.md",
+        "GB_4806.7-2023.pdf",
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "ranks": {
+        "水杯材料选择规则.md": 5,
+        "水杯设计验证规则.md": 10,
+        "GB_4806.7-2023.pdf": 6,
+        "EU_Food_Contact_Materials_Brochure.pdf": null
+      },
+      "found": 3,
+      "missing": [
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "seconds": 96.1
+    },
+    {
+      "id": "c30",
+      "category": "标准冲突与证据边界",
+      "difficulty": "L5",
+      "returned": 30,
+      "expected": [
+        "水杯材料选择规则.md",
+        "PC与Tritan选择规则.md",
+        "Eastman_Tritan_TX1001_TDS_Official_Page.txt"
+      ],
+      "ranks": {
+        "水杯材料选择规则.md": 1,
+        "PC与Tritan选择规则.md": 13,
+        "Eastman_Tritan_TX1001_TDS_Official_Page.txt": null
+      },
+      "found": 2,
+      "missing": [
+        "Eastman_Tritan_TX1001_TDS_Official_Page.txt"
+      ],
+      "seconds": 114.0
+    },
+    {
+      "id": "c31",
+      "category": "标准冲突与证据边界",
+      "difficulty": "L5",
+      "returned": 30,
+      "expected": [
+        "GB_4806.1-2016.pdf",
+        "GB_4806.7-2023.pdf",
+        "FDA_Food_Contact_Official_Entry.md",
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "ranks": {
+        "GB_4806.1-2016.pdf": null,
+        "GB_4806.7-2023.pdf": 12,
+        "FDA_Food_Contact_Official_Entry.md": null,
+        "EU_Food_Contact_Materials_Brochure.pdf": 6
+      },
+      "found": 2,
+      "missing": [
+        "GB_4806.1-2016.pdf",
+        "FDA_Food_Contact_Official_Entry.md"
+      ],
+      "seconds": 93.8
+    },
+    {
+      "id": "c33",
+      "category": "证据不足与拒答",
+      "difficulty": "L5",
+      "returned": 30,
+      "expected": [
+        "水杯材料选择规则.md",
+        "GB_4806.7-2023.pdf",
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "ranks": {
+        "水杯材料选择规则.md": 1,
+        "GB_4806.7-2023.pdf": 9,
+        "EU_Food_Contact_Materials_Brochure.pdf": null
+      },
+      "found": 2,
+      "missing": [
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "seconds": 113.4
+    },
+    {
+      "id": "c35",
+      "category": "端到端方案",
+      "difficulty": "L5",
+      "returned": 30,
+      "expected": [
+        "水杯尺寸推导规则.md",
+        "水杯材料选择规则.md",
+        "水杯杯盖选择规则.md",
+        "水杯密封设计规则.md",
+        "水杯注塑设计规则.md",
+        "水杯设计验证规则.md",
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf",
+        "GB_4806.7-2023.pdf"
+      ],
+      "ranks": {
+        "水杯尺寸推导规则.md": 16,
+        "水杯材料选择规则.md": 1,
+        "水杯杯盖选择规则.md": 15,
+        "水杯密封设计规则.md": 12,
+        "水杯注塑设计规则.md": 6,
+        "水杯设计验证规则.md": 2,
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf": null,
+        "GB_4806.7-2023.pdf": 29
+      },
+      "found": 7,
+      "missing": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf"
+      ],
+      "seconds": 132.9
     }
   ]
 }
