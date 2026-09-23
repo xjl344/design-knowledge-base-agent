@@ -1,24 +1,24 @@
 {
   "top_k_requested": 30,
-  "questions": 6,
+  "questions": 8,
   "returned_mean": 30,
   "returned_min": 30,
   "returned_max": 30,
-  "seconds_mean": 114.2,
+  "seconds_mean": 113.4,
   "source_recall_at": {
-    "5": 0.381,
-    "10": 0.4762,
-    "20": 0.6667,
-    "30": 0.7619
+    "5": 0.3571,
+    "10": 0.4643,
+    "20": 0.6429,
+    "30": 0.7143
   },
   "all_sources_present_at": {
     "5": 0.0,
     "10": 0.0,
     "20": 0.0,
-    "30": 0.1667
+    "30": 0.125
   },
-  "expected_sources_total": 21,
-  "expected_sources_found": 16,
+  "expected_sources_total": 28,
+  "expected_sources_found": 20,
   "by_category": {
     "人体工学综合": {
       "questions": 3,
@@ -26,9 +26,9 @@
       "found_at_all": 9
     },
     "材料对比推荐": {
-      "questions": 3,
-      "expected": 10,
-      "found_at_all": 7
+      "questions": 5,
+      "expected": 17,
+      "found_at_all": 11
     }
   },
   "per_question": [
@@ -161,6 +161,51 @@
         "SCHOTT_BOROFLOAT_33_Technical_Data.pdf"
       ],
       "seconds": 103.1
+    },
+    {
+      "id": "c14",
+      "category": "材料对比推荐",
+      "difficulty": "L4",
+      "returned": 30,
+      "expected": [
+        "Syensqo_Radel_PPSU_Design_Guide.pdf",
+        "Eastman_Tritan_TX1001_TDS_Official_Page.txt",
+        "LyondellBasell_PP_3486-01_TDS.pdf",
+        "水杯材料选择规则.md"
+      ],
+      "ranks": {
+        "Syensqo_Radel_PPSU_Design_Guide.pdf": 12,
+        "Eastman_Tritan_TX1001_TDS_Official_Page.txt": null,
+        "LyondellBasell_PP_3486-01_TDS.pdf": null,
+        "水杯材料选择规则.md": 4
+      },
+      "found": 2,
+      "missing": [
+        "Eastman_Tritan_TX1001_TDS_Official_Page.txt",
+        "LyondellBasell_PP_3486-01_TDS.pdf"
+      ],
+      "seconds": 133.5
+    },
+    {
+      "id": "c15",
+      "category": "材料对比推荐",
+      "difficulty": "L4",
+      "returned": 30,
+      "expected": [
+        "水杯材料选择规则.md",
+        "GB_4806.7-2023.pdf",
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "ranks": {
+        "水杯材料选择规则.md": 1,
+        "GB_4806.7-2023.pdf": 9,
+        "EU_Food_Contact_Materials_Brochure.pdf": null
+      },
+      "found": 2,
+      "missing": [
+        "EU_Food_Contact_Materials_Brochure.pdf"
+      ],
+      "seconds": 88.0
     }
   ]
 }

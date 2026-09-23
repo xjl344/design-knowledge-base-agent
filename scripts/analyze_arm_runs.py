@@ -45,6 +45,16 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from eval_generation_replay import summarize_rows  # noqa: E402
+
+# The interleaved module lives beside this one, not at the repo root.  Without
+# this the import only worked when the file was *run* (Python puts the script's
+# directory on the path) and failed the moment anything imported it as a
+# module -- which is exactly why this file had no tests for so long: it could
+# not be collected.
+SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(SCRIPTS_DIR))
+
 from interleaved_generation_rounds import (  # noqa: E402
     COMPLETED,
     hop_counts,
