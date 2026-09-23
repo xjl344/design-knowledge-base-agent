@@ -34,35 +34,43 @@ if str(ROOT) not in sys.path:
 
 from src.frozen_evidence import build_evidence_pack, load_cases, soft_audit  # noqa: E402
 
-# Pre-registered targets.
+# Pre-registered targets, and a negative control.
 #
-# ⚠️ Corrected before the A/B run was read, and the reason matters.
+# ⚠️ Revised twice before the A/B was read, and both reasons matter.
 #
-# The first version of this list was derived from `data/span_audit.v1.json` --
-# written before the r17 h2 span was demoted.  Re-checking against the *current*
-# contract (before any A/B output existed; the log was empty and the output file
-# absent) showed it was wrong in both directions:
+# Revision 1 -- the list was derived from `data/span_audit.v1.json`, written
+# before the r17 h2 span was demoted.  Re-checking against the current contract
+# showed r17 h2 no longer fails at all, while r18 h1/h2 do.
 #
-#   r17_cylinder_capacity  h2   no longer fails at all (the demotion fixed it)
-#   r18_height_adjustment  h1   fails 1 of 3  -- and was not in the list
-#   r18_height_adjustment  h2   fails 1 of 3  -- and was not in the list
+# Revision 2 -- then I checked *why* each hop fails instead of trusting the
+# audit's label, and found r18 does not match the mechanism rule 8 targets:
 #
-# Leaving r17 in would have diluted the target set with a question that cannot
-# move; leaving r18 out would have hidden a question that can.  Correcting a
-# pre-registration because it was derived from a stale input is legitimate;
-# correcting it *after* seeing the result would not be.
+#   r03 h2  wants `坐姿膝高`, answer says `坐姿`            -> category, not item
+#   r04 h2  wants `680~760`,   answer says `桌面高`         -> category, not value
+#   r18 h1  wants `反推`,      answer says `反算`           -> SYNONYM
+#   r18 h2  wants `过高`,      answer says `过大`           -> SYNONYM
 #
-# The four hops these questions carry, all of which name the category and stop:
+# Rule 8 says "write the specific item or value, not its category".  It says
+# nothing about word choice, so it cannot fix r18 -- and r18's substance *was*
+# delivered both times.  Those two are term-level false negatives: demoting a
+# span to terms moved the wording problem from the span onto the terms, where it
+# still sits.
 #
-#   r03 h2  `坐姿膝高`   never written, although the evidence lists it
-#   r04 h2  `680~760`    never written, although the answer says `桌面高`
-#   r18 h1  `再用容量公式反推有效高度`  back-derivation named but not performed
-#   r18 h2  `检查高度是否导致重心过高`  the check named but not stated
+# So r18 stays in the analysis as a **negative control**: rule 8 must not move
+# it.  If it does move, that is either spillover or a broken analysis, and either
+# way it needs explaining before any target result is believed.
+#
+# Both revisions happened before any A/B output existed (the output file was
+# absent and the log empty), and both *narrowed* the target rather than widening
+# it -- which is the direction that makes the test harder, not easier.
 TARGET_QUESTIONS = (
     "r03_office_chair_constraints",
     "r04_child_chair_flow",
-    "r18_height_adjustment",
 )
+
+# Expected NOT to move.  A target set with no negative control cannot tell
+# "the prompt did nothing" from "the analysis finds differences everywhere".
+CONTROL_QUESTIONS = ("r18_height_adjustment",)
 
 CASE_SETS = {
     "real_complete": (
@@ -167,7 +175,12 @@ def analyse(payload: dict[str, Any]) -> dict[str, Any]:
         }
 
     target_keys = [key for key in cells if key[1] in TARGET_QUESTIONS]
-    other_keys = [key for key in cells if key[1] not in TARGET_QUESTIONS]
+    control_keys = [key for key in cells if key[1] in CONTROL_QUESTIONS]
+    other_keys = [
+        key
+        for key in cells
+        if key[1] not in TARGET_QUESTIONS and key[1] not in CONTROL_QUESTIONS
+    ]
 
     by_question = {}
     for key in sorted(cells):
@@ -182,7 +195,12 @@ def analyse(payload: dict[str, Any]) -> dict[str, Any]:
         "old": versions[0],
         "new": versions[1],
         "pre_registered_targets": list(TARGET_QUESTIONS),
+        "negative_controls": list(CONTROL_QUESTIONS),
         "target_questions": pair_stats(target_keys),
+        # Expected to be unchanged.  A non-zero result here means the effect is
+        # not the one rule 8 describes, and must be explained before the target
+        # result is believed.
+        "control_questions": pair_stats(control_keys),
         "all_other_questions": pair_stats(other_keys),
         "every_question": pair_stats(list(cells)),
         "by_question": by_question,

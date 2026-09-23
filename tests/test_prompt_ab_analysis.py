@@ -21,7 +21,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.analyze_prompt_ab import TARGET_QUESTIONS, analyse  # noqa: E402
+from scripts.analyze_prompt_ab import (  # noqa: E402
+    CONTROL_QUESTIONS,
+    TARGET_QUESTIONS,
+    analyse,
+)
 
 PROBE = ROOT / "data" / "runs" / "mh_gate_probe_v2.json"
 
@@ -65,12 +69,34 @@ def test_the_targets_are_reported_separately_from_everything_else():
     """A null on the targets must not be rescued by the other questions."""
     result = analyse(_null_control())
     assert result["pre_registered_targets"] == list(TARGET_QUESTIONS)
-    for key in ("target_questions", "all_other_questions", "every_question"):
+    assert result["negative_controls"] == list(CONTROL_QUESTIONS)
+    for key in (
+        "target_questions",
+        "control_questions",
+        "all_other_questions",
+        "every_question",
+    ):
         assert "mean_difference" in result[key] or result[key]["cells"] == 0
-    # The two groups must be disjoint and together cover everything.
-    target_cells = result["target_questions"]["cells"]
-    other_cells = result["all_other_questions"]["cells"]
-    assert target_cells + other_cells == result["every_question"]["cells"]
+    # The three groups must be disjoint and together cover everything.
+    total = (
+        result["target_questions"]["cells"]
+        + result["control_questions"]["cells"]
+        + result["all_other_questions"]["cells"]
+    )
+    assert total == result["every_question"]["cells"]
+
+
+def test_the_control_question_is_not_a_target():
+    """r18's failures are synonyms, not categories, so rule 8 cannot fix them.
+
+    Keeping it out of the targets and in as a control is what stops a null
+    result on the targets being confused with "the prompt did nothing anywhere".
+    """
+    assert not set(TARGET_QUESTIONS) & set(CONTROL_QUESTIONS)
+    result = analyse(_null_control())
+    assert result["control_questions"]["cells"] > 0, (
+        "阴性对照题在运行里没出现——对照就成了空话"
+    )
 
 
 def test_the_targets_are_actually_present_in_the_probe():
