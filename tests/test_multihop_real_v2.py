@@ -371,7 +371,7 @@ def test_a_demoted_hop_is_judged_on_terms_not_on_an_empty_span():
     """
     from src.frozen_evidence import AUDIT_VERSION, build_evidence_pack, load_cases, soft_audit
 
-    assert AUDIT_VERSION == "soft-audit-behaviour-v7"
+    assert AUDIT_VERSION == "soft-audit-behaviour-v8"
     cases = load_cases(GROUPS["complete"]["snapshot"])
     contract = load(GROUPS["complete"]["contract"])
     case = contract["cases"][3]  # r18: both hops demoted

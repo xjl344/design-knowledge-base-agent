@@ -277,3 +277,86 @@ def test_a_clean_span_failure_is_not_excused_by_the_analysis(tmp_path):
     assert result["hops_on_damaged_span"] == 0
     assert result["ratio_lower"] == 0.0
     assert result["ratio_upper"] == 0.0
+
+
+# ---------------------------------------------------------------------------
+# A term must survive normalisation, or it can never be satisfied.
+#
+# `P5`, `P50` and `P95` all match `[A-Za-z]\d{1,2}` -- the bare-label strip that
+# exists to remove table labels from *spans*.  Applied to a declared *term* it
+# deleted all three, and the matcher rejects an empty needle, so `p08 h2` was a
+# permanent false negative: no answer could ever satisfy it.
+# ---------------------------------------------------------------------------
+
+
+def test_percentile_terms_are_not_deleted_by_the_label_strip():
+    from src.frozen_evidence import _normalise_text, _strip_span_noise
+
+    for term, expected in (("P5", "p5"), ("P50", "p50"), ("P95", "p95")):
+        assert _normalise_text(_strip_span_noise(term, labels=False)) == expected
+        # The old behaviour is kept as a contrast: this is what broke it.
+        assert _normalise_text(_strip_span_noise(term)) == ""
+
+
+def test_a_percentile_term_is_findable_in_an_answer_that_names_it():
+    """The whole point: the needle has to survive into the comparison.
+
+    This mirrors what the term matcher does -- normalise the term without the
+    label strip, normalise the answer, look for the needle.
+    """
+    from src.frozen_evidence import _normalise_text, _strip_span_noise
+
+    answer = "该标准覆盖 4～6、7～10 岁分组及 P5、P50、P95 等百分位数据。"
+    haystack = _normalise_text(
+        _strip_span_noise(answer, parens=False, labels=False)
+    )
+    for term in ("P5", "P50", "P95"):
+        needle = _normalise_text(_strip_span_noise(term, labels=False))
+        assert needle, f"{term} 规范化后为空，永远匹配不上"
+        assert needle in haystack, f"{term} 在答案里找不到"
+
+
+def test_the_builder_rejects_a_term_that_normalises_to_nothing():
+    """A contract bug must fail the build, not score zero forever.
+
+    A term that can never match does not look like a defect -- it looks like the
+    hop being hard, which is how `p08 h2` stayed broken.
+    """
+    import json as _json
+    import tempfile
+    from pathlib import Path as _Path
+
+    import scripts.build_multihop_snapshot as builder
+
+    spec = {
+        "id": "c1",
+        "question": "q",
+        "sources": ["s"],
+        "hops": [
+            {
+                "hop_id": "h1",
+                "from_question": "s",
+                "chunk_id": "c",
+                "expected_span": "x",
+                # A term that is only a bracketed unit annotation normalises
+                # to nothing once the parentheses come off, so no answer can
+                # ever satisfy it.
+                "required_terms": [["(mL)"]],
+            },
+            {
+                "hop_id": "h2",
+                "from_question": "s",
+                "chunk_id": "c",
+                "expected_span": "x",
+                "required_terms": [["座高"]],
+            },
+        ],
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        path = _Path(tmp) / "specs.json"
+        path.write_text(
+            _json.dumps({"version": builder.SPEC_VERSION, "cases": [spec]}),
+            encoding="utf-8",
+        )
+        with pytest.raises(SystemExit, match="规范化后为空"):
+            builder.load_specs(path)

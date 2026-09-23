@@ -46,6 +46,8 @@ if str(ROOT) not in sys.path:
 from src.frozen_evidence import (  # noqa: E402
     FrozenDocument,
     FrozenRetrievalCase,
+    _normalise_text,
+    _strip_span_noise,
     load_cases,
     write_cases,
 )
@@ -285,6 +287,20 @@ def load_specs(path: Path) -> dict[str, Any]:
                     _fail(f"{case_id} 的 hop 缺少 {field}")
             if not hop.get("required_terms"):
                 _fail(f"{case_id}/{hop.get('hop_id')} 缺少 required_terms")
+            # A term that normalises to nothing can never be satisfied by any
+            # answer, and it does not look like a defect in the contract -- it
+            # looks like the hop being hard.  `P5`/`P50`/`P95` all matched the
+            # bare-label strip and vanished, making `p08 h2` a permanent false
+            # negative.  Reject them here instead of scoring them forever.
+            for index, group in enumerate(hop["required_terms"]):
+                if not isinstance(group, list):
+                    continue
+                for term in group:
+                    if not _normalise_text(_strip_span_noise(term, labels=False)):
+                        _fail(
+                            f"{case_id}/{hop['hop_id']}：required_terms 第 {index} 组的 "
+                            f"{term!r} 规范化后为空，任何答案都无法匹配它"
+                        )
             if str(hop["from_question"]) not in {str(s) for s in sources}:
                 _fail(
                     f"{case_id}/{hop['hop_id']} 的来源题 {hop['from_question']} "

@@ -52,7 +52,13 @@ if TYPE_CHECKING:  # pragma: no cover - import-time only
 #             it accepts, because a verbatim match cannot tell a paraphrase from
 #             a miss and widening the regex would credit both
 #         Every v6 span score is therefore not comparable with a v7 one.
-AUDIT_VERSION = "soft-audit-behaviour-v7"
+# v8: term needles no longer go through the bare-label strip.  `P5`/`P50`/`P95`
+# matched `[A-Za-z]\d{1,2}` and normalised to the empty string, and the
+# matcher rejects an empty needle -- so those three alternatives could never
+# be satisfied and `p08 h2` was a permanent false negative.  Only that one
+# hop changes: every other contract's terms normalise identically before and
+# after, which is why the in-flight prompt A/B stays comparable across this.
+AUDIT_VERSION = "soft-audit-behaviour-v8"
 
 
 # Text substituted when the provider failed to produce an answer.  It lives
@@ -120,7 +126,7 @@ def _strip_citations(value: Any) -> str:
     return _SPAN_LABEL_RE.sub("", str(value or ""))
 
 
-def _strip_span_noise(value: Any, *, parens: bool = True) -> str:
+def _strip_span_noise(value: Any, *, parens: bool = True, labels: bool = True) -> str:
     """Remove citation markers, unit annotations and table labels.
 
     **Only valid for the expected span when ``parens`` is left True.**  The same
@@ -130,10 +136,21 @@ def _strip_span_noise(value: Any, *, parens: bool = True) -> str:
     makes a correct answer unmatchable -- that is how ``mh03 h2`` scored zero
     with the age range plainly present in the text.  Pass ``parens=False`` for
     answers.
+
+    ``labels`` controls the bare-label strip (``T1``, ``B3``, ``H2``).  That
+    strip belongs to *spans*, where a table label is noise next to the values
+    being matched.  A **term** is a literal a human declared, and stripping it
+    destroys it: ``P5``, ``P50`` and ``P95`` all match ``[A-Za-z]\\d{1,2}``, so
+    they normalised to the empty string -- and the term matcher rejects an empty
+    needle, so those three alternatives could never be satisfied by any answer.
+    ``p08 h2`` was a permanent false negative for exactly that reason.  Pass
+    ``labels=False`` for terms.
     """
     text = _strip_citations(value)
     if parens:
         text = _SPAN_PARENTHETICAL_RE.sub("", text)
+    if not labels:
+        return text
     if _SPAN_MATH_RE.search(text):
         return text
     return _SPAN_BARE_LABEL_RE.sub("", text)
@@ -216,6 +233,11 @@ def _span_matches(
     declared alternative is a reviewed decision, so the fix is evidence-driven
     instead of a tolerance knob nobody can audit.
     """
+    # The bare-label strip stays ON for spans: models write the label inline
+    # (`座深 T1：340～460 mm`), where it corrupts both the key phrase and the
+    # leading digit (`座深t1340`).  Terms deliberately do **not** use this
+    # normalisation -- see `_match_groups` -- because a term is a literal, and
+    # `P50` is content, not a label.
     answer_normalised = _normalise_text(_strip_span_noise(answer, parens=False))
     for span in (expected, *alternatives):
         if not str(span or "").strip():
@@ -887,12 +909,24 @@ def soft_audit(
         results = []
         # The answer keeps its parentheses, for the same reason as in
         # `_span_matches`: there the brackets hold facts, not unit annotations.
-        answer_normalised = _normalise_text(_strip_span_noise(answer, parens=False))
+        # `labels=False` as well: an answer is content, and the bare-label strip
+        # deletes legitimate tokens from it.  `P5`/`P50`/`P95` are exactly the
+        # `[A-Za-z]\d{1,2}` shape, so the answer lost them and the term `P50`
+        # could never be found even after the needle was fixed.
+        answer_normalised = _normalise_text(
+            _strip_span_noise(answer, parens=False, labels=False)
+        )
 
         def _hit(terms: Iterable[str]) -> list[str]:
             return [
                 term for term in terms
-                if (needle := _normalise_text(_strip_span_noise(term))) and needle in answer_normalised
+                # `labels=False`: a term is a declared literal, and the
+                # bare-label strip deletes `P5`/`P50`/`P95` entirely -- see
+                # `_strip_span_noise`.  The `needle and` guard stays, so a term
+                # that normalises to nothing is a visible non-match rather than
+                # a vacuous pass, and the builder rejects such terms outright.
+                if (needle := _normalise_text(_strip_span_noise(term, labels=False)))
+                and needle in answer_normalised
             ]
 
         for group in _term_groups(groups):

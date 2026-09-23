@@ -346,7 +346,7 @@ def test_audit_version_is_bumped_for_the_new_rule():
     """
     from src.frozen_evidence import AUDIT_VERSION
 
-    assert AUDIT_VERSION == "soft-audit-behaviour-v7"
+    assert AUDIT_VERSION == "soft-audit-behaviour-v8"
 
 
 def test_no_question_specific_branch_remains_in_the_audit():
