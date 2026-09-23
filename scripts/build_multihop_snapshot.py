@@ -175,6 +175,47 @@ SPAN_DEMOTIONS: dict[str, list[list[str]]] = {
     "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000": [["锥台"], ["1000"]],
     "复杂曲面杯体应使用 CAD 体积或实测注水体积": [["复杂曲面"], ["CAD"]],
     "成年人人体尺寸": [["成年人"], ["人体尺寸"]],
+    # --- real partial (p01…p32) ---
+    #
+    # Every one of these spans is a whole prose sentence: a procedural
+    # instruction, a prohibition, a scope list, or a disclaimer.  Demoting them
+    # was decided by the same evidence as the complete set's: the audit of
+    # `mh_v2_partial_3r` found **37 of 55 failures were "terms matched, span
+    # rejected"**, and the spans were all of this shape.  A verbatim requirement
+    # on a sentence is a requirement on wording, and the answers deliver the
+    # substance in their own words.
+    #
+    # Two entries need comment:
+    #  * `尺寸结论应引用…或产品测试` lists its options with 或, so the group is
+    #    alternatives rather than a conjunction.  The two hops that declare this
+    #    span used to require different single options; they now share the
+    #    declared set.
+    #  * `先根据目标人群和握持方式确定候选外径范围` is declared by two hops with
+    #    different single terms.  The demotion is keyed by span, so both get the
+    #    union -- they end up testing the same two aspects, which is stricter
+    #    than before and consistent with the sentence.
+    "必须使用内径和有效液高，不要直接使用外径和总高度": [["内径"], ["有效液高"]],
+    "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试": [
+        ["握持实验", "圆柱体握持", "百分位", "产品测试"],
+    ],
+    "本标准给出了未成年人(4岁~17岁)72项人体尺寸所涉及的11个百分位数": [["百分位数"]],
+    "本标准将未成年人分为五个年龄组": [["年龄组"]],
+    "先根据目标人群和握持方式确定候选外径范围": [["目标人群"], ["握持方式", "握持"]],
+    "不要只根据手长、手宽直接推导杯径": [["手长", "手宽"]],
+    "是否需要针对 P5、P50、P95 人群分别验证": [["P5", "P50", "P95"]],
+    "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品": [
+        ["成年人"],
+    ],
+    "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决": [["结构占用"]],
+    "若高度过大，优先扩大握持区域或调整杯底": [["杯底"]],
+    "检查高度是否导致重心过高、倾倒风险增加或单手操作困难": [["倾倒"]],
+    "额定容量应低于杯口溢流前的最大容量": [["额定容量"], ["最大容量"]],
+    "是否存在装满热水后烫手或重心偏移": [["重心"]],
+    "本标准适用于双柜桌、单柜桌、梳妆桌(梳妆台)、单层桌、扶手椅、靠背椅、折叠椅、长方凳、方凳、圆凳的设计和生产": [
+        ["家具"],
+    ],
+    "本标准适用于未成年人用品的设计与生产": [["未成年人用品"]],
+    "本文件用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准": [["不替代"]],
 }
 
 

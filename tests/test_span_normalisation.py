@@ -40,7 +40,6 @@ TAPER_SPAN = "V = π × h × (D1² + D1 × D2 + D2²) / 12 / 1000"
 # metric can measure.
 KNOWN_TOKEN_LOSS = {
     ("generation_eval.multihop.real.v1.json", "2", "h1", ("mL", "mm")),
-    ("generation_eval.multihop.real.partial.v2.json", "2", "h2", ("P5", "P50", "P95")),
 }
 
 

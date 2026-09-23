@@ -96,6 +96,23 @@ def excerpt(answer: str, terms: list[dict[str, Any]]) -> str:
     return text[: EXCERPT_RADIUS * 2]
 
 
+def resolve_pack_config(payload: dict[str, Any], arm: str) -> tuple[Any, Any]:
+    """The pack configuration a row was scored under.
+
+    Two producers write runs: the replay harness records `max_evidence` /
+    `max_chars_per_item` at the top level, and the interleaved harness records a
+    list of arms because each arm carries its own cap.  Reading only the first
+    shape silently produced `max_items=None` and crashed inside
+    `build_evidence_pack` -- so both are handled here.
+    """
+    if "max_evidence" in payload:
+        return payload.get("max_evidence"), payload.get("max_chars_per_item")
+    for entry in payload.get("arms") or []:
+        if str(entry.get("name")) == arm:
+            return entry.get("max_items"), entry.get("max_chars_per_item")
+    raise SystemExit(f"运行文件里找不到臂 {arm!r} 的 pack 配置")
+
+
 def collect(
     runs: list[dict[str, str]], snapshot: Path, *, include_matched: bool
 ) -> list[dict[str, Any]]:
@@ -106,8 +123,7 @@ def collect(
         if not path.exists():
             raise SystemExit(f"运行文件不存在：{path}")
         payload = json.loads(path.read_text(encoding="utf-8-sig"))
-        max_items = payload.get("max_evidence")
-        max_chars = payload.get("max_chars_per_item")
+        max_items, max_chars = resolve_pack_config(payload, spec["arm"])
         run_id = payload.get("run_id")
         for row in payload.get("rows") or []:
             audit = row.get("audit") or {}

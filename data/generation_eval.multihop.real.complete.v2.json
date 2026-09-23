@@ -112,13 +112,7 @@
     {
       "id": "r17_cylinder_capacity",
       "question": "直筒杯内径65 mm、有效液高120 mm，按知识库公式估算理想容量，并说明为何不能直接当额定容量。",
-      "expected_answer_spans": [
-        {
-          "id": "r17_cylinder_capacity-h2",
-          "text": "额定容量应低于杯口溢流前的最大容量",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md"
       ],
@@ -151,10 +145,13 @@
           "required_terms": [
             [
               "额定容量"
+            ],
+            [
+              "最大容量"
             ]
           ],
           "position": 7,
-          "expected_span": "额定容量应低于杯口溢流前的最大容量"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "complete"

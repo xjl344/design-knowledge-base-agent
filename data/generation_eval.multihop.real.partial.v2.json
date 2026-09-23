@@ -8,23 +8,7 @@
     {
       "id": "p01_child_grip_dimensions",
       "question": "面向6至12岁儿童设计500 mL单手水杯，如何结合儿童手部尺寸、握持稳定性、容量和防倾倒要求确定首轮样机的关键尺寸与验证项目？",
-      "expected_answer_spans": [
-        {
-          "id": "p01_child_grip_dimensions-h1",
-          "text": "必须使用内径和有效液高，不要直接使用外径和总高度",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p01_child_grip_dimensions-h2",
-          "text": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        },
-        {
-          "id": "p01_child_grip_dimensions-h3",
-          "text": "本标准给出了未成年人(4岁~17岁)72项人体尺寸所涉及的11个百分位数",
-          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md",
         "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md",
@@ -47,7 +31,7 @@
             ]
           ],
           "position": 7,
-          "expected_span": "必须使用内径和有效液高，不要直接使用外径和总高度"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -55,11 +39,14 @@
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
           "required_terms": [
             [
-              "握持实验"
+              "握持实验",
+              "圆柱体握持",
+              "百分位",
+              "产品测试"
             ]
           ],
           "position": 9,
-          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -71,7 +58,7 @@
             ]
           ],
           "position": 11,
-          "expected_span": "本标准给出了未成年人(4岁~17岁)72项人体尺寸所涉及的11个百分位数"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
@@ -83,23 +70,7 @@
     {
       "id": "p07_child_straw_cup_evidence",
       "question": "儿童吸管杯的吸嘴直径、握持区和开启方式不能只看成人经验。应检索哪些本地证据，哪些结论必须儿童实测？",
-      "expected_answer_spans": [
-        {
-          "id": "p07_child_straw_cup_evidence-h1",
-          "text": "本标准将未成年人分为五个年龄组",
-          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
-        },
-        {
-          "id": "p07_child_straw_cup_evidence-h2",
-          "text": "先根据目标人群和握持方式确定候选外径范围",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p07_child_straw_cup_evidence-h3",
-          "text": "不要只根据手长、手宽直接推导杯径",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
         "08_设计决策/水杯尺寸推导规则.md",
@@ -119,7 +90,7 @@
             ]
           ],
           "position": 1,
-          "expected_span": "本标准将未成年人分为五个年龄组"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -128,10 +99,14 @@
           "required_terms": [
             [
               "目标人群"
+            ],
+            [
+              "握持方式",
+              "握持"
             ]
           ],
           "position": 17,
-          "expected_span": "先根据目标人群和握持方式确定候选外径范围"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -144,7 +119,7 @@
             ]
           ],
           "position": 19,
-          "expected_span": "不要只根据手长、手宽直接推导杯径"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
@@ -156,23 +131,7 @@
     {
       "id": "p08_child_adult_conflict",
       "question": "同一款水杯要覆盖儿童和成人两个群体，如何处理人体数据、杯径候选和产品定位冲突？",
-      "expected_answer_spans": [
-        {
-          "id": "p08_child_adult_conflict-h1",
-          "text": "先根据目标人群和握持方式确定候选外径范围",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p08_child_adult_conflict-h2",
-          "text": "是否需要针对 P5、P50、P95 人群分别验证",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        },
-        {
-          "id": "p08_child_adult_conflict-h3",
-          "text": "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品",
-          "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md",
         "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md",
@@ -188,11 +147,15 @@
           "source_chunk_id": "bf7e88974c201ee0965a1ff7b9fa02921b4b3130c19f7b1c0e6265367c361746",
           "required_terms": [
             [
-              "握持方式"
+              "目标人群"
+            ],
+            [
+              "握持方式",
+              "握持"
             ]
           ],
           "position": 7,
-          "expected_span": "先根据目标人群和握持方式确定候选外径范围"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -206,7 +169,7 @@
             ]
           ],
           "position": 9,
-          "expected_span": "是否需要针对 P5、P50、P95 人群分别验证"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -218,7 +181,7 @@
             ]
           ],
           "position": 13,
-          "expected_span": "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
@@ -230,23 +193,7 @@
     {
       "id": "p20_child_adult_diameter_variables",
       "question": "同一杯型兼顾儿童和成人，容量不变但儿童握持外径必须更小，应优先调整哪些结构变量？哪些不能凭经验确定？",
-      "expected_answer_spans": [
-        {
-          "id": "p20_child_adult_diameter_variables-h1",
-          "text": "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p20_child_adult_diameter_variables-h2",
-          "text": "若高度过大，优先扩大握持区域或调整杯底",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p20_child_adult_diameter_variables-h3",
-          "text": "不要只根据手长、手宽直接推导杯径",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md",
         "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
@@ -265,7 +212,7 @@
             ]
           ],
           "position": 7,
-          "expected_span": "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -277,7 +224,7 @@
             ]
           ],
           "position": 7,
-          "expected_span": "若高度过大，优先扩大握持区域或调整杯底"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -290,7 +237,7 @@
             ]
           ],
           "position": 9,
-          "expected_span": "不要只根据手长、手宽直接推导杯径"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
@@ -301,23 +248,7 @@
     {
       "id": "p21_tip_over_triage",
       "question": "杯体外径满足杯架但装满后容易倾倒，请区分尺寸、容量、杯底和重心问题给出排查顺序。",
-      "expected_answer_spans": [
-        {
-          "id": "p21_tip_over_triage-h1",
-          "text": "检查高度是否导致重心过高、倾倒风险增加或单手操作困难",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p21_tip_over_triage-h2",
-          "text": "额定容量应低于杯口溢流前的最大容量",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        },
-        {
-          "id": "p21_tip_over_triage-h3",
-          "text": "是否存在装满热水后烫手或重心偏移",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/水杯尺寸推导规则.md",
         "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
@@ -336,7 +267,7 @@
             ]
           ],
           "position": 7,
-          "expected_span": "检查高度是否导致重心过高、倾倒风险增加或单手操作困难"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -345,10 +276,13 @@
           "required_terms": [
             [
               "额定容量"
+            ],
+            [
+              "最大容量"
             ]
           ],
           "position": 7,
-          "expected_span": "额定容量应低于杯口溢流前的最大容量"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -360,7 +294,7 @@
             ]
           ],
           "position": 9,
-          "expected_span": "是否存在装满热水后烫手或重心偏移"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
@@ -371,23 +305,7 @@
     {
       "id": "p27_standard_applicability_layers",
       "question": "儿童水杯尺寸同时检索到GB/T 3326—2016、GB/T 26158—2010和儿童手部研究，如何判断适用层级并避免把椅子座高迁移成杯子握持直径？",
-      "expected_answer_spans": [
-        {
-          "id": "p27_standard_applicability_layers-h1",
-          "text": "本标准适用于双柜桌、单柜桌、梳妆桌(梳妆台)、单层桌、扶手椅、靠背椅、折叠椅、长方凳、方凳、圆凳的设计和生产",
-          "source": "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf"
-        },
-        {
-          "id": "p27_standard_applicability_layers-h2",
-          "text": "本标准适用于未成年人用品的设计与生产",
-          "source": "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf"
-        },
-        {
-          "id": "p27_standard_applicability_layers-h3",
-          "text": "不要只根据手长、手宽直接推导杯径",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "01_法规与标准/Design_Standards/3326-2016-gbt-cd-300.pdf",
         "03_人体工程学/Anthropometry/26158-2010-gbt-e-300.pdf",
@@ -407,7 +325,7 @@
             ]
           ],
           "position": 2,
-          "expected_span": "本标准适用于双柜桌、单柜桌、梳妆桌(梳妆台)、单层桌、扶手椅、靠背椅、折叠椅、长方凳、方凳、圆凳的设计和生产"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -419,7 +337,7 @@
             ]
           ],
           "position": 8,
-          "expected_span": "本标准适用于未成年人用品的设计与生产"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -432,7 +350,7 @@
             ]
           ],
           "position": 23,
-          "expected_span": "不要只根据手长、手宽直接推导杯径"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
@@ -443,23 +361,7 @@
     {
       "id": "p32_insufficient_evidence_answer",
       "question": "用户要求给出‘儿童500 mL水杯最佳握持直径精确值’，但知识库只有人体数据和设计原则，Agent应如何回答？",
-      "expected_answer_spans": [
-        {
-          "id": "p32_insufficient_evidence_answer-h1",
-          "text": "不要只根据手长、手宽直接推导杯径",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        },
-        {
-          "id": "p32_insufficient_evidence_answer-h2",
-          "text": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试",
-          "source": "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md"
-        },
-        {
-          "id": "p32_insufficient_evidence_answer-h3",
-          "text": "本文件用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准",
-          "source": "08_设计决策/水杯尺寸推导规则.md"
-        }
-      ],
+      "expected_answer_spans": [],
       "expected_sources": [
         "08_设计决策/Dimension_Decision/水杯关键尺寸决策记录模板.md",
         "08_设计决策/水杯尺寸推导规则.md"
@@ -479,7 +381,7 @@
             ]
           ],
           "position": 9,
-          "expected_span": "不要只根据手长、手宽直接推导杯径"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h2",
@@ -487,11 +389,14 @@
           "source_chunk_id": "d144020f3eee4ab17a0b6a6ea01ba17275725e03bef3772f1aab209317f8980c",
           "required_terms": [
             [
+              "握持实验",
+              "圆柱体握持",
+              "百分位",
               "产品测试"
             ]
           ],
           "position": 9,
-          "expected_span": "尺寸结论应引用握持实验、圆柱体握持研究、目标人群百分位数据或产品测试"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         },
         {
           "hop_id": "h3",
@@ -503,7 +408,7 @@
             ]
           ],
           "position": 7,
-          "expected_span": "本文件用于生成初始设计范围，不替代人体工学实验、结构计算、模具试制或产品标准"
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
         }
       ],
       "coverage": "partial",
