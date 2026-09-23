@@ -58,6 +58,7 @@ def measure(
     limit: int | None = None,
     output: Path | None = None,
     progress: bool = True,
+    only: set[str] | None = None,
 ) -> dict[str, Any]:
     """Run the measurement, reporting and persisting progress as it goes.
 
@@ -72,6 +73,10 @@ def measure(
 
     payload = json.loads(QUESTIONS.read_text(encoding="utf-8"))
     questions = payload.get("questions") or payload.get("cases") or []
+    if only:
+        # Re-measuring every question when only the ones with a missing source
+        # can change the answer doubles a 75-minute run for nothing.
+        questions = [q for q in questions if str(q.get("id")) in only]
     if limit:
         questions = questions[:limit]
 
@@ -182,10 +187,24 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--quiet", action="store_true", help="不打印逐题进度")
+    parser.add_argument(
+        "--only",
+        default=None,
+        help="只测这些题 id（逗号分隔）；用于只重测有缺失来源的题",
+    )
     args = parser.parse_args(argv)
 
+    only = (
+        {item.strip() for item in args.only.split(",") if item.strip()}
+        if args.only
+        else None
+    )
     result = measure(
-        args.top_k, args.limit, output=args.output, progress=not args.quiet
+        args.top_k,
+        args.limit,
+        output=args.output,
+        progress=not args.quiet,
+        only=only,
     )
 
     if args.json:
