@@ -129,11 +129,15 @@ def measure(
             elapsed = _time.perf_counter() - started
             rate = elapsed / index
             remaining = rate * (len(questions) - index)
+            # Progress goes to **stderr**, not stdout.  On stdout it would be
+            # interleaved with the `--json` payload and the result would not
+            # parse -- a pipe into `jq` would fail on a perfectly good run.
             print(
                 f"[{index}/{len(questions)}] {entry['id']} 返回 {entry['returned']} 条 "
                 f"命中 {entry['found']}/{len(expected)} "
                 f"({entry['seconds']}s，已用 {elapsed / 60:.1f} 分，"
                 f"预计还需 {remaining / 60:.1f} 分)",
+                file=sys.stderr,
                 flush=True,
             )
         if output:

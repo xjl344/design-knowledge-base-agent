@@ -134,3 +134,31 @@ def test_only_filters_the_question_set(fake_retriever):
     result = measure.measure(top_k=10, progress=False, only={"c2"})
     assert result["questions"] == 1
     assert result["per_question"][0]["id"] == "c2"
+
+
+def test_progress_goes_to_stderr_so_stdout_stays_parseable(fake_retriever, capsys):
+    """`--json` output must not be polluted by progress lines.
+
+    Progress on stdout would be interleaved with the payload, so piping into a
+    JSON reader would fail on a perfectly good run -- and the failure would look
+    like a broken measurement rather than a stray print.
+    """
+    fake_retriever(
+        {"q": ["a.pdf"]},
+        [{"id": "c1", "question": "q", "expected_sources": ["a.pdf"]}],
+    )
+    measure.measure(top_k=10, progress=True)
+    captured = capsys.readouterr()
+    assert "1/1" in captured.err, "进度应写到 stderr"
+    assert captured.out == "", f"stdout 应保持干净，实际有 {captured.out!r}"
+
+
+def test_quiet_suppresses_progress_entirely(fake_retriever, capsys):
+    fake_retriever(
+        {"q": ["a.pdf"]},
+        [{"id": "c1", "question": "q", "expected_sources": ["a.pdf"]}],
+    )
+    measure.measure(top_k=10, progress=False)
+    captured = capsys.readouterr()
+    assert captured.out == ""
+    assert captured.err == ""
