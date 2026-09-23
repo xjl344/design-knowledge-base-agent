@@ -114,3 +114,36 @@ def test_a_single_version_is_refused():
         row["prompt_version"] = "v-old"
     with pytest.raises(SystemExit, match="两个提示词版本"):
         analyse(payload)
+
+
+def test_pooling_two_runs_adds_cells_instead_of_overwriting_them():
+    """Pooling is what buys the power to detect an effect this size.
+
+    The first A/B had 11 cells and needed about 14.  Adding a second run over a
+    *different* question set must add its cells; keying only on the question id
+    would silently merge them, because ids are not globally unique across sets.
+    """
+    probe = _null_control()
+    sets = sorted({row["case_set"] for row in probe["rows"]})
+    assert len(sets) >= 2, "探针数据需要覆盖两个题集才能验证合并"
+
+    def only(case_set: str) -> dict:
+        return {
+            "arms": probe["arms"],
+            "prompt_versions": probe["prompt_versions"],
+            "rows": [row for row in probe["rows"] if row["case_set"] == case_set],
+        }
+
+    one = analyse(only(sets[0]))
+    two = analyse(only(sets[1]))
+    pooled = analyse([only(sets[0]), only(sets[1])])
+
+    assert pooled["every_question"]["cells"] == (
+        one["every_question"]["cells"] + two["every_question"]["cells"]
+    )
+    # The pooled null control must still be exactly zero: adding cells must not
+    # introduce a difference.
+    assert pooled["every_question"]["mean_difference"] == 0.0
+    # And the per-set breakdown must still be reported, because pooling is only
+    # valid for the paired difference, never for the levels.
+    assert set(pooled["by_case_set"]) == set(sets)

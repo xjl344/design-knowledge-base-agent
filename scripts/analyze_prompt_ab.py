@@ -124,27 +124,44 @@ def hop_recall(row: dict[str, Any], cache: dict[str, Any]) -> float | None:
     return sum(1 for hop in hops if hop.get("matched")) / len(hops)
 
 
-def analyse(payload: dict[str, Any]) -> dict[str, Any]:
+def analyse(payload: Any) -> dict[str, Any]:
+    """Paired analysis over one run, or over several pooled together.
+
+    Pooling is legitimate for a *paired* prompt comparison even when the runs
+    cover question sets of different difficulty, because the paired design
+    removes each cell's own level -- only the within-cell difference enters.  It
+    would not be legitimate for comparing levels, which is why the per-set
+    breakdown is always reported alongside the pooled number.
+
+    Cells are keyed by (case_set, question), so pooling two runs that cover
+    different sets adds cells rather than overwriting them.
+    """
+    payloads = payload if isinstance(payload, list) else [payload]
     cache: dict[str, Any] = {
         "arms": {
             str(arm["name"]): (arm.get("max_items"), arm.get("max_chars_per_item"))
-            for arm in payload.get("arms") or []
+            for entry in payloads
+            for arm in entry.get("arms") or []
         }
     }
     # cell -> prompt -> [scores across rounds]
     cells: dict[tuple[str, str], dict[str, list[float]]] = {}
-    for row in payload.get("rows", []):
-        if row.get("status") != "completed":
-            continue
-        score = hop_recall(row, cache)
-        if score is None:
-            continue
-        key = (str(row["case_set"]), str(row["question_id"]))
-        cells.setdefault(key, {}).setdefault(str(row["prompt_version"]), []).append(score)
+    versions: set[str] = set()
+    for entry in payloads:
+        versions.update(entry.get("prompt_versions") or [])
+        for row in entry.get("rows", []):
+            if row.get("status") != "completed":
+                continue
+            score = hop_recall(row, cache)
+            if score is None:
+                continue
+            key = (str(row["case_set"]), str(row["question_id"]))
+            cells.setdefault(key, {}).setdefault(str(row["prompt_version"]), []).append(score)
 
-    versions = sorted(payload.get("prompt_versions") or [])
-    if len(versions) != 2:
-        raise SystemExit(f"需要两个提示词版本才能配对，收到 {versions}")
+    ordered = sorted(versions)
+    if len(ordered) != 2:
+        raise SystemExit(f"需要两个提示词版本才能配对，收到 {ordered}")
+    versions = ordered
 
     def pair_stats(keys: list[tuple[str, str]]) -> dict[str, Any]:
         diffs: list[float] = []
@@ -190,10 +207,16 @@ def analyse(payload: dict[str, Any]) -> dict[str, Any]:
             for version, values in sorted(per_prompt.items())
         }
 
+    by_case_set = {
+        case_set: pair_stats([key for key in cells if key[0] == case_set])
+        for case_set in sorted({key[0] for key in cells})
+    }
+
     return {
         "prompt_versions": versions,
         "old": versions[0],
         "new": versions[1],
+        "runs": [str(entry.get("run_id")) for entry in payloads],
         "pre_registered_targets": list(TARGET_QUESTIONS),
         "negative_controls": list(CONTROL_QUESTIONS),
         "target_questions": pair_stats(target_keys),
@@ -202,6 +225,9 @@ def analyse(payload: dict[str, Any]) -> dict[str, Any]:
         # result is believed.
         "control_questions": pair_stats(control_keys),
         "all_other_questions": pair_stats(other_keys),
+        # Per question set, because pooling is only valid for the paired
+        # difference, never for the levels.
+        "by_case_set": by_case_set,
         "every_question": pair_stats(list(cells)),
         "by_question": by_question,
     }
@@ -209,11 +235,11 @@ def analyse(payload: dict[str, Any]) -> dict[str, Any]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("run", type=Path)
+    parser.add_argument("run", type=Path, nargs="+")
     args = parser.parse_args(argv)
 
-    payload = json.loads(args.run.read_text(encoding="utf-8"))
-    result = analyse(payload)
+    payloads = [json.loads(path.read_text(encoding="utf-8")) for path in args.run]
+    result = analyse(payloads if len(payloads) > 1 else payloads[0])
     print(json.dumps(result, ensure_ascii=False, indent=2))
     return 0
 
