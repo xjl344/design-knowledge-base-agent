@@ -10,6 +10,23 @@ Everything here is local -- `bge-m3` embeddings, a local cross-encoder, a
 persisted Chroma index -- so this costs no API calls and touches no frozen
 artefact.  Retrieval is *run*, never modified.
 
+⚠️ What this measures, and what it does not
+-------------------------------------------
+The ground truth is `expected_sources`, which is a list of **files**.  So a
+source counts as found when *any* of its chunks is in the returned list.  That
+makes every number here an **upper bound on usefulness**: the right file being
+present does not mean the right passage is present.  There is no chunk-level
+ground truth to measure against, so "the passage is in there somewhere" cannot
+be checked -- only "the document is".
+
+Two consequences worth stating plainly:
+
+* a recall of 0.81 at rank 20 means "81% of expected *files* have a chunk in the
+  top 20", not "81% of the needed facts are reachable";
+* the **missing** set is trustworthy, because a file that never appears cannot
+  contain a reachable passage.  So "20 of 103 expected files never appear" is a
+  sound lower bound on what depth cannot fix.
+
 ⚠️ Matching is by **basename**.  `expected_sources` holds file names
 (`26158-2010-gbt-e-300.pdf`) while the index metadata holds relative paths.
 Comparing the two raw produced an all-zero result once already, which reads as
@@ -19,6 +36,9 @@ Usage::
 
     python scripts/measure_retrieval_recall.py
     python scripts/measure_retrieval_recall.py --top-k 30 --json
+    # Is the missing set capped away, or genuinely absent?  Widen the pool:
+    RETRIEVER_RERANK_TOP_K=30 RETRIEVER_SOURCE_CAP=99 \
+        python scripts/measure_retrieval_recall.py --only c06,c07 --top-k 30
 """
 
 from __future__ import annotations
