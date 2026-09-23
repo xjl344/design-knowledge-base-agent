@@ -388,3 +388,27 @@ def test_a_demoted_hop_is_judged_on_terms_not_on_an_empty_span():
         assert hop["expected_span"] == ""
         assert hop["span_matched"] is None, "无跨段时不应判为跨度失败"
         assert hop["matched"] is True, hop
+
+
+def test_the_partial_set_is_demoted_by_the_same_rule():
+    """The partial set's 0.127 was the same measurement artifact as the complete set's.
+
+    Its audit found 37 of 55 failures were "terms matched, span rejected", and
+    every span was a whole prose sentence.  All 21 hops are demoted now; this
+    pins that, because a partial question's low score is easy to accept as
+    "these are the harder questions" -- which is what happened for a long time.
+    """
+    from scripts.build_multihop_snapshot import SPAN_DEMOTIONS
+
+    contract = load(GROUPS["partial"]["contract"])
+    all_hops = [hop for case in contract["cases"] for hop in case["required_hops"]]
+    assert all_hops, "partial 契约里没有跳"
+    demoted = [hop for hop in all_hops if not hop.get("expected_span")]
+    assert len(demoted) == len(all_hops), (
+        f"partial 的 {len(all_hops)} 个跳应全部降级，实际 {len(demoted)}"
+    )
+    for hop in demoted:
+        assert hop.get("span_demoted_because"), hop
+        # Every demoted term set must come from the shared table, so a hop
+        # cannot quietly get a bespoke (weaker) rule of its own.
+        assert hop["required_terms"] in SPAN_DEMOTIONS.values(), hop
