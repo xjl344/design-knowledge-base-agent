@@ -620,7 +620,7 @@ def test_generate_from_pack_retries_then_succeeds_and_records_both_attempts(monk
             return "座高为400mm~440mm。[L1]"
 
     monkeypatch.setattr(generator_v2, "require_role_model", lambda _role: None)
-    monkeypatch.setattr(generator_v2, "_build_chain", lambda: _StubChain(FlakyChain()))
+    monkeypatch.setattr(generator_v2, "_build_chain", lambda prompt_version=None: _StubChain(FlakyChain()))
     monkeypatch.setattr(generator_v2, "_retry_after_seconds", lambda *_: 0.0)
 
     pack = build_evidence_pack(make_case())
@@ -644,7 +644,7 @@ def test_generate_from_pack_gives_up_after_retries_are_exhausted(monkeypatch):
             raise TimeoutError("Request timed out.")
 
     monkeypatch.setattr(generator_v2, "require_role_model", lambda _role: None)
-    monkeypatch.setattr(generator_v2, "_build_chain", lambda: _StubChain(AlwaysFailingChain()))
+    monkeypatch.setattr(generator_v2, "_build_chain", lambda prompt_version=None: _StubChain(AlwaysFailingChain()))
     monkeypatch.setattr(generator_v2, "_retry_after_seconds", lambda *_: 0.0)
 
     pack = build_evidence_pack(make_case())
@@ -669,7 +669,7 @@ def test_generate_from_pack_does_not_retry_on_success(monkeypatch):
             return "座高为400mm~440mm。[L1]"
 
     monkeypatch.setattr(generator_v2, "require_role_model", lambda _role: None)
-    monkeypatch.setattr(generator_v2, "_build_chain", lambda: _StubChain(GoodChain()))
+    monkeypatch.setattr(generator_v2, "_build_chain", lambda prompt_version=None: _StubChain(GoodChain()))
 
     pack = build_evidence_pack(make_case())
     result = asyncio.run(generator_v2.generate_from_pack(pack, max_retries=2))
@@ -714,7 +714,7 @@ def test_a_hanging_call_is_bounded_by_the_hard_deadline(monkeypatch):
             return "永远不会到达"
 
     monkeypatch.setattr(generator_v2, "require_role_model", lambda _role: None)
-    monkeypatch.setattr(generator_v2, "_build_chain", lambda: _StubChain(HangingChain()))
+    monkeypatch.setattr(generator_v2, "_build_chain", lambda prompt_version=None: _StubChain(HangingChain()))
     monkeypatch.setattr(generator_v2, "_hard_deadline_seconds", lambda: 0.05)
 
     pack = build_evidence_pack(make_case())

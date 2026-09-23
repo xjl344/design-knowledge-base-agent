@@ -47,6 +47,50 @@ GENERATOR_V2_PROMPT = ChatPromptTemplate.from_messages([
 ])
 GENERATOR_PROMPT_VERSION = "generator-v2-20260919-r2"
 
+# Rule 8, added as a *new version* rather than edited in place.
+#
+# The three remaining real-set misses share one shape: the answer names the
+# category and stops.  `坐姿膝高` is never written although the evidence lists
+# it; `680~760` is never written although the answer says `桌面高`; the capacity
+# relation is named but not stated.  Every one of those is a rule-1..7-compliant
+# answer -- nothing in the old prompt asks for the specific item or value, only
+# for evidence-backed content.
+#
+# It is a new version because the old one's results are already on disk under
+# `generator-v2-20260919-r2`; editing the text in place would silently
+# re-label them.
+GENERATOR_V2_PROMPT_R3 = ChatPromptTemplate.from_messages([
+    (
+        "system",
+        """你是一个严格基于冻结证据包回答问题的设计知识库助手。
+
+规则：
+1. 只使用上下文中明确出现的信息，不使用模型常识补全资料。
+2. 资料事实必须在句末紧跟允许的引用，例如 [L1]；不得生成上下文没有的引用编号。
+3. 没有直接证据时，明确写“当前资料无法确认”，不要编造精确数字或无条件推荐。
+4. 区分资料事实、有限推导和待验证内容；推导必须说明它不是资料原文。
+5. 直接回答问题，优先使用短段落或项目符号，控制在约 600 字以内。
+6. 不要输出七段式长报告，不要复述完整上下文，不要展示内部推理过程。
+7. 只输出回答正文；不要附加控制标记、状态后缀或结束符。
+8. 证据里给出的**具体测量项目名称、数值和数值区间必须逐项写出**，不能只写它所属的
+   类别。例如证据有“坐姿膝高 400～440 mm”，就要写出“坐姿膝高 400～440 mm”，
+   写“坐姿尺寸”或“人体尺寸”不算回答；证据给了具体区间就必须给出该区间本身。
+   证据里存在的关系式（如“A 应低于 B”）也要原样陈述，不能只提到 A 或只提到 B。
+
+{context}""",
+    ),
+    ("human", "问题：{question}"),
+])
+GENERATOR_PROMPT_VERSION_R3 = "generator-v2-20260923-r3"
+
+# The prompt a run uses is selected by version string, never by editing a
+# template in place.  An A/B of two prompts is only interpretable if each call
+# records which one produced it.
+GENERATOR_PROMPTS = {
+    GENERATOR_PROMPT_VERSION: GENERATOR_V2_PROMPT,
+    GENERATOR_PROMPT_VERSION_R3: GENERATOR_V2_PROMPT_R3,
+}
+
 # Replay measures a single model call per row, so retries stay off. This is the
 # value the harness must pass; keeping it here means the recorded metadata and
 # the actual call can never drift apart.
@@ -234,14 +278,24 @@ def _classify_error(error: str | None) -> str | None:
 RETRY_BACKOFF_SECONDS = (1.0, 3.0)
 
 
-def _build_chain():
+def _build_chain(prompt_version: str | None = None):
     """Assemble the prompt | model | parser chain.
 
     Extracted so tests can substitute the whole expression instead of faking
     each link, and so the retry loop has one place to rebuild it per attempt.
+
+    The prompt is chosen by version so that two prompts can be compared in one
+    interleaved run; the default keeps every existing caller on the version its
+    recorded results were produced with.
     """
+    version = prompt_version or GENERATOR_PROMPT_VERSION
+    prompt = GENERATOR_PROMPTS.get(version)
+    if prompt is None:
+        raise ValueError(
+            f"未知的提示词版本 {version!r}；可用：{sorted(GENERATOR_PROMPTS)}"
+        )
     return (
-        GENERATOR_V2_PROMPT
+        prompt
         | chat_model("generator", streaming=False, temperature=0.0, max_retries=0)
         | StrOutputParser()
     )
@@ -269,6 +323,7 @@ async def generate_from_pack(
     ambiguity_requirements: Iterable[Iterable[str]] = (),
     required_hops: Iterable[Any] = (),
     max_retries: int = GENERATOR_MAX_RETRIES,
+    prompt_version: str | None = None,
 ) -> GenerationResult:
     """Generate from a pack, optionally retrying transient provider failures.
 
@@ -292,7 +347,7 @@ async def generate_from_pack(
         error = None
         try:
             require_role_model("generator")
-            chain = _build_chain()
+            chain = _build_chain(prompt_version)
             raw_answer = str(
                 await _call_with_deadline(
                     chain.ainvoke({"question": pack.question, "context": pack.context_text()}),

@@ -103,15 +103,36 @@ def parse_case_set(spec: str) -> dict[str, str]:
 
 
 def parse_arm(spec: str) -> dict[str, Any]:
-    """``name=<max_items>:<max_chars>`` where max_chars may be ``none``."""
+    """``name=<max_items>:<max_chars>[:<prompt_version>]``.
+
+    `max_chars` may be ``none``; `prompt_version` is optional and defaults to the
+    module default, so every existing command line keeps its meaning.
+
+    A prompt version is carried by the *arm* rather than by the run because the
+    only way to compare two prompts is to interleave them within one time
+    window.  Running prompt A to completion and then prompt B would attribute
+    whatever the provider was doing during each block to the prompts, which is
+    the mistake this harness exists to avoid.
+    """
     name, separator, rest = spec.partition("=")
     if not separator:
-        raise SystemExit(f"臂定义必须是 name=max_items:max_chars，收到 {spec!r}")
-    max_items, colon, max_chars = rest.partition(":")
-    if not colon:
-        raise SystemExit(f"臂定义必须是 name=max_items:max_chars，收到 {spec!r}")
+        raise SystemExit(
+            f"臂定义必须是 name=max_items:max_chars[:prompt_version]，收到 {spec!r}"
+        )
+    parts = rest.split(":")
+    if len(parts) < 2:
+        raise SystemExit(
+            f"臂定义必须是 name=max_items:max_chars[:prompt_version]，收到 {spec!r}"
+        )
+    max_items, max_chars = parts[0], parts[1]
+    prompt_version = ":".join(parts[2:]).strip() or None
     budget = None if max_chars.strip().lower() in ("none", "-", "") else int(max_chars)
-    return {"name": name.strip(), "max_items": int(max_items), "max_chars_per_item": budget}
+    return {
+        "name": name.strip(),
+        "max_items": int(max_items),
+        "max_chars_per_item": budget,
+        "prompt_version": prompt_version,
+    }
 
 
 async def score_one(
@@ -142,6 +163,10 @@ async def score_one(
         return {
             "question_id": pack.question_id,
             "snapshot_id": pack.snapshot_id,
+            # Present in the dry-run row too: a dry run is what verifies the
+            # A/B plumbing, and a row that cannot say which prompt it would
+            # have used cannot verify anything.
+            "prompt_version": arm.get("prompt_version") or GENERATOR_PROMPT_VERSION,
             "evidence_count": len(pack.items),
             "context_chars": len(pack.context_text()),
             "truncation_lost_facts": lost_facts,
@@ -161,6 +186,7 @@ async def score_one(
         ambiguity_requirements=spec.get("ambiguity_requirements", []),
         required_hops=spec.get("required_hops", []),
         max_retries=max_retries,
+        prompt_version=arm.get("prompt_version"),
     )
     row = {
         # `question_id` must be the *case* id: the contract and the pairing both
@@ -169,6 +195,9 @@ async def score_one(
         # nothing.
         "question_id": pack.question_id,
         "snapshot_id": pack.snapshot_id,
+        # Which prompt produced this row.  Without it a mixed run cannot be
+        # split back into its conditions.
+        "prompt_version": arm.get("prompt_version") or GENERATOR_PROMPT_VERSION,
         "evidence_count": len(pack.items),
         "context_chars": len(pack.context_text()),
         "truncation_lost_facts": lost_facts,
@@ -489,7 +518,16 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
         "started_at": args.started_at,
         "finished_at": datetime.now().astimezone().isoformat(),
         "model": model_descriptor("generator")["model"],
-        "prompt_version": GENERATOR_PROMPT_VERSION,
+        # Recorded as a set.  A prompt A/B has two, and a single field would
+        # let a mixed run be aggregated as if it were one configuration.
+        "prompt_versions": sorted({
+            arm.get("prompt_version") or GENERATOR_PROMPT_VERSION for arm in arms
+        }),
+        "prompt_version": (
+            (arms[0].get("prompt_version") or GENERATOR_PROMPT_VERSION)
+            if len({arm.get("prompt_version") or GENERATOR_PROMPT_VERSION for arm in arms}) == 1
+            else None
+        ),
         "audit_version": AUDIT_VERSION,
         "case_sets": [
             {
