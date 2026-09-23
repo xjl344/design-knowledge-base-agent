@@ -1,24 +1,24 @@
 {
   "top_k_requested": 30,
-  "questions": 8,
+  "questions": 10,
   "returned_mean": 30,
   "returned_min": 30,
   "returned_max": 30,
-  "seconds_mean": 113.4,
+  "seconds_mean": 118.1,
   "source_recall_at": {
-    "5": 0.3571,
-    "10": 0.4643,
-    "20": 0.6429,
-    "30": 0.7143
+    "5": 0.3529,
+    "10": 0.4412,
+    "20": 0.6176,
+    "30": 0.6765
   },
   "all_sources_present_at": {
     "5": 0.0,
     "10": 0.0,
     "20": 0.0,
-    "30": 0.125
+    "30": 0.1
   },
-  "expected_sources_total": 28,
-  "expected_sources_found": 20,
+  "expected_sources_total": 34,
+  "expected_sources_found": 23,
   "by_category": {
     "人体工学综合": {
       "questions": 3,
@@ -26,9 +26,14 @@
       "found_at_all": 9
     },
     "材料对比推荐": {
-      "questions": 5,
-      "expected": 17,
-      "found_at_all": 11
+      "questions": 6,
+      "expected": 21,
+      "found_at_all": 13
+    },
+    "尺寸计算推导": {
+      "questions": 1,
+      "expected": 2,
+      "found_at_all": 1
     }
   },
   "per_question": [
@@ -206,6 +211,49 @@
         "EU_Food_Contact_Materials_Brochure.pdf"
       ],
       "seconds": 88.0
+    },
+    {
+      "id": "c16",
+      "category": "材料对比推荐",
+      "difficulty": "L4",
+      "returned": 30,
+      "expected": [
+        "水杯材料选择规则.md",
+        "水杯密封设计规则.md",
+        "WACKER_ELASTOSIL_R_plus_4305-60_S_Product_Data_Page.txt",
+        "GB_4806.11-2023.pdf"
+      ],
+      "ranks": {
+        "水杯材料选择规则.md": 13,
+        "水杯密封设计规则.md": 2,
+        "WACKER_ELASTOSIL_R_plus_4305-60_S_Product_Data_Page.txt": null,
+        "GB_4806.11-2023.pdf": null
+      },
+      "found": 2,
+      "missing": [
+        "WACKER_ELASTOSIL_R_plus_4305-60_S_Product_Data_Page.txt",
+        "GB_4806.11-2023.pdf"
+      ],
+      "seconds": 141.0
+    },
+    {
+      "id": "c20",
+      "category": "尺寸计算推导",
+      "difficulty": "L4",
+      "returned": 30,
+      "expected": [
+        "水杯尺寸推导规则.md",
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf"
+      ],
+      "ranks": {
+        "水杯尺寸推导规则.md": 1,
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf": null
+      },
+      "found": 1,
+      "missing": [
+        "儿童手部尺寸与握力研究_中国儿童_2020.pdf"
+      ],
+      "seconds": 133.1
     }
   ]
 }
