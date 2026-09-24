@@ -222,6 +222,11 @@ def run(path: Path, per_category: int, top_k: int) -> dict:
             "expected_sources": expected_source_diagnostics,
         }
         rows.append({
+            # The dataset's own id, so a report can key on data instead of on the
+            # row's position.  `Run-RBaseline.ps1` used to synthesise `k01…k10`
+            # from the loop index, which silently produces the wrong label if the
+            # dataset is ever reordered.
+            "question_id": str(item.get("id") or ""),
             "question": item["question"],
             "expanded_queries": expand_query(item["question"]),
             **audit_entities,

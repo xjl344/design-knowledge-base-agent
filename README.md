@@ -26,21 +26,44 @@ flowchart LR
 
 ### R 策略 10 题基线
 
-以下结果来自 `logs/retrieval_ablations/final_R.json`，评测的是**目标来源召回**，不是最终答案正确率。结果是 R 分块策略与当前混合检索、实体保护和来源权威性排序配置的组合基线。
+以下结果来自 `logs/portfolio_baseline/R_baseline_20260924_190441.md`（原始 JSON 同目录），
+评测的是**目标来源召回**，不是最终答案正确率。结果是 R 分块策略与当前混合检索、
+实体保护和来源权威性排序配置的组合基线。
 
 | 指标 | 结果 |
 |---|---:|
 | 题目数量 | 10 |
 | Source hit mean | 96.67% |
+| Recall@5 | 80.00% |
 | Recall@10 | 96.67% |
 | MRR | 93.33% |
 | NDCG@10 | 84.32% |
 | 重排成功率 | 100% |
-| 平均检索延迟 | 约 26 秒 |
 
-边界结果也会保留：k07 缺少一个 Tritan 工艺指南来源；k10 虽然命中目标来源，但首个目标来源排名为第 4。它们是当前基线的已知限制，不会被隐藏或改写成答案准确率。
+**延迟不放在这张表里。** 同一条配置在本机三次运行，每题平均延迟分别是
+**26.0 s / 84.5 s / 161.7 s**（其中重排占 6.1 s / 74.9 s / 147.2 s），
+而**召回指标在其中两次里逐项完全相同**。延迟取决于重排器跑在哪个设备上、
+以及当时机器有多忙——**不要把它读成策略差异**。每次运行的实际延迟记在该次报告末尾的
+「检索诊断」表里，那张表同时给出 BM25 候选计数，用于判断两次运行是否可比。
 
-逐题结果和原始检索诊断见 `logs/retrieval_ablations/final_R.json`；运行方式见 `scripts/Run-RBaseline.ps1`。
+三次运行（都在仓库里）：
+
+| 运行 | 原始文件 | 指标 |
+|---|---|---|
+| 2026-09-08 | `logs/retrieval_ablations/final_R.json` | 与 09-24 逐项相同 |
+| 2026-09-13 | `logs/portfolio_baseline/R_retrieval_20260913_202524.json` | **离群**，见下 |
+| 2026-09-24 | `logs/portfolio_baseline/R_retrieval_20260924_190441.json` | 与 09-08 逐项相同 |
+
+边界结果也会保留：k07 缺少一个 Tritan 工艺指南来源
+（`eastman_tritan_processing_mold_design_guidelines.pdf`）；k10 虽然命中目标来源，
+但首个目标来源排名为第 4。它们是当前基线的已知限制，不会被隐藏或改写成答案准确率。
+
+⚠️ 目录里还留着一次 2026-09-13 的运行（`R_baseline_20260913_202524.md`），
+它给出 Recall@10 = 100%、且**没有任何缺失来源**。它的 BM25 候选计数（676 vs 515）
+和流程先验次数（1 vs 4）都与两次可复现运行不同，因此**不作为基线**——
+保留它是为了说明基线之外存在什么，而不是为了挑一个更好看的数字。
+
+逐题结果和原始检索诊断见 `logs/portfolio_baseline/`；运行方式见 `scripts/Run-RBaseline.ps1`。
 
 作品集 Demo 的固定问题、讲解顺序、截图清单和面试追问见 `作品集Demo讲稿.md`。交付前的环境检查报告由 `scripts/Check-PortfolioReadiness.ps1` 生成。
 
@@ -215,8 +238,9 @@ python ingest.py --full       # 想彻底重建时才用（比如改了分块参
 
 旧集合的 HNSW 配置不能原地修改，所以从旧数据库迁移时需要清空一次
 `data\chroma_db`。源文档 `data\documents\设计知识库` 不会被删除。新集合针对当前几千个
-chunk 使用 Chroma 的 brute-force buffer，避免 Windows 原生 HNSW 索引持久化故障；
-当前数据规模下不会造成可感知的检索延迟。
+chunk 使用 Chroma 的 brute-force buffer，避免 Windows 原生 HNSW 索引持久化故障。
+这一选择在当前数据规模下**不是延迟的主要来源**——延迟的大头是 Cross-Encoder 重排，
+具体数字见每次基线报告末尾的「检索诊断」表。
 
 测试检索链路时，可以使用隔离的测试语料：
 

@@ -43,7 +43,20 @@ data/chunking_experiments/*/local_agent_eval*.json
 data/chunking_experiments/**/gradio_tmp/
 
 # ---- Logs ----
-logs/
+# `logs/` is ad-hoc probe / upload / stdout history and stays out of the
+# repository.  The portfolio's own evaluation evidence is the exception: the
+# README cites it, and a reader cannot verify a number that only exists on the
+# author's disk.
+#
+# `logs/*` is used instead of `logs/` deliberately.  A directory pattern stops
+# git from descending at all, so the re-inclusions below would have no effect;
+# matching only the direct children lets the exceptions through.
+logs/*
+!logs/portfolio_baseline/
+!logs/retrieval_ablations/
+# ...but not the rest of the ablation history (30+ ad-hoc runs).
+logs/retrieval_ablations/*
+!logs/retrieval_ablations/final_R.json
 
 # ---- Workspace-local assistant data ----
 .workbuddy-ai/
