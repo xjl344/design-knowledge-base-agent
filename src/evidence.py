@@ -17,6 +17,11 @@ from src.document_metadata import UNKNOWN
 CLAIM_TYPES = {"direct_fact", "derived_result", "design_inference", "assumption", "compliance_claim", "unsupported"}
 _CITATION_RE = re.compile(r"\[([LW]\d+)\]")
 _NUMBER_RE = re.compile(r"[-+]?\d+(?:\.\d+)?(?:\s*[~～至到-]\s*[-+]?\d+(?:\.\d+)?)?\s*(?:mm|cm|mL|℃|°|%|MPa|kJ/m²)?", re.IGNORECASE)
+
+# A standard's designation is a *name*, not a measured value.  Without this,
+# `查询 GB/T 16252—2023 的名称和适用范围。` counted as a numeric claim and was
+# blocked for having no citation -- the 需求分析 line that restates the question.
+_STANDARD_CODE_RE = re.compile(r"(?:GB/T|GBT|GB|ISO|ASTM|EN|FDA|EU)\s*\+?\s*[\d.]+\s*[—–-]?\s*\d{0,4}")
 _CONFLICT_MARKERS = ("但是", "然而", "相反", "不一致", "冲突", "分别")
 _REFERENCE_RE = re.compile(r"(?:GB/T|ISO|IEC|ASTM|EN|DIN|JIS|RFC)\s*[A-Za-z0-9./—\-]+", re.IGNORECASE)
 _BLOCKING_STATUSES = {
@@ -66,11 +71,30 @@ def _drop_table_headers(text: str) -> str:
     return "\n".join(kept)
 
 
+# Sentences that make no assertion about the world are not claims, so auditing
+# them for evidence is a category error.  Every shape below was measured firing
+# on a real answer and blocking the whole reply:
+#
+#   `不涉及设计建议。`   classified `design_inference` (it contains 建议) and then
+#                       blocked as an unconditional recommendation -- a section
+#                       filler read as advice;
+#   `[L2]《GB/T …》，第4页，范围章节。`  a bibliography entry, scope-checked as if
+#                       it were an assertion.
+_EMPTY_SECTION_RE = re.compile(r"^\s*(?:不涉及|不适用|无需|无额外|未发现|没有发现|无冲突|无相关|略)")
+_BIBLIOGRAPHY_RE = re.compile(
+    r"^\s*\[[LW]\d+\]\s*[《\"']?.*(?:来源|第\s*\d+\s*页|\.pdf|\.md|\.txt|\.csv)"
+)
+
+
 def _is_structural_sentence(text: str) -> bool:
     value = text.strip()
     if re.match(r"^#{1,6}\s*", value):
         return True
     if value.startswith("```") or value in {"---", "***", "___"}:
+        return True
+    if _EMPTY_SECTION_RE.match(value):
+        return True
+    if _BIBLIOGRAPHY_RE.match(value):
         return True
     if value.startswith("|"):
         if re.search(r"^\|?\s*:?-{3,}", value):
@@ -177,7 +201,7 @@ def extract_claims(answer: str) -> list[dict[str, Any]]:
                 "claim_role": role,
                 "is_auditable": auditable,
                 "citations": citations,
-                "numbers": _NUMBER_RE.findall(sentence),
+                "numbers": _NUMBER_RE.findall(_STANDARD_CODE_RE.sub(" ", sentence)),
                 "evidence_status": "unreviewed",
                 "confidence": 0.0,
             })

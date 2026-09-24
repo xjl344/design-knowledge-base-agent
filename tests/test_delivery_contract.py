@@ -115,6 +115,56 @@ def test_a_separator_row_is_not_a_claim():
     assert not any(set(str(claim["text"])) <= set("|-: ") for claim in claims)
 
 
+def test_an_empty_section_filler_is_not_a_claim():
+    """`不涉及设计建议。` used to be classified `design_inference` -- it contains
+    建议 -- and then blocked as an unconditional recommendation, taking the whole
+    answer with it.  A sentence that says "this section does not apply" asserts
+    nothing about the world."""
+    texts = [str(claim["text"]) for claim in extract_claims("不涉及设计建议。\n无额外验证要求。\n")]
+    assert texts == [], texts
+
+
+def test_a_bibliography_entry_is_not_a_claim():
+    """A reference list names sources; it does not assert anything about them."""
+    answer = (
+        "资料事实：参数为 10 mm [L1]。\n\n"
+        "[L1]《GB/T 10000—2023》，第4页，来源：`03_…/GBT+10000-2023.pdf`\n"
+    )
+    texts = [str(claim["text"]) for claim in extract_claims(answer)]
+    assert not any("来源：" in text for text in texts), texts
+
+
+def test_a_standard_designation_is_not_a_numeric_claim():
+    """`查询 GB/T 16252—2023 的名称。` was blocked as a numeric claim with no
+    citation -- the 需求分析 line that restates the question.  A standard's
+    designation is a name, not a measured value."""
+    claim = next(
+        claim
+        for claim in extract_claims("查询 GB/T 16252—2023 的标准名称及适用范围。")
+        if "查询" in str(claim["text"])
+    )
+    assert claim["numbers"] == [], claim["numbers"]
+    assert claim["citations"] == []
+
+
+def test_a_short_fully_cited_answer_is_deliverable():
+    """The end-to-end shape: a 354-character answer that cites every fact.
+
+    It was refused with four different blocking statuses, which is what sent the
+    investigation into the gate in the first place.
+    """
+    document = direct_doc()
+    answer = (
+        "## 二、资料事实与参数\n\n"
+        "- 【资料事实】标准名称：《成年人手部尺寸分型》。[L1]\n"
+        "- 【资料事实】适用范围：给出了成年人手部尺寸分型的设置。[L1]\n\n"
+        "## 三、工程推导\n\n不涉及工程推导。\n\n"
+        "## 四、设计建议\n\n不涉及设计建议。\n"
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
 def test_a_recommendation_without_a_citation_is_blocked_even_when_the_duties_are_stated():
     """Answer-level duties must not turn into "any recommendation is fine".
 
