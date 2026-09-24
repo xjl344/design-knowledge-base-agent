@@ -116,12 +116,17 @@ def test_a_separator_row_is_not_a_claim():
 
 
 def test_a_recommendation_without_a_citation_is_blocked_even_when_the_duties_are_stated():
-    """Answer-level duties must not turn into "any recommendation is fine"."""
+    """Answer-level duties must not turn into "any recommendation is fine".
+
+    The statements are separated by blank lines on purpose: citations are scoped
+    to a paragraph, so four lines with no blank line between them are *one*
+    paragraph and would legitimately share the one citation it carries.
+    """
     document = direct_doc()
     answer = (
-        "资料事实：该方案在 -40℃ 到 100℃ 范围内可用 [L1]。\n"
-        "设计建议：建议优先选择该方案。\n"
-        "风险与限制：长期老化数据缺失，成本高于替代方案。\n"
+        "资料事实：该方案在 -40℃ 到 100℃ 范围内可用 [L1]。\n\n"
+        "设计建议：建议优先选择该方案。\n\n"
+        "风险与限制：长期老化数据缺失，成本高于替代方案。\n\n"
         "验证要求：需完成冷热循环与跌落测试后确认。"
     )
     decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
@@ -129,6 +134,31 @@ def test_a_recommendation_without_a_citation_is_blocked_even_when_the_duties_are
     assert any(
         item["status"] == "recommendation_unconditional"
         for item in decision["blocking_issues"]
+    )
+
+
+def test_a_citation_at_the_end_of_a_paragraph_covers_its_sentences():
+    """Where the whole answer got refused: one citation per paragraph.
+
+    Measured on a real seven-section answer, 25 of 30 claims came back with no
+    citation although the text contained 39 lines carrying `[Lx]` -- the model
+    cites once per paragraph, and a per-sentence reading marks every sentence but
+    the last as unsupported.
+    """
+    document = direct_doc()
+    answer = (
+        "【资料事实】该标准的名称为《中国成年人人体尺寸》。其范围是给出用于技术设计的"
+        "成年人人体尺寸基本统计数值。[L1]\n\n"
+        "适用条件：常温场景。\n\n"
+        "风险与限制：长期老化数据缺失。\n\n"
+        "验证要求：需完成冷热循环测试后确认。"
+    )
+    claims = extract_claims(answer)
+    first = next(claim for claim in claims if "该标准的名称为" in str(claim["text"]))
+    assert first["citations"] == ["L1"], "段首句应继承段末的引用"
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert not any(
+        item["status"] == "unreferenced" for item in decision["blocking_issues"]
     )
 
 

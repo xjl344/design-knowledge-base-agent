@@ -118,25 +118,69 @@ def classify_claim(text: str) -> str:
     return "unsupported"
 
 
+def _blocks(text: str) -> list[str]:
+    """Split an answer into citation-scoped blocks.
+
+    A block is a paragraph, a run of list items, or a single table row.  Blank
+    lines separate paragraphs; a table row is always its own block.
+
+    Why blocks exist: an answer normally carries its citations **once per
+    paragraph**, at the end.  Splitting a paragraph into sentences and demanding a
+    citation on each one marks every sentence but the last as unsupported -- and
+    `delivery_decision` then hides the whole answer.  Measured on a real
+    seven-section answer: 25 of 30 claims came back with no citation although the
+    text contained 39 lines carrying `[Lx]`.
+
+    A table row is deliberately *not* merged into its table: each row states its
+    own fact and names its own evidence, so a row without a citation must not
+    inherit one from a sibling row.
+    """
+    blocks: list[str] = []
+    current: list[str] = []
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            if current:
+                blocks.append("\n".join(current))
+                current = []
+            continue
+        if stripped.startswith("|"):
+            if current:
+                blocks.append("\n".join(current))
+                current = []
+            blocks.append(stripped)
+            continue
+        current.append(line)
+    if current:
+        blocks.append("\n".join(current))
+    return blocks
+
+
 def extract_claims(answer: str) -> list[dict[str, Any]]:
     claims = []
-    for index, sentence in enumerate(_sentences(_drop_table_headers(answer)), 1):
-        citations = _CITATION_RE.findall(sentence)
-        claim_type = classify_claim(sentence)
-        role, auditable = _claim_role(sentence, claim_type)
-        if not auditable and role == "structural":
-            continue
-        claims.append({
-            "id": f"claim-{index}",
-            "text": sentence,
-            "type": claim_type,
-            "claim_role": role,
-            "is_auditable": auditable,
-            "citations": citations,
-            "numbers": _NUMBER_RE.findall(sentence),
-            "evidence_status": "unreviewed",
-            "confidence": 0.0,
-        })
+    index = 0
+    for block in _blocks(_drop_table_headers(answer)):
+        block_citations = _CITATION_RE.findall(block)
+        for sentence in _sentences(block):
+            index += 1
+            claim_type = classify_claim(sentence)
+            role, auditable = _claim_role(sentence, claim_type)
+            if not auditable and role == "structural":
+                continue
+            # A sentence with its own citation keeps it; otherwise it is covered
+            # by the citations its block declares.
+            citations = _CITATION_RE.findall(sentence) or list(block_citations)
+            claims.append({
+                "id": f"claim-{index}",
+                "text": sentence,
+                "type": claim_type,
+                "claim_role": role,
+                "is_auditable": auditable,
+                "citations": citations,
+                "numbers": _NUMBER_RE.findall(sentence),
+                "evidence_status": "unreviewed",
+                "confidence": 0.0,
+            })
     return claims
 
 
