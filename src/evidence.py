@@ -180,31 +180,93 @@ def _blocks(text: str) -> list[str]:
     return blocks
 
 
+_HEADING_RE = re.compile(r"^#{1,6}\s*(.+?)\s*$")
+
+# Sections the prompt itself defines as "what is unknown / what still needs
+# checking / where the sources are".  Sentences inside them are limitations and
+# to-dos, not assertions that require evidence.
+_UNVERIFIED_SECTION_RE = re.compile(r"证据不足|冲突|风险|验证|参考|局限|限制|待验证|不确定")
+
+
+def _sections(answer: str) -> list[tuple[str, list[str]]]:
+    """Split into ``(heading, blocks)`` pairs; text before the first heading is ``""``."""
+    sections: list[tuple[str, list[str]]] = []
+    heading = ""
+    blocks: list[str] = []
+    for block in _blocks(answer):
+        match = _HEADING_RE.match(block.strip())
+        if match:
+            if blocks or heading:
+                sections.append((heading, blocks))
+            heading = match.group(1)
+            blocks = []
+            continue
+        blocks.append(block)
+    if blocks or heading:
+        sections.append((heading, blocks))
+    return sections
+
+
+def _section_is_exempt(heading: str, blocks: list[str]) -> bool:
+    """Whether a whole section makes no assertion that needs evidence.
+
+    Two **structural** rules, deliberately not a vocabulary of phrasings:
+
+    1. the section is one the prompt defines as "unknown / to verify / sources";
+    2. the section cites nothing at all.  A derivation or recommendation section
+       with no citation anywhere contains no derivation and no recommendation --
+       only filler such as `本问题不需要工程计算或尺寸推导。`.
+
+    Rule 2 replaces the previous approach of enumerating the words a filler uses.
+    That approach was measured failing three rounds running: the same meaning
+    came back as `不涉及设计建议。`, then `…未显示…`, then `…不需要…`, each time
+    slipping past the list.  A vocabulary that has to grow with the model's
+    phrasing does not converge.
+
+    What rule 2 deliberately allows: a named section that carries no citation is
+    exempt even if it asserts something.  The cost is bounded and the alternative
+    was measured not to work; a section that *does* cite is audited as before.
+
+    Rule 2 requires a **heading**.  Without that condition it swallowed answers
+    that have no headings at all -- a refusal, or a bare question restated -- and
+    two existing tests caught it.  An unnamed block is content, not a filler
+    section; only a named section can be one.
+    """
+    if not heading or not blocks:
+        return False
+    if _UNVERIFIED_SECTION_RE.search(heading):
+        return True
+    return not _CITATION_RE.search("\n".join(blocks))
+
+
 def extract_claims(answer: str) -> list[dict[str, Any]]:
     claims = []
     index = 0
-    for block in _blocks(_drop_table_headers(answer)):
-        block_citations = _CITATION_RE.findall(block)
-        for sentence in _sentences(block):
-            index += 1
-            claim_type = classify_claim(sentence)
-            role, auditable = _claim_role(sentence, claim_type)
-            if not auditable and role == "structural":
-                continue
-            # A sentence with its own citation keeps it; otherwise it is covered
-            # by the citations its block declares.
-            citations = _CITATION_RE.findall(sentence) or list(block_citations)
-            claims.append({
-                "id": f"claim-{index}",
-                "text": sentence,
-                "type": claim_type,
-                "claim_role": role,
-                "is_auditable": auditable,
-                "citations": citations,
-                "numbers": _NUMBER_RE.findall(_STANDARD_CODE_RE.sub(" ", sentence)),
-                "evidence_status": "unreviewed",
-                "confidence": 0.0,
-            })
+    for heading, blocks in _sections(_drop_table_headers(answer)):
+        if _section_is_exempt(heading, blocks):
+            continue
+        for block in blocks:
+            block_citations = _CITATION_RE.findall(block)
+            for sentence in _sentences(block):
+                index += 1
+                claim_type = classify_claim(sentence)
+                role, auditable = _claim_role(sentence, claim_type)
+                if not auditable and role == "structural":
+                    continue
+                # A sentence with its own citation keeps it; otherwise it is
+                # covered by the citations its block declares.
+                citations = _CITATION_RE.findall(sentence) or list(block_citations)
+                claims.append({
+                    "id": f"claim-{index}",
+                    "text": sentence,
+                    "type": claim_type,
+                    "claim_role": role,
+                    "is_auditable": auditable,
+                    "citations": citations,
+                    "numbers": _NUMBER_RE.findall(_STANDARD_CODE_RE.sub(" ", sentence)),
+                    "evidence_status": "unreviewed",
+                    "confidence": 0.0,
+                })
     return claims
 
 

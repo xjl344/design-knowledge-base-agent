@@ -165,6 +165,62 @@ def test_a_short_fully_cited_answer_is_deliverable():
     assert decision["deliverable"] is True, decision["blocking_issues"]
 
 
+def test_the_gap_and_todo_sections_are_not_audited_for_evidence():
+    """§五/§六/§七 exist to state what is unknown and what still needs checking.
+
+    The prompt defines them; treating their sentences as assertions needing
+    evidence is what blocked a 792-character answer whose every factual line
+    carried `[L2]`.
+    """
+    document = direct_doc()
+    answer = (
+        "## 二、资料事实与参数\n\n【资料事实】参数为 10 mm。[L1]\n\n"
+        "## 五、证据不足与冲突\n\n当前提供的资料未显示该标准完整条文的其他限制条件。\n\n"
+        "## 六、风险与验证\n\n如需用于具体产品设计，还应进一步核验标准正文中的表格数据。\n\n"
+        "## 七、参考资料\n\n[L1] 《某标准》，第4页，来源：`a.pdf`。\n"
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
+def test_a_section_that_cites_nothing_is_treated_as_filler():
+    """Structural, not lexical.
+
+    Enumerating the words a filler uses was measured failing three rounds
+    running: the same meaning came back as `不涉及设计建议。`, then `…未显示…`,
+    then `…不需要…`, each time slipping past the list.
+    """
+    document = direct_doc()
+    answer = (
+        "## 二、资料事实与参数\n\n【资料事实】参数为 10 mm。[L1]\n\n"
+        "## 三、工程推导\n\n本问题不需要工程计算或尺寸推导。\n"
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
+def test_a_section_that_cites_is_still_audited():
+    """The guard against over-loosening: the exemption must not become
+    "any uncited sentence is fine" once the section cites something."""
+    document = direct_doc()
+    answer = (
+        "## 二、资料事实与参数\n\n【资料事实】参数为 10 mm。[L1]\n\n"
+        "## 四、设计建议\n\n"
+        "【资料事实】该方案可用。[L1]\n\n"
+        "设计建议：建议优先选择该方案。\n"
+    )
+    claims = extract_claims(answer)
+    assert any("建议优先选择" in str(claim["text"]) for claim in claims), (
+        "有引用的章节里，没有引用的推荐句仍应进入审计"
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert decision["deliverable"] is False
+    assert any(
+        item["status"] == "recommendation_unconditional"
+        for item in decision["blocking_issues"]
+    )
+
+
 def test_a_recommendation_without_a_citation_is_blocked_even_when_the_duties_are_stated():
     """Answer-level duties must not turn into "any recommendation is fine".
 
