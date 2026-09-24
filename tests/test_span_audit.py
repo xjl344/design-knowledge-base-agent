@@ -24,7 +24,11 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.build_span_audit import ALLOWED_VERDICTS, parse_run  # noqa: E402
-from scripts.finalize_span_audit import REAL_VERDICTS, SYNTHETIC_VERDICTS  # noqa: E402
+from scripts.finalize_span_audit import (  # noqa: E402
+    BATCH2_VERDICTS,
+    REAL_VERDICTS,
+    SYNTHETIC_VERDICTS,
+)
 
 AUDIT = ROOT / "data" / "span_audit.v2.json"
 
@@ -106,7 +110,7 @@ def test_the_audit_covers_every_failed_hop_in_the_runs_it_names():
 
 @pytest.mark.parametrize(
     "table,expected_size",
-    [(REAL_VERDICTS, 9), (SYNTHETIC_VERDICTS, 4)],
+    [(REAL_VERDICTS, 9), (SYNTHETIC_VERDICTS, 4), (BATCH2_VERDICTS, 11)],
 )
 def test_the_verdict_tables_are_pinned(table, expected_size):
     """A hop that gains or loses a verdict is a decision, so it shows up here."""
@@ -114,6 +118,40 @@ def test_the_verdict_tables_are_pinned(table, expected_size):
     for (question_id, hop_id), (verdict, reason) in table.items():
         assert verdict in ALLOWED_VERDICTS, (question_id, hop_id)
         assert reason.strip(), (question_id, hop_id)
+
+
+def test_the_batch2_audit_is_a_separate_document():
+    """batch2 must not have been folded into the pinned v2 document.
+
+    The v2 file is named by history and its `supersedes`/`what_changed` describe
+    the v1->v2 method change, which says nothing about a new question batch.
+    """
+    payload = json.loads((ROOT / "data" / "span_audit.batch2.v1.json").read_text(encoding="utf-8"))
+    assert payload["audit_version"] == "span-audit.batch2.v1"
+    assert payload["supersedes"] is None
+    assert set(payload["overrides"]) == {"batch2"}
+    assert "batch2" in payload and "real" not in payload and "synthetic" not in payload
+    for item in payload["batch2"]["observations"]:
+        assert item["verdict"] in ALLOWED_VERDICTS, item["key"]
+        assert item["evidence_note"].strip(), item["key"]
+        assert item["chunk_in_pack"] is True, (
+            "batch2 的失败观测全部可达（122/122），出现不可达说明证据装配变了"
+        )
+
+
+def test_the_batch2_failures_are_mostly_measurement_not_ability():
+    """The number that motivated demoting batch2's spans.
+
+    110 of 122 failed observations were the substance delivered in other words.
+    If that share ever drops, the demotion in SPAN_DEMOTIONS is no longer
+    justified by this evidence and should be revisited.
+    """
+    payload = json.loads((ROOT / "data" / "span_audit.batch2.v1.json").read_text(encoding="utf-8"))
+    totals = payload["batch2"]["totals"]
+    assert totals["audited_failures"] == 122
+    assert totals["credited_by_audit"] == 110
+    assert totals["unmeasurable_refusals"] == 0
+    assert totals["incorrect"] == 12
 
 
 def test_parse_run_rejects_an_incomplete_spec():

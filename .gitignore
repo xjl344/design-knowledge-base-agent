@@ -57,3 +57,16 @@ data/documents/
 # Frozen retrieval snapshot is a 20 MB derived artefact. Keep it out of the
 # repository; regenerate with scripts/Create-FrozenRetrievalSnapshot.ps1.
 data/frozen_retrieval_cases.jsonl
+
+# batch2's own frozen snapshot (18 MB), same reasoning.  Regenerate with:
+#   python scripts/create_frozen_snapshot.py \
+#     --questions data/test_qa_35_complex.json \
+#     --ids c02,c05,c09,c10,c22,c25,c26,c28,c34 \
+#     --output data/frozen_retrieval_cases.batch2.jsonl
+data/frozen_retrieval_cases.batch2.jsonl
+
+# The pool the multihop builder resolves chunks against is a plain
+# concatenation of the two snapshots above (38 MB).  Regenerate with:
+#   cat data/frozen_retrieval_cases.jsonl data/frozen_retrieval_cases.batch2.jsonl \
+#     > data/frozen_retrieval_cases.pool_v2.jsonl
+data/frozen_retrieval_cases.pool_v2.jsonl

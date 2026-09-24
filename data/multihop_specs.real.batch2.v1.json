@@ -1,0 +1,267 @@
+{
+  "version": "multihop-specs.v1",
+  "content_version": "multihop-specs.real.batch2.v1",
+  "description": "真实用户提问的多跳题集第二批。题目原文取自 data/test_qa_35_complex.json，逐字不改。这 4 题在 v2 里被排除，理由是「所需来源不在冻结快照中」——而快照当时只覆盖 12 道单跳题。本批为它们单独检索并冻结了证据（同一索引、同一配置），因此用的是每道题**自己**的检索结果，而不是像 v2 那样借用别的题的证据。这批的存在理由是可测性：提示词 A/B 在 11 个配对单元上测不出 0.126 的效应（MDE 0.140），补到 15 个单元后 MDE 降到 0.120。",
+  "provenance": {
+    "source_file": "data/test_qa_35_complex.json",
+    "source_ids": [
+      "c09",
+      "c25",
+      "c28",
+      "c34"
+    ],
+    "snapshot_file": "data/frozen_retrieval_cases.pool_v2.jsonl",
+    "evidence_snapshot_id": "2fbc7ddd75805006",
+    "note": "这 4 道题在 data/multihop_specs.real.v2.json 的 provenance 里仍记为 excluded，那条记录不改：它对 v2 用的那份快照是真的。两处记录的差异写在这里——v2 的排除理由是「来源不在快照中」，本批的入选理由是「为它们补了检索」。另：v2 的 case 用别的题的证据，本批用自己的，故两批难度不可直接比较。"
+  },
+  "cases": [
+    {
+      "id": "r09_material_screening",
+      "coverage": "complete",
+      "question": "透明、可重复使用、需要洗碗机清洗的500 mL水杯，在PC、Tritan和玻璃之间如何筛选？请给出门槛项、比较项和验证顺序。",
+      "sources": [
+        "c09"
+      ],
+      "risk_level": "medium",
+      "theme": "材料对比推荐",
+      "slice_tags": [
+        "multi_hop",
+        "material_screening"
+      ],
+      "notes": "问题要求「门槛项 / 比较项 / 验证顺序」三段，故三跳各对应一段。",
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c09",
+          "chunk_id": "e8b4f95015f38dc9e5c9a3e480a0a576e4f1fc01631cea0c7cd16e3f9fa2a1b7",
+          "expected_span": "以下任一项不满足时，不应仅靠加权评分选材",
+          "required_terms": [
+            [
+              "加权评分"
+            ],
+            [
+              "食品接触依据"
+            ]
+          ],
+          "why": "门槛项：不满足硬性项时不得用加权评分掩盖。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c09",
+          "chunk_id": "ca870ee78df7d7e972427ffb18b5c2197d43e28125acdcc75d2db73f8fab9b7a",
+          "expected_span": "不能仅凭材料名称判断",
+          "required_terms": [
+            [
+              "材料名称"
+            ],
+            [
+              "牌号"
+            ]
+          ],
+          "why": "比较项：食品接触依牌号与法规市场而定，不能按材料名称判断。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c09",
+          "chunk_id": "9caaf0363921a42f5101232dbf548bd1cf04d7aa59884ed375f667b6a14af3fe",
+          "expected_span": "不能仅依据透明度判断食品接触安全",
+          "required_terms": [
+            [
+              "透明度"
+            ],
+            [
+              "食品接触安全"
+            ]
+          ],
+          "why": "玻璃与塑料的比较项：透明度不是食品接触安全的判据。"
+        }
+      ]
+    },
+    {
+      "id": "r25_seal_flash_rework",
+      "coverage": "complete",
+      "question": "杯盖密封区出现分型线和毛刺导致密封圈切伤，请从注塑DFM、密封公差和验证规则提出整改与复验。",
+      "sources": [
+        "c25"
+      ],
+      "risk_level": "medium",
+      "theme": "制造工艺验证",
+      "slice_tags": [
+        "multi_hop",
+        "process_validation"
+      ],
+      "notes": "问题要求「注塑 DFM / 密封公差 / 验证规则」三条整改线，故三跳。",
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c25",
+          "chunk_id": "7fb5b9c7ef4dd0adb7811e57cc0ed33d4ceb47311be8fc4853756db3c4cca54e",
+          "expected_span": "对杯口、密封槽和螺纹区域进行专门的毛刺检查",
+          "required_terms": [
+            [
+              "毛刺检查"
+            ],
+            [
+              "密封槽"
+            ]
+          ],
+          "why": "注塑 DFM：密封区分型线与毛刺要专门检查。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c25",
+          "chunk_id": "b174df66f6517e849e0b72a4bb76542b3725f05e3a052e8a6b6e8ae061b4bcf8",
+          "expected_span": "分别建立杯口、杯盖、密封槽和密封圈的尺寸公差",
+          "required_terms": [
+            [
+              "尺寸公差"
+            ],
+            [
+              "密封槽"
+            ]
+          ],
+          "why": "密封公差：四处公差要分别建立，不能只给一个值。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c25",
+          "chunk_id": "4c50b911fd6c5c22a1703c18fd7bf600ef0db8a0bc37055ed586b55c041576f1",
+          "expected_span": "密封圈挤出、切伤、永久变形或装配丢失",
+          "required_terms": [
+            [
+              "挤出"
+            ],
+            [
+              "永久变形"
+            ]
+          ],
+          "why": "验证规则：密封圈切伤属于失效判定，不能只记成外观问题。"
+        }
+      ]
+    },
+    {
+      "id": "r28_standard_source_choice",
+      "coverage": "complete",
+      "question": "GB/T 10000—2023与GB/T 16252—2023都提供成人相关尺寸，若项目只需要手掌宽和手长，如何选主来源并处理差异？",
+      "sources": [
+        "c28"
+      ],
+      "risk_level": "medium",
+      "theme": "标准冲突与证据边界",
+      "slice_tags": [
+        "multi_hop",
+        "standard_conflict"
+      ],
+      "notes": "问题要求「选主来源」与「处理差异」两部分，故三跳（两个标准的定位各一跳 + 差异来源一跳）。",
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c28",
+          "chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
+          "expected_span": "本文件给出了用于技术设计的我国成年人人体尺寸的基本统计数值",
+          "required_terms": [
+            [
+              "成年人"
+            ],
+            [
+              "基本统计数值"
+            ]
+          ],
+          "why": "主来源候选之一：10000 的定位是成年人总体统计数值。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c28",
+          "chunk_id": "ac60d276c5a9762d3a8da8edbef28cb33c10ba3baa42473ca3c506370eb114a8",
+          "expected_span": "选择与产品设计相关的手部14项测量项目作为控制部位",
+          "required_terms": [
+            [
+              "手部"
+            ],
+            [
+              "控制部位"
+            ]
+          ],
+          "why": "主来源候选之二：16252 是手部专项，故手部问题以它为主。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c28",
+          "chunk_id": "2ca63f5f8fea4401420b4c0d11529d7c1b372789e037427f9c41ccfea29d0e4e",
+          "expected_span": "基于2014年至2018年开展的全国成年人人体尺寸调查",
+          "required_terms": [
+            [
+              "人体尺寸调查"
+            ],
+            [
+              "统计数据"
+            ]
+          ],
+          "why": "处理差异：两份标准的数据来源与代次不同，差异要并列说明而非平均。"
+        }
+      ]
+    },
+    {
+      "id": "r34_adjacent_grade_extrapolation",
+      "coverage": "complete",
+      "question": "本地没有某品牌材料完整TDS，Agent能否用相邻牌号或同类材料数据补齐耐温和食品接触结论？",
+      "sources": [
+        "c34"
+      ],
+      "risk_level": "medium",
+      "theme": "证据不足与拒答",
+      "slice_tags": [
+        "multi_hop",
+        "evidence_boundary"
+      ],
+      "notes": "问题问「能否补齐」与「必须做什么」，三跳分别给禁止外推的规则、资料缺口的事实、落地要求。",
+      "hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c34",
+          "chunk_id": "510341c0b935c0acfbd7fa1d32a5b3bfa27d26e8bc6207b3f5c15be2a103357d",
+          "expected_span": "应向供应商索取与批次/牌号对应的声明后再入库",
+          "required_terms": [
+            [
+              "供应商"
+            ],
+            [
+              "声明"
+            ]
+          ],
+          "why": "资料缺口的事实：只有材料 TDS、没有对应牌号的食品接触声明。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c34",
+          "chunk_id": "ca870ee78df7d7e972427ffb18b5c2197d43e28125acdcc75d2db73f8fab9b7a",
+          "expected_span": "不能把供应商对某个牌号的食品接触声明外推到其他牌号、色母或添加剂",
+          "required_terms": [
+            [
+              "外推"
+            ],
+            [
+              "色母"
+            ]
+          ],
+          "why": "禁止外推的规则：这正是「用相邻牌号补齐」被否掉的理由。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c34",
+          "chunk_id": "90fdff80aef7f50910a97e886c34e9d4330e9468b0a7b2fadbc818ee96998770",
+          "expected_span": "适用边界和不能外推的内容",
+          "required_terms": [
+            [
+              "适用边界"
+            ],
+            [
+              "产品级验证"
+            ]
+          ],
+          "why": "落地要求：每条结论要记录适用边界，并标明是否需产品级验证。"
+        }
+      ]
+    }
+  ]
+}

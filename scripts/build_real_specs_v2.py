@@ -369,14 +369,19 @@ INSUFFICIENT_REASONS = {
 
 
 def resolve_chunk(prefix: str) -> str:
-    """Expand a chunk-id prefix against the frozen snapshot.
+    """Expand a chunk-id prefix against the v2 frozen snapshot."""
+    return resolve_chunk_in(FROZEN_SNAPSHOT, prefix)
+
+
+def resolve_chunk_in(path: Path, prefix: str) -> str:
+    """Expand a chunk-id prefix against a frozen snapshot.
 
     Hard-coding a 64-hex id from memory is how a spec ends up naming a chunk
     that does not exist; the builder would then fail with a less obvious
     message.  Resolving here makes the prefix the single source of truth.
     """
     matches = set()
-    for line in FROZEN_SNAPSHOT.read_text(encoding="utf-8").splitlines():
+    for line in path.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         for document in json.loads(line).get("documents", []):
@@ -555,10 +560,257 @@ def build_spec() -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------------------
+# batch2：第二批真实题（2026-09-24）
+#
+# 为什么单独一批、而不是塞进 v2：
+#   1. v2 的 complete 组被 `test_the_complete_group_is_the_same_five_questions_as_v1`
+#      钉死为 v1 的那 5 题；
+#   2. v2 的产物已按哈希记入历史运行，重写会让旧运行失去参照。
+#
+# 与 v2 的一处**设计差异**（必须记下来，否则两批会被当成同一难度）：
+#   v2 的 case 问的是 c 题、证据却来自单跳池里的**别的**题（r03 问 c03，
+#   sources 却是 q17+q08），因为当时那份冻结快照只覆盖 12 道单跳题。
+#   被排除的 23 道 c 题里，有 9 道其实**来源可及率 100%**——不是证据不存在，
+#   是快照没覆盖。batch2 为这 9 道单独跑了一次检索（同一索引、同一配置，
+#   `retrieval_snapshot_id` 与旧快照同为 2fbc7ddd75805006），
+#   所以 batch2 的 case 用的是**自己那道题的检索结果**。
+#   → 两批的难度不可直接比较，也不可混合平均。
+# ---------------------------------------------------------------------------
+BATCH2_SNAPSHOT = ROOT / "data" / "frozen_retrieval_cases.pool_v2.jsonl"
+SPEC_BATCH2 = ROOT / "data" / "multihop_specs.real.batch2.v1.json"
+BATCH2_EVIDENCE_SNAPSHOT_ID = "2fbc7ddd75805006"
+
+# 每题三跳，与问题自身的结构一一对应（门槛/比较/验证、DFM/公差/复验…），
+# 不为了与 v2 的「两跳」对齐而砍掉问题真实要求的第三条。
+BATCH2_CASES: list[dict[str, Any]] = [
+    {
+        "id": "r09_material_screening",
+        "source_id": "c09",
+        "sources": ["c09"],
+        "theme": "材料对比推荐",
+        "slice_tags": ["multi_hop", "material_screening"],
+        "notes": "问题要求「门槛项 / 比较项 / 验证顺序」三段，故三跳各对应一段。",
+        "hops": [
+            {
+                "hop_id": "h1",
+                "from_question": "c09",
+                "chunk_id": "e8b4f95015f3",
+                "expected_span": "以下任一项不满足时，不应仅靠加权评分选材",
+                "required_terms": [["加权评分"], ["食品接触依据"]],
+                "why": "门槛项：不满足硬性项时不得用加权评分掩盖。",
+            },
+            {
+                "hop_id": "h2",
+                "from_question": "c09",
+                "chunk_id": "ca870ee78df7",
+                "expected_span": "不能仅凭材料名称判断",
+                "required_terms": [["材料名称"], ["牌号"]],
+                "why": "比较项：食品接触依牌号与法规市场而定，不能按材料名称判断。",
+            },
+            {
+                "hop_id": "h3",
+                "from_question": "c09",
+                "chunk_id": "9caaf0363921",
+                "expected_span": "不能仅依据透明度判断食品接触安全",
+                "required_terms": [["透明度"], ["食品接触安全"]],
+                "why": "玻璃与塑料的比较项：透明度不是食品接触安全的判据。",
+            },
+        ],
+    },
+    {
+        "id": "r25_seal_flash_rework",
+        "source_id": "c25",
+        "sources": ["c25"],
+        "theme": "制造工艺验证",
+        "slice_tags": ["multi_hop", "process_validation"],
+        "notes": "问题要求「注塑 DFM / 密封公差 / 验证规则」三条整改线，故三跳。",
+        "hops": [
+            {
+                "hop_id": "h1",
+                "from_question": "c25",
+                "chunk_id": "7fb5b9c7ef4d",
+                "expected_span": "对杯口、密封槽和螺纹区域进行专门的毛刺检查",
+                "required_terms": [["毛刺检查"], ["密封槽"]],
+                "why": "注塑 DFM：密封区分型线与毛刺要专门检查。",
+            },
+            {
+                "hop_id": "h2",
+                "from_question": "c25",
+                "chunk_id": "b174df66f651",
+                "expected_span": "分别建立杯口、杯盖、密封槽和密封圈的尺寸公差",
+                "required_terms": [["尺寸公差"], ["密封槽"]],
+                "why": "密封公差：四处公差要分别建立，不能只给一个值。",
+            },
+            {
+                "hop_id": "h3",
+                "from_question": "c25",
+                "chunk_id": "4c50b911fd6c",
+                "expected_span": "密封圈挤出、切伤、永久变形或装配丢失",
+                "required_terms": [["挤出"], ["永久变形"]],
+                "why": "验证规则：密封圈切伤属于失效判定，不能只记成外观问题。",
+            },
+        ],
+    },
+    {
+        "id": "r28_standard_source_choice",
+        "source_id": "c28",
+        "sources": ["c28"],
+        "theme": "标准冲突与证据边界",
+        "slice_tags": ["multi_hop", "standard_conflict"],
+        "notes": "问题要求「选主来源」与「处理差异」两部分，故三跳（两个标准的定位各一跳 + 差异来源一跳）。",
+        "hops": [
+            {
+                "hop_id": "h1",
+                "from_question": "c28",
+                "chunk_id": "3c8a063977bd",
+                "expected_span": "本文件给出了用于技术设计的我国成年人人体尺寸的基本统计数值",
+                "required_terms": [["成年人"], ["基本统计数值"]],
+                "why": "主来源候选之一：10000 的定位是成年人总体统计数值。",
+            },
+            {
+                "hop_id": "h2",
+                "from_question": "c28",
+                "chunk_id": "ac60d276c5a9",
+                "expected_span": "选择与产品设计相关的手部14项测量项目作为控制部位",
+                "required_terms": [["手部"], ["控制部位"]],
+                "why": "主来源候选之二：16252 是手部专项，故手部问题以它为主。",
+            },
+            {
+                "hop_id": "h3",
+                "from_question": "c28",
+                "chunk_id": "2ca63f5f8fea",
+                "expected_span": "基于2014年至2018年开展的全国成年人人体尺寸调查",
+                "required_terms": [["人体尺寸调查"], ["统计数据"]],
+                "why": "处理差异：两份标准的数据来源与代次不同，差异要并列说明而非平均。",
+            },
+        ],
+    },
+    {
+        "id": "r34_adjacent_grade_extrapolation",
+        "source_id": "c34",
+        "sources": ["c34"],
+        "theme": "证据不足与拒答",
+        "slice_tags": ["multi_hop", "evidence_boundary"],
+        "notes": "问题问「能否补齐」与「必须做什么」，三跳分别给禁止外推的规则、资料缺口的事实、落地要求。",
+        "hops": [
+            {
+                "hop_id": "h1",
+                "from_question": "c34",
+                "chunk_id": "510341c0b935",
+                "expected_span": "应向供应商索取与批次/牌号对应的声明后再入库",
+                "required_terms": [["供应商"], ["声明"]],
+                "why": "资料缺口的事实：只有材料 TDS、没有对应牌号的食品接触声明。",
+            },
+            {
+                "hop_id": "h2",
+                "from_question": "c34",
+                "chunk_id": "ca870ee78df7",
+                "expected_span": "不能把供应商对某个牌号的食品接触声明外推到其他牌号、色母或添加剂",
+                "required_terms": [["外推"], ["色母"]],
+                "why": "禁止外推的规则：这正是「用相邻牌号补齐」被否掉的理由。",
+            },
+            {
+                "hop_id": "h3",
+                "from_question": "c34",
+                "chunk_id": "90fdff80aef7",
+                "expected_span": "适用边界和不能外推的内容",
+                "required_terms": [["适用边界"], ["产品级验证"]],
+                "why": "落地要求：每条结论要记录适用边界，并标明是否需产品级验证。",
+            },
+        ],
+    },
+]
+
+
+def build_batch2_spec() -> dict[str, Any]:
+    """Assemble the second batch of real questions.
+
+    Same schema as `build_spec()` so the shared builder accepts it unchanged;
+    the differences are the source questions, the snapshot it resolves chunks
+    against, and the provenance that records why the batch exists.
+    """
+    source_questions = {
+        str(item["id"]): item
+        for item in json.loads(SOURCE_QUESTIONS.read_text(encoding="utf-8"))["questions"]
+    }
+    cases: list[dict[str, Any]] = []
+    for case in BATCH2_CASES:
+        source = source_questions[case["source_id"]]
+        cases.append({
+            "id": case["id"],
+            "coverage": "complete",
+            "question": source["question"],
+            "sources": case["sources"],
+            "risk_level": "medium",
+            "theme": case["theme"],
+            "slice_tags": case["slice_tags"],
+            "notes": case["notes"],
+            "hops": [
+                {
+                    "hop_id": hop["hop_id"],
+                    "from_question": hop["from_question"],
+                    "chunk_id": resolve_chunk_in(BATCH2_SNAPSHOT, hop["chunk_id"]),
+                    "expected_span": hop["expected_span"],
+                    "required_terms": hop["required_terms"],
+                    "why": hop["why"],
+                }
+                for hop in case["hops"]
+            ],
+        })
+    return {
+        "version": SPEC_VERSION,
+        "content_version": "multihop-specs.real.batch2.v1",
+        "description": (
+            "真实用户提问的多跳题集第二批。题目原文取自 data/test_qa_35_complex.json，"
+            "逐字不改。这 4 题在 v2 里被排除，理由是「所需来源不在冻结快照中」——"
+            "而快照当时只覆盖 12 道单跳题。本批为它们单独检索并冻结了证据"
+            "（同一索引、同一配置），因此用的是每道题**自己**的检索结果，"
+            "而不是像 v2 那样借用别的题的证据。"
+            "这批的存在理由是可测性：提示词 A/B 在 11 个配对单元上测不出 0.126 的效应"
+            "（MDE 0.140），补到 15 个单元后 MDE 降到 0.120。"
+        ),
+        "provenance": {
+            "source_file": "data/test_qa_35_complex.json",
+            "source_ids": sorted(case["source_id"] for case in BATCH2_CASES),
+            "snapshot_file": "data/frozen_retrieval_cases.pool_v2.jsonl",
+            "evidence_snapshot_id": BATCH2_EVIDENCE_SNAPSHOT_ID,
+            "note": (
+                "这 4 道题在 data/multihop_specs.real.v2.json 的 provenance 里仍记为 excluded，"
+                "那条记录不改：它对 v2 用的那份快照是真的。两处记录的差异写在这里——"
+                "v2 的排除理由是「来源不在快照中」，本批的入选理由是「为它们补了检索」。"
+                "另：v2 的 case 用别的题的证据，本批用自己的，故两批难度不可直接比较。"
+            ),
+        },
+        "cases": cases,
+    }
+
+
 def main() -> int:
-    parser = argparse.ArgumentParser(description="生成真实多跳题集 v2 spec（含按跳准入）")
+    parser = argparse.ArgumentParser(description="生成真实多跳题集 spec（含按跳准入）")
     parser.add_argument("--check", action="store_true", help="只校验，不写文件")
+    parser.add_argument("--batch2", action="store_true", help="生成第二批（batch2）而不是 v2")
+    parser.add_argument("--output", default="", help="batch2 的输出路径；缺省写 data/multihop_specs.real.batch2.v1.json")
     args = parser.parse_args()
+
+    if args.batch2:
+        spec = build_batch2_spec()
+        target = Path(args.output) if args.output else SPEC_BATCH2
+        if args.check:
+            current = json.loads(target.read_text(encoding="utf-8"))
+            if current != spec:
+                raise SystemExit(f"--check 失败：{target} 与重新生成的结果不一致")
+            print(json.dumps({"check": "ok", "cases": len(spec["cases"])}, ensure_ascii=False))
+            return 0
+        target.write_text(
+            json.dumps(spec, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        )
+        print(json.dumps({
+            "output": str(target),
+            "cases": len(spec["cases"]),
+            "hops": sum(len(case["hops"]) for case in spec["cases"]),
+        }, ensure_ascii=False))
+        return 0
 
     spec = build_spec()
     if args.check:

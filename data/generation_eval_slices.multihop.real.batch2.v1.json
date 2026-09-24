@@ -1,0 +1,121 @@
+{
+  "version": "multihop.real.batch2.v1",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "case_type_values": [
+    "ambiguous",
+    "fact_enumeration",
+    "fact_numeric",
+    "multi_hop",
+    "refusal"
+  ],
+  "risk_level_values": [
+    "high",
+    "low",
+    "medium"
+  ],
+  "metric_groups": {
+    "retrieval": {
+      "metrics": [
+        "retrieval_calls"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "hard"
+    },
+    "usability": {
+      "metrics": [
+        "generation_success_rate",
+        "provider_timeout_rate",
+        "provider_hard_error_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "quality": {
+      "metrics": [
+        "answer_span_recall_mean",
+        "required_term_recall_mean"
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    },
+    "multi_hop": {
+      "metrics": [
+        "hop_recall_mean"
+      ],
+      "allowed_change": 0.1,
+      "enforcement": "gate"
+    },
+    "safety": {
+      "metrics": [
+        "refusal_correctness_rate",
+        "ambiguity_safety_rate"
+      ],
+      "allowed_change": 0.0,
+      "enforcement": "gate"
+    },
+    "citation": {
+      "metrics": [
+        "citation_validity_rate",
+        "numeric_citation_coverage_mean"
+      ],
+      "diagnostics": [
+        {
+          "metric": "citation_id_usage_ratio_mean",
+          "reason": "用到的引用 / 允许的引用。允许数 = 证据条数，所以证据变多时分母机械变大、比值必然下降——实测证据上限从 5 放宽到 9~20 条时该指标 0.767 → 0.307，那是分母效应不是引用退化。跨证据条数不可比，故只报不卡。"
+        }
+      ],
+      "allowed_change": 0.05,
+      "enforcement": "gate"
+    }
+  },
+  "slices": [
+    {
+      "id": "r09_material_screening",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "material_screening"
+      ],
+      "flaky": false,
+      "notes": "问题要求「门槛项 / 比较项 / 验证顺序」三段，故三跳各对应一段。",
+      "coverage": "complete"
+    },
+    {
+      "id": "r25_seal_flash_rework",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "process_validation"
+      ],
+      "flaky": false,
+      "notes": "问题要求「注塑 DFM / 密封公差 / 验证规则」三条整改线，故三跳。",
+      "coverage": "complete"
+    },
+    {
+      "id": "r28_standard_source_choice",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "standard_conflict"
+      ],
+      "flaky": false,
+      "notes": "问题要求「选主来源」与「处理差异」两部分，故三跳（两个标准的定位各一跳 + 差异来源一跳）。",
+      "coverage": "complete"
+    },
+    {
+      "id": "r34_adjacent_grade_extrapolation",
+      "case_type": "multi_hop",
+      "risk_level": "medium",
+      "slice_tags": [
+        "multi_hop",
+        "evidence_boundary"
+      ],
+      "flaky": false,
+      "notes": "问题问「能否补齐」与「必须做什么」，三跳分别给禁止外推的规则、资料缺口的事实、落地要求。",
+      "coverage": "complete"
+    }
+  ]
+}

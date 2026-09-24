@@ -81,6 +81,16 @@ CASE_SETS = {
         ROOT / "data" / "frozen_multihop.v2.jsonl",
         ROOT / "data" / "generation_eval.multihop.v2.json",
     ),
+    # Second batch of real questions (2026-09-24).  A separate case set, not an
+    # extension of `real_complete`: its cases use each question's *own* retrieval
+    # rather than borrowed evidence, so the two are not the same difficulty and
+    # must be reported separately.  Registering it here is required -- an
+    # unregistered case set makes `hop_recall` return None and the rows are
+    # dropped **silently**, which would look like "batch2 contributed nothing".
+    "real_batch2": (
+        ROOT / "data" / "frozen_multihop_real_batch2.v1.jsonl",
+        ROOT / "data" / "generation_eval.multihop.real.batch2.v1.json",
+    ),
 }
 
 

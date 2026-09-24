@@ -24,6 +24,21 @@ from src.frozen_evidence import (  # noqa: E402
 from src.retriever import retrieve_documents  # noqa: E402
 
 
+# 既有快照（data/frozen_retrieval_cases.jsonl）用的就是这 12 个 id。
+# 它们必须保持为**默认值**：改默认值等于换掉已被历史运行引用的那一代快照。
+DEFAULT_QUESTION_IDS: tuple[str, ...] = (
+    tuple(f"q{index:02d}_hit" for index in range(1, 11)) + ("q12_miss", "q17_ambiguous")
+)
+
+
+def parse_ids(value: str) -> set[str]:
+    """Parse a comma-separated question-id list."""
+    ids = {item.strip() for item in value.split(",") if item.strip()}
+    if not ids:
+        raise ValueError("--ids 解析后为空")
+    return ids
+
+
 def load_questions(path: Path, ids: set[str]) -> list[dict]:
     payload = json.loads(path.read_text(encoding="utf-8"))
     questions = [item for item in payload.get("questions", []) if item.get("id") in ids]
@@ -38,8 +53,16 @@ def main() -> int:
     parser.add_argument("--output", default=str(ROOT / "data" / "frozen_retrieval_cases.jsonl"))
     parser.add_argument("--questions", default=str(ROOT / "data" / "test_qa_20.json"))
     parser.add_argument("--top-k", type=int, default=0)
+    parser.add_argument(
+        "--ids",
+        default="",
+        help=(
+            "逗号分隔的问题 id。缺省时用既有快照的 12 个 id，"
+            "以保证 data/frozen_retrieval_cases.jsonl 可原样重建。"
+        ),
+    )
     args = parser.parse_args()
-    ids = {f"q{index:02d}_hit" for index in range(1, 11)} | {"q12_miss", "q17_ambiguous"}
+    ids = parse_ids(args.ids) if args.ids else set(DEFAULT_QUESTION_IDS)
     questions = load_questions(Path(args.questions), ids)
     config_snapshot = retrieval_config_snapshot(settings)
     fingerprint = index_fingerprint(settings)

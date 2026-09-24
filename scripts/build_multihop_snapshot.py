@@ -208,6 +208,40 @@ SPAN_DEMOTIONS: dict[str, list[list[str]]] = {
     "本文件适用于成年人消费用品、交通、服装、家居、建筑、劳动防护、军事等生产与服务产品": [
         ["成年人"],
     ],
+    # --- real batch2 (r09/r25/r28/r34, 2026-09-24) ---
+    #
+    # Same diagnosis as the two blocks above, reached the same way: the audit of
+    # `prompt_ab_batch2_3r` found 122 failed observations, of which **64 were
+    # "span rejected, terms matched"** -- and reading the answers showed the
+    # substance delivered in the answer's own words every time.  E.g. the span
+    # `对杯口、密封槽和螺纹区域进行专门的毛刺检查` was answered as
+    # `对杯口、密封槽及螺纹区域实施专项毛刺检查`; `以下任一项不满足时，不应仅靠
+    # 加权评分选材` as `否则不能仅靠评分选材`.
+    #
+    # These questions are the *rule-based* ones (material selection, injection
+    # moulding, sealing, standard conflict), so their evidence states norms and
+    # prohibitions rather than numbers.  A verbatim requirement on a norm is a
+    # requirement on wording -- there is no numeric fact to fall back on, which
+    # is exactly why v2's complete set (chair dimensions, capacity formulas) did
+    # not need this treatment and this batch does.
+    #
+    # The terms below are taken from the **evidence**, using the shortest form it
+    # attests (e.g. the chunk writes `不应仅靠加权评分选材`, so `评分` is the
+    # operative requirement and `加权评分` would be a wording requirement one
+    # level down).  They were NOT read off the answers: the audit is used to
+    # decide *that* the spans are wording-only, never to pick the replacement.
+    "以下任一项不满足时，不应仅靠加权评分选材": [["不满足"], ["评分"]],
+    "不能仅凭材料名称判断": [["材料名称"], ["牌号"]],
+    "不能仅依据透明度判断食品接触安全": [["透明度"], ["食品接触"]],
+    "对杯口、密封槽和螺纹区域进行专门的毛刺检查": [["毛刺检查"], ["密封槽"]],
+    # A scope list, so the first group is alternatives rather than a conjunction.
+    "密封圈挤出、切伤、永久变形或装配丢失": [["挤出", "切伤"], ["变形"]],
+    "本文件给出了用于技术设计的我国成年人人体尺寸的基本统计数值": [["成年人"], ["统计数值"]],
+    "选择与产品设计相关的手部14项测量项目作为控制部位": [["手部"], ["14项"]],
+    "基于2014年至2018年开展的全国成年人人体尺寸调查": [["人体尺寸调查"], ["2014"]],
+    "应向供应商索取与批次/牌号对应的声明后再入库": [["供应商"], ["声明"]],
+    "不能把供应商对某个牌号的食品接触声明外推到其他牌号、色母或添加剂": [["外推"], ["色母"]],
+    "适用边界和不能外推的内容": [["适用边界"], ["验证"]],
     "若直径过大，优先检查是否可以通过减少结构占用、改变杯型或降低目标容量解决": [["结构占用"]],
     "若高度过大，优先扩大握持区域或调整杯底": [["杯底"]],
     "检查高度是否导致重心过高、倾倒风险增加或单手操作困难": [["倾倒"]],

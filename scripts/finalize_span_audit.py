@@ -118,6 +118,80 @@ SYNTHETIC_VERDICTS: dict[tuple[str, str], tuple[str, str]] = {
     ),
 }
 
+# Second batch of real questions (2026-09-24).  A separate table rather than extra
+# entries in `REAL_VERDICTS`: the two sets were built against different evidence
+# snapshots (batch2 uses each question's *own* retrieval), so a hop gaining or
+# losing a verdict here is not the same decision as one moving in the real set.
+#
+# Filled from `prompt_ab_batch2_3r` (4 questions x 2 arms x 3 rounds).  122 failed
+# observations, 64 of them "span rejected, terms matched".  Reading the answers
+# showed the same shape as the partial set: these questions are the *rule-based*
+# ones, so their hops state norms, and the answers deliver the norm in their own
+# words.  E.g.
+#   span `对杯口、密封槽和螺纹区域进行专门的毛刺检查`
+#   -> answer `对杯口、密封槽及螺纹区域实施专项毛刺检查`
+#   span `以下任一项不满足时，不应仅靠加权评分选材`
+#   -> answer `否则不能仅靠评分选材`
+# Every hop but one is therefore a paraphrase loss, which is why 11 of the 12
+# spans were demoted in `build_multihop_snapshot.py`'s SPAN_DEMOTIONS.
+BATCH2_VERDICTS: dict[tuple[str, str], tuple[str, str]] = {
+    ("r09_material_screening", "h1"): (
+        "correct_paraphrase",
+        "答案写「三种材料都必须先满足以下条件，否则不能仅靠评分选材」——同一规范，"
+        "「以下任一项不满足时…不应仅靠加权评分选材」被改写为「否则不能仅靠评分选材」。",
+    ),
+    ("r09_material_screening", "h2"): (
+        "correct_paraphrase",
+        "答案写「不能把“PC”“Tritan”或“玻璃”的材料名称直接等同于适用性」，"
+        "即「不能仅凭材料名称判断」的展开。",
+    ),
+    ("r09_material_screening", "h3"): (
+        "incorrect",
+        "答案只把「透明度」当作比较项（「比较透明度、重量、外观」），"
+        "从未给出「不能仅依据透明度判断食品接触安全」这条判据。这是真实漏答。",
+    ),
+    ("r25_seal_flash_rework", "h1"): (
+        "correct_paraphrase",
+        "答案写「对杯口、密封槽及螺纹区域实施专项毛刺检查」；契约要求「进行专门的毛刺检查」，"
+        "仅「专门的/专项」「进行/实施」用词不同。",
+    ),
+    ("r25_seal_flash_rework", "h3"): (
+        "correct_paraphrase",
+        "契约是范围清单（挤出、切伤、永久变形、装配丢失），答案以两句交付了其中两项："
+        "「检查密封圈是否发生扭转、卷曲或切伤」与「密封圈不会失压或从槽内挤出」。",
+    ),
+    ("r28_standard_source_choice", "h1"): (
+        "correct_paraphrase",
+        "答案写「GB/T 10000—2023 面向消费用品、交通、家居、建筑等技术设计…该标准提供"
+        "中国成年人人体尺寸基本统计数值」，即契约句的改写。",
+    ),
+    ("r28_standard_source_choice", "h2"): (
+        "correct_paraphrase",
+        "答案写「以手长或手宽为自变量计算 14 项手部控制尺寸」，"
+        "即「手部14项测量项目作为控制部位」的改写。",
+    ),
+    ("r28_standard_source_choice", "h3"): (
+        "correct_paraphrase",
+        "答案写「数据基于 2014—2018 年全国成年人人体尺寸调查」，"
+        "契约写「2014年至2018年…调查」——连字符形式不同。",
+    ),
+    ("r34_adjacent_grade_extrapolation", "h1"): (
+        "correct_paraphrase",
+        "答案写「向供应商索取与具体牌号、批次对应的 TDS、食品接触声明和适用限制」，"
+        "契约要求「应向供应商索取与批次/牌号对应的声明后再入库」。",
+    ),
+    ("r34_adjacent_grade_extrapolation", "h2"): (
+        "correct_paraphrase",
+        "答案写「不能把某一牌号的食品接触声明外推到其他牌号、色母或添加剂」，"
+        "与契约只差「供应商对某个牌号」/「某一牌号」。",
+    ),
+    ("r34_adjacent_grade_extrapolation", "h3"): (
+        "correct_paraphrase",
+        "答案写「只能作为初步筛选、风险假设或待验证依据…不能替代目标牌号的 TDS、"
+        "加工指南和产品级热性能验证」，即「适用边界和不能外推的内容」的展开。",
+    ),
+}
+
 
 # ---------------------------------------------------------------------------
 # A mechanical "did the answer refuse?" signal was attempted here and REMOVED.
@@ -220,12 +294,73 @@ def totals(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def finalize_batch2(skeleton_path: Path, output: Path) -> int:
+    """Apply the batch2 verdicts and write a batch2-only audit document.
+
+    Kept as its own entry point rather than a third block in the v2 document:
+    `data/span_audit.v2.json` is pinned by tests and by history, and its
+    `supersedes`/`what_changed` fields describe the v1->v2 method change, which
+    has nothing to say about a new question batch.
+    """
+    skeleton = json.loads(skeleton_path.read_text(encoding="utf-8"))
+    overrides = apply_verdicts(skeleton, BATCH2_VERDICTS)
+    payload = {
+        "audit_version": "span-audit.batch2.v1",
+        "supersedes": None,
+        "what_changed": (
+            "新增第二批真实题（batch2）的逐跳审计。方法沿用 v2："
+            "「交付 vs 漏答」按跳定义填一次，可达性由 chunk_in_pack 机械判定。"
+            "与真实集分开一张判定表，因为两批用的证据快照不同"
+            "（batch2 用每道题**自己**的检索结果，真实集 v2 借用别的题的证据）。"
+        ),
+        "overrides": {"batch2": overrides},
+        "method": (
+            "对失败的跳逐条读答案判定。chunk_in_pack=False 的观测机械判定为 "
+            "correct_refusal，不进入能力分母。"
+        ),
+        "verdict_legend": {
+            "correct_literal": "答案含契约跨段原文",
+            "correct_paraphrase": "实质已交付但措辞/记号不同，被 exact span 判否",
+            "correct_refusal": "源 chunk 未进 pack，模型不可能知道；不是失败",
+            "incorrect": "实质未交付",
+            "ungradable": "审计无法判定",
+            "damaged_span": "契约跨段在规范化时被销毁，任何答案都无法匹配",
+        },
+        "batch2": {
+            "runs": skeleton.get("runs"),
+            "snapshot": skeleton.get("snapshot"),
+            "totals": totals(skeleton),
+            "observations": skeleton["observations"],
+        },
+    }
+    output.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    block = payload["batch2"]["totals"]
+    print(f"batch2: 审计 {block['audited_failures']} 条失败观测")
+    for verdict, count in block["verdict_counts"].items():
+        print(f"    {verdict:20s} {count}")
+    print(f"    → 审计追回 {block['credited_by_audit']}，"
+          f"不可测 {block['unmeasurable_refusals']}，真实漏答 {block['incorrect']}")
+    for item in overrides:
+        print(f"    ⚠️ 机械规则覆盖人工表：{item['question_id']} {item['hop_id']} "
+              f"表说 {item['table_said']} → 判为 {item['mechanical']}")
+    print(f"\n写出 -> {output}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--real", required=True, help="真实集的审计骨架")
-    parser.add_argument("--synthetic", required=True, help="合成集的审计骨架")
+    parser.add_argument("--real", help="真实集的审计骨架")
+    parser.add_argument("--synthetic", help="合成集的审计骨架")
+    parser.add_argument("--batch2", default="", help="第二批（batch2）的审计骨架；给出时只处理 batch2")
     parser.add_argument("--output", required=True, help="写出版本化审计数据")
     args = parser.parse_args(argv)
+
+    if args.batch2:
+        return finalize_batch2(Path(args.batch2), Path(args.output))
+    if not args.real or not args.synthetic:
+        raise SystemExit("需要同时给 --real 与 --synthetic，或改用 --batch2")
 
     real = json.loads(Path(args.real).read_text(encoding="utf-8"))
     synthetic = json.loads(Path(args.synthetic).read_text(encoding="utf-8"))

@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "family": "multihop.real.batch2.v1",
+  "generated_by": "scripts/build_multihop_snapshot.py",
+  "generated_from": "data/multihop_specs.real.batch2.v1.json",
+  "note": "复合多跳题契约：证据由冻结的单跳 case 池化而成，未执行检索。required_hops 逐跳声明该跳的事实必须来自哪个 chunk。",
+  "cases": [
+    {
+      "id": "r09_material_screening",
+      "question": "透明、可重复使用、需要洗碗机清洗的500 mL水杯，在PC、Tritan和玻璃之间如何筛选？请给出门槛项、比较项和验证顺序。",
+      "expected_answer_spans": [],
+      "expected_sources": [
+        "08_设计决策/水杯材料选择规则.md",
+        "08_设计决策/PC与Tritan选择规则.md",
+        "08_设计决策/玻璃与塑料选择规则.md"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c09",
+          "source_chunk_id": "e8b4f95015f38dc9e5c9a3e480a0a576e4f1fc01631cea0c7cd16e3f9fa2a1b7",
+          "required_terms": [
+            [
+              "不满足"
+            ],
+            [
+              "评分"
+            ]
+          ],
+          "position": 5,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c09",
+          "source_chunk_id": "ca870ee78df7d7e972427ffb18b5c2197d43e28125acdcc75d2db73f8fab9b7a",
+          "required_terms": [
+            [
+              "材料名称"
+            ],
+            [
+              "牌号"
+            ]
+          ],
+          "position": 1,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c09",
+          "source_chunk_id": "9caaf0363921a42f5101232dbf548bd1cf04d7aa59884ed375f667b6a14af3fe",
+          "required_terms": [
+            [
+              "透明度"
+            ],
+            [
+              "食品接触"
+            ]
+          ],
+          "position": 6,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r25_seal_flash_rework",
+      "question": "杯盖密封区出现分型线和毛刺导致密封圈切伤，请从注塑DFM、密封公差和验证规则提出整改与复验。",
+      "expected_answer_spans": [
+        {
+          "id": "r25_seal_flash_rework-h2",
+          "text": "分别建立杯口、杯盖、密封槽和密封圈的尺寸公差",
+          "source": "08_设计决策/水杯密封设计规则.md"
+        }
+      ],
+      "expected_sources": [
+        "08_设计决策/水杯注塑设计规则.md",
+        "08_设计决策/水杯密封设计规则.md",
+        "08_设计决策/水杯设计验证规则.md"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c25",
+          "source_chunk_id": "7fb5b9c7ef4dd0adb7811e57cc0ed33d4ceb47311be8fc4853756db3c4cca54e",
+          "required_terms": [
+            [
+              "毛刺检查"
+            ],
+            [
+              "密封槽"
+            ]
+          ],
+          "position": 2,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c25",
+          "source_chunk_id": "b174df66f6517e849e0b72a4bb76542b3725f05e3a052e8a6b6e8ae061b4bcf8",
+          "required_terms": [
+            [
+              "尺寸公差"
+            ],
+            [
+              "密封槽"
+            ]
+          ],
+          "position": 1,
+          "expected_span": "分别建立杯口、杯盖、密封槽和密封圈的尺寸公差"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c25",
+          "source_chunk_id": "4c50b911fd6c5c22a1703c18fd7bf600ef0db8a0bc37055ed586b55c041576f1",
+          "required_terms": [
+            [
+              "挤出",
+              "切伤"
+            ],
+            [
+              "变形"
+            ]
+          ],
+          "position": 4,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r28_standard_source_choice",
+      "question": "GB/T 10000—2023与GB/T 16252—2023都提供成人相关尺寸，若项目只需要手掌宽和手长，如何选主来源并处理差异？",
+      "expected_answer_spans": [],
+      "expected_sources": [
+        "03_人体工程学/Anthropometry/GBT+10000-2023.pdf",
+        "03_人体工程学/Anthropometry/GBT+16252-2023.pdf"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c28",
+          "source_chunk_id": "3c8a063977bd53fe28e8871333675c3c4608a51b7a0b1f5c87c7d8a78641093a",
+          "required_terms": [
+            [
+              "成年人"
+            ],
+            [
+              "统计数值"
+            ]
+          ],
+          "position": 3,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c28",
+          "source_chunk_id": "ac60d276c5a9762d3a8da8edbef28cb33c10ba3baa42473ca3c506370eb114a8",
+          "required_terms": [
+            [
+              "手部"
+            ],
+            [
+              "14项"
+            ]
+          ],
+          "position": 1,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c28",
+          "source_chunk_id": "2ca63f5f8fea4401420b4c0d11529d7c1b372789e037427f9c41ccfea29d0e4e",
+          "required_terms": [
+            [
+              "人体尺寸调查"
+            ],
+            [
+              "2014"
+            ]
+          ],
+          "position": 4,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        }
+      ],
+      "coverage": "complete"
+    },
+    {
+      "id": "r34_adjacent_grade_extrapolation",
+      "question": "本地没有某品牌材料完整TDS，Agent能否用相邻牌号或同类材料数据补齐耐温和食品接触结论？",
+      "expected_answer_spans": [],
+      "expected_sources": [
+        "资料来源清单.md",
+        "08_设计决策/PC与Tritan选择规则.md",
+        "08_设计决策/水杯材料选择规则.md"
+      ],
+      "required_terms": [],
+      "refusal_requirements": [],
+      "ambiguity_requirements": [],
+      "required_hops": [
+        {
+          "hop_id": "h1",
+          "from_question": "c34",
+          "source_chunk_id": "510341c0b935c0acfbd7fa1d32a5b3bfa27d26e8bc6207b3f5c15be2a103357d",
+          "required_terms": [
+            [
+              "供应商"
+            ],
+            [
+              "声明"
+            ]
+          ],
+          "position": 2,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h2",
+          "from_question": "c34",
+          "source_chunk_id": "ca870ee78df7d7e972427ffb18b5c2197d43e28125acdcc75d2db73f8fab9b7a",
+          "required_terms": [
+            [
+              "外推"
+            ],
+            [
+              "色母"
+            ]
+          ],
+          "position": 1,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        },
+        {
+          "hop_id": "h3",
+          "from_question": "c34",
+          "source_chunk_id": "90fdff80aef7f50910a97e886c34e9d4330e9468b0a7b2fadbc818ee96998770",
+          "required_terms": [
+            [
+              "适用边界"
+            ],
+            [
+              "验证"
+            ]
+          ],
+          "position": 4,
+          "span_demoted_because": "声明的跨段只约束措辞、不约束事实；改写已由审计逐条确认，改判为词项。"
+        }
+      ],
+      "coverage": "complete"
+    }
+  ]
+}
