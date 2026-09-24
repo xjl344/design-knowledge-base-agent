@@ -180,8 +180,55 @@ def validate_citations(answer: str, documents: list[Document]) -> dict[str, Any]
     }
 
 
-def validate_recommendations(claims: list[dict[str, Any]], documents: list[Document]) -> list[dict[str, Any]]:
-    """Require conditions, risks, verification and usable evidence for recommendations."""
+# The three duties a recommendation has to discharge: say when it applies, say
+# what can go wrong, say what still needs checking.
+_RECOMMENDATION_CONDITION_RE = re.compile(r"条件|场景|要求|如果|前提|适用|取决于")
+_RECOMMENDATION_RISK_RE = re.compile(r"风险|限制|局限|注意|不确定|代价|成本")
+_RECOMMENDATION_VERIFICATION_RE = re.compile(r"验证|核实|确认|测试|补充资料|待查")
+
+
+def _covers_recommendation_duties(claims: list[dict[str, Any]]) -> bool:
+    """Whether the answer, taken as a whole, discharges the three duties.
+
+    The requirement is a property of the **answer**, not of one sentence.  A
+    seven-section answer states its conditions in one section and its risks and
+    verification plan in another, so testing a single sentence blocks answers
+    that plainly satisfy the rule.
+
+    Measured 2026-09-24: two of three real questions came back as
+    `recommendation_unconditional` refusals although both answers carried
+    conditions, risks and a verification plan -- including a pure
+    "what is the scope of this standard" question, which is not a
+    recommendation at all.
+
+    What this deliberately still allows: an answer that recommends something and
+    mentions conditions, risks and verification *elsewhere* is treated as
+    discharging the duties.  Tightening it back to one sentence would restore the
+    false positives, so the loosening is the intended trade.
+    """
+    whole = " ".join(str(claim.get("text", "")) for claim in claims)
+    return bool(
+        _RECOMMENDATION_CONDITION_RE.search(whole)
+        and _RECOMMENDATION_RISK_RE.search(whole)
+        and _RECOMMENDATION_VERIFICATION_RE.search(whole)
+    )
+
+
+def validate_recommendations(
+    claims: list[dict[str, Any]],
+    documents: list[Document],
+    *,
+    duties_met: bool | None = None,
+) -> list[dict[str, Any]]:
+    """Require conditions, risks, verification and usable evidence for recommendations.
+
+    `duties_met` is the answer-level verdict from `_covers_recommendation_duties`.
+    When the caller has already established that the answer states conditions,
+    risks and verification somewhere, only the per-claim citation requirement is
+    enforced here -- a recommendation still has to point at evidence.
+    """
+    if duties_met is None:
+        duties_met = _covers_recommendation_duties(claims)
     issues: list[dict[str, Any]] = []
     for claim in claims:
         if not claim.get("is_auditable", True) or claim.get("type") not in {"design_inference", "derived_result"}:
@@ -189,15 +236,16 @@ def validate_recommendations(claims: list[dict[str, Any]], documents: list[Docum
         text = str(claim.get("text", ""))
         if not re.search(r"推荐|建议|优先|更适合|选择|应当|应该", text):
             continue
-        has_condition = bool(re.search(r"条件|场景|要求|如果|前提|适用|取决于", text))
-        has_risk = bool(re.search(r"风险|限制|局限|注意|不确定|代价|成本", text))
-        has_verification = bool(re.search(r"验证|核实|确认|测试|补充资料|待查", text))
         citations = claim.get("citations", [])
         valid_docs = [doc for citation in citations if (doc := _document_for_citation(citation, documents)) is not None]
-        if not (has_condition and has_risk and has_verification and valid_docs):
+        if not valid_docs or not duties_met:
             issues.append({
                 "status": "recommendation_unconditional",
-                "reason": "推荐必须同时包含适用条件、风险/限制、验证要求和有效证据引用",
+                "reason": (
+                    "推荐没有有效证据引用"
+                    if not valid_docs
+                    else "整篇回答没有交代推荐适用的条件、风险/限制或验证要求"
+                ),
                 "claim_id": claim.get("id"),
                 "claim": text,
             })
@@ -217,11 +265,18 @@ def delivery_decision(answer: str, documents: list[Document], audit: dict[str, A
     audit = audit or {}
     citation_check = validate_citations(answer, documents)
     claims = list(audit.get("claims", []))
+    # Computed once and shared by all three routes that can raise
+    # `recommendation_unconditional`: the per-claim `evidence_status`, the claim
+    # warnings, and `validate_recommendations`.  They used to each apply their own
+    # per-sentence test, so fixing one would not have fixed the refusal.
+    duties_met = _covers_recommendation_duties(claims)
     issues = list(citation_check["issues"])
-    issues.extend(validate_recommendations(claims, documents))
+    issues.extend(validate_recommendations(claims, documents, duties_met=duties_met))
     for claim in claims:
         evidence_status = str(claim.get("evidence_status", ""))
         if not claim.get("is_auditable", True) or claim.get("claim_role") == "refusal":
+            continue
+        if evidence_status == "recommendation_unconditional" and duties_met:
             continue
         if evidence_status in {"unsupported", "unreferenced", "citation_invalid", "scope_mismatch",
                                "calculation_inconsistent", "recommendation_unconditional", "indirect_evidence"}:
@@ -241,6 +296,8 @@ def delivery_decision(answer: str, documents: list[Document], audit: dict[str, A
             })
     for warning in audit.get("warnings", []):
         status = str(warning.get("status", ""))
+        if status == "recommendation_unconditional" and duties_met:
+            continue
         if status in _BLOCKING_STATUSES:
             issue = {key: warning.get(key) for key in ("status", "reason", "claim_id", "claim") if warning.get(key) is not None}
             if issue not in issues:

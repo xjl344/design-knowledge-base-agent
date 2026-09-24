@@ -51,6 +51,46 @@ def test_unconditional_recommendation_is_blocked():
     assert any(item["status"] == "recommendation_unconditional" for item in decision["blocking_issues"])
 
 
+def test_a_recommendation_passes_when_the_answer_states_the_duties_elsewhere():
+    """The duty is a property of the answer, not of one sentence.
+
+    A seven-section answer states its conditions in one section and its risks and
+    verification plan in another, so a per-sentence test refuses answers that
+    plainly satisfy the rule.  Measured 2026-09-24: two of three real questions
+    were refused this way -- including a pure "what is the scope of this
+    standard" question, which is not a recommendation at all.
+    """
+    document = direct_doc()
+    answer = (
+        "资料事实：该方案在 -40℃ 到 100℃ 范围内可用 [L1]。\n"
+        "设计建议：建议优先选择该方案 [L1]。\n"
+        "风险与限制：长期老化数据缺失，成本高于替代方案。\n"
+        "验证要求：需完成冷热循环与跌落测试后确认。"
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert not any(
+        item["status"] == "recommendation_unconditional"
+        for item in decision["blocking_issues"]
+    )
+
+
+def test_a_recommendation_without_a_citation_is_blocked_even_when_the_duties_are_stated():
+    """Answer-level duties must not turn into "any recommendation is fine"."""
+    document = direct_doc()
+    answer = (
+        "资料事实：该方案在 -40℃ 到 100℃ 范围内可用 [L1]。\n"
+        "设计建议：建议优先选择该方案。\n"
+        "风险与限制：长期老化数据缺失，成本高于替代方案。\n"
+        "验证要求：需完成冷热循环与跌落测试后确认。"
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert decision["deliverable"] is False
+    assert any(
+        item["status"] == "recommendation_unconditional"
+        for item in decision["blocking_issues"]
+    )
+
+
 def test_valid_citation_set_is_recomputed_from_current_documents():
     documents = [direct_doc(), indirect_doc()]
     result = validate_citations("依据 [L1] 和 [W1]。", documents)
