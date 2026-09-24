@@ -34,6 +34,38 @@ def _sentences(text: str) -> list[str]:
     return [part.strip(" -*•\t") for part in parts if len(part.strip()) >= 6]
 
 
+# A markdown separator row: `|---|---|`, `| --- | --- |`, `--- | ---`.
+_TABLE_SEPARATOR_RE = re.compile(r"^\|?\s*:?-{2,}\s*(?:\|\s*:?-{2,}\s*)*\|?$")
+
+
+def _is_table_separator(line: str) -> bool:
+    value = line.strip()
+    return bool(value) and bool(_TABLE_SEPARATOR_RE.match(value))
+
+
+def _drop_table_headers(text: str) -> str:
+    """Remove markdown table header rows and their separator rows.
+
+    A header row is not a claim, and the row directly above a separator is a
+    header **by definition** -- that is what markdown says it is.  The previous
+    test looked for a fixed vocabulary of column names instead, so the header
+    `| 参数 | 建议值 | 类型 | 依据 |` was not recognised: it then classified as a
+    `design_inference` (the column is called 建议值), carried no citation, and
+    blocked the whole answer as an unconditional recommendation.  Reproduced
+    offline against a normal seven-section answer.
+    """
+    lines = text.splitlines()
+    kept: list[str] = []
+    for index, line in enumerate(lines):
+        following = lines[index + 1] if index + 1 < len(lines) else ""
+        if line.strip().startswith("|") and _is_table_separator(following):
+            continue
+        if _is_table_separator(line):
+            continue
+        kept.append(line)
+    return "\n".join(kept)
+
+
 def _is_structural_sentence(text: str) -> bool:
     value = text.strip()
     if re.match(r"^#{1,6}\s*", value):
@@ -88,7 +120,7 @@ def classify_claim(text: str) -> str:
 
 def extract_claims(answer: str) -> list[dict[str, Any]]:
     claims = []
-    for index, sentence in enumerate(_sentences(answer), 1):
+    for index, sentence in enumerate(_sentences(_drop_table_headers(answer)), 1):
         citations = _CITATION_RE.findall(sentence)
         claim_type = classify_claim(sentence)
         role, auditable = _claim_role(sentence, claim_type)

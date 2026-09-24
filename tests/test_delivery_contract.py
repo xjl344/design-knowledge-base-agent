@@ -1,6 +1,11 @@
 from langchain_core.documents import Document
 
-from src.evidence import audit_claims, delivery_decision, validate_citations
+from src.evidence import (
+    audit_claims,
+    delivery_decision,
+    extract_claims,
+    validate_citations,
+)
 import src.retriever as retriever
 
 
@@ -72,6 +77,42 @@ def test_a_recommendation_passes_when_the_answer_states_the_duties_elsewhere():
         item["status"] == "recommendation_unconditional"
         for item in decision["blocking_issues"]
     )
+
+
+def test_a_table_header_is_not_a_claim():
+    """The row above a separator is a header by definition, not an assertion.
+
+    The previous test looked for a fixed vocabulary of column names, so
+    `| 参数 | 建议值 | 类型 | 依据 |` was not recognised: it classified as a
+    `design_inference` (the column is called 建议值), carried no citation, and
+    blocked the whole answer as an unconditional recommendation.  Reproduced
+    offline against a normal seven-section answer, which is the shape the app's
+    own prompt asks for.
+    """
+    document = direct_doc()
+    answer = (
+        "资料事实：该方案在 -40℃ 到 100℃ 范围内可用 [L1]。\n"
+        "| 参数 | 建议值 | 类型 | 依据 |\n"
+        "|---|---|---|---|\n"
+        "| 主来源 | 方案 A | 设计建议 | [L1] |\n"
+        "适用条件：常温场景。\n"
+        "风险与限制：长期老化数据缺失。\n"
+        "验证要求：需完成冷热循环测试后确认。"
+    )
+    assert not any(
+        "参数 | 建议值" in str(claim["text"]) for claim in extract_claims(answer)
+    )
+    decision = delivery_decision(answer, [document], audit_claims(answer, [document], {}))
+    assert not any(
+        item["status"] == "recommendation_unconditional"
+        for item in decision["blocking_issues"]
+    )
+
+
+def test_a_separator_row_is_not_a_claim():
+    document = direct_doc()
+    claims = extract_claims("资料事实：参数为 10 mm [L1]。\n|---|---|\n")
+    assert not any(set(str(claim["text"])) <= set("|-: ") for claim in claims)
 
 
 def test_a_recommendation_without_a_citation_is_blocked_even_when_the_duties_are_stated():
