@@ -78,6 +78,43 @@ def test_adult_anthropometry_is_indirect_for_cup_diameter():
     assert status == "indirect"
 
 
+def test_a_standard_designation_matches_across_punctuation_variants():
+    """The question writes `GB/T 16252—2023`; the file is `GBT+16252-2023.pdf`.
+
+    Comparing after stripping only spaces left those unequal, so the reference
+    branch never fired, every retrieved document fell through to the last-resort
+    `indirect`, and the delivery gate then refused an answer that cited the
+    standard being asked about -- while that standard's own text was in the
+    evidence.  Measured end to end on a live question.
+    """
+    status, reason = classify_document_for_question(
+        "GB/T 16252—2023 的名称和适用范围是什么？",
+        {
+            "source_category": "anthropometry",
+            "population": "unknown",
+            "material_grade": "unknown",
+            "source": "03_人体工程学/Anthropometry/GBT+16252-2023.pdf",
+        },
+        "成年人手部尺寸分型",
+    )
+    assert status == "direct", reason
+
+
+def test_a_different_standard_is_not_matched_by_designation():
+    """Normalising punctuation must not make every standard match every question."""
+    status, _ = classify_document_for_question(
+        "GB/T 16252—2023 的名称和适用范围是什么？",
+        {
+            "source_category": "anthropometry",
+            "population": "unknown",
+            "material_grade": "unknown",
+            "source": "03_人体工程学/Anthropometry/GBT+10000-2023.pdf",
+        },
+        "中国成年人人体尺寸",
+    )
+    assert status == "indirect"
+
+
 def test_minor_data_is_scope_mismatch_for_adult_question():
     status, _ = classify_document_for_question(
         "成人产品尺寸设计",

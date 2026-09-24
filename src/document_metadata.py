@@ -193,6 +193,23 @@ def question_profile(question: str) -> dict[str, Any]:
     }
 
 
+def _designation_key(text: str) -> str:
+    """Reduce a standard designation to letters and digits.
+
+    Chinese standard designations are written inconsistently across the places
+    that have to agree: the question says `GB/T 16252—2023`, the file is named
+    `GBT+16252-2023.pdf`, and a page header may say `GB/T16252—2023`.  Comparing
+    after stripping only spaces left those unequal, so the reference branch never
+    fired, every document fell through to the last-resort `indirect`, and the
+    delivery gate then refused an answer that cited the standard being asked
+    about -- even though that standard's own text was in the evidence.
+
+    Removing every non-alphanumeric character makes `GB/T 16252—2023` and
+    `GBT+16252-2023` compare equal.  CJK is kept so Chinese titles still match.
+    """
+    return re.sub(r"[^0-9a-z\u4e00-\u9fff]", "", str(text).lower())
+
+
 def classify_document_for_question(
     question: str,
     metadata: dict[str, Any],
@@ -244,7 +261,10 @@ def classify_document_for_question(
         return "direct", "资料包含制造工艺或成型限制"
     if profile["testing"] and category in {"standard", "paper", "process_guide", "internal_rule", "material_tds"}:
         return "direct", "资料包含测试、验证或失效相关内容"
-    if profile["references"] and any(ref.replace(" ", "").lower() in lowered.replace(" ", "") for ref in profile["references"]):
+    if profile["references"] and any(
+        _designation_key(ref) and _designation_key(ref) in _designation_key(lowered)
+        for ref in profile["references"]
+    ):
         return "direct", "资料命中用户指定标准或参考编号"
     if category != UNKNOWN:
         return "indirect", "资料与问题领域相关，但未形成直接支持"
