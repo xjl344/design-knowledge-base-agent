@@ -13,6 +13,7 @@ from langchain_chroma import Chroma
 from langchain_core.documents import Document
 
 from config import settings
+from src.async_utils import swallow_abandoned_result, wait_bounded
 from src.embeddings import embedding_lock, get_embeddings
 from src.document_metadata import build_document_metadata, classify_document_for_question
 from src.reranker import rerank
@@ -2370,6 +2371,23 @@ async def retrieve_documents_multi(
             raise asyncio.TimeoutError("local retrieval total deadline exceeded")
         return await asyncio.wait_for(asyncio.to_thread(operation, *args), timeout=remaining)
 
+    async def bounded_coroutine(awaitable):
+        """Bound an awaitable without awaiting its cancellation.
+
+        `bounded` above wraps a *sync* function in a thread, where `wait_for` is
+        acceptable: cancelling a thread future returns immediately even though
+        the thread keeps running.  A coroutine is different -- see
+        `src/async_utils`, which exists because this project measured the
+        difference at 39286 seconds.
+        """
+        if deadline is None:
+            return await awaitable
+        return await wait_bounded(
+            awaitable,
+            deadline - time.perf_counter(),
+            "local retrieval total deadline exceeded",
+        )
+
     original = await bounded(retrieve_documents, question)
     base_profile = dict(original[0].metadata.get("retrieval_profile", {})) if original else {"cache_hit": False}
 
@@ -2388,7 +2406,15 @@ async def retrieve_documents_multi(
 
     if deadline is not None and time.perf_counter() >= deadline:
         return finalize(original)
-    sub_queries = await decompose_question(question)
+    # Bounded, and best-effort like the sub-query retrievals below: a
+    # decomposition that times out falls back to the original results rather
+    # than failing the whole retrieval.  Unbounded was not hypothetical -- with
+    # the provider hanging, one question here took 42019 seconds while the other
+    # seventeen together took about two hours.
+    try:
+        sub_queries = await bounded_coroutine(decompose_question(question))
+    except Exception:
+        return finalize(original)
     if not sub_queries:
         return finalize(original)
 

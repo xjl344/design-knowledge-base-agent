@@ -12,6 +12,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 
 from config import settings
+from src.async_utils import swallow_abandoned_result
 from src.frozen_evidence import (
     FALLBACK_ANSWER_WITH_EVIDENCE,
     FALLBACK_ANSWER_WITHOUT_EVIDENCE,
@@ -114,16 +115,10 @@ def _hard_deadline_seconds() -> float:
     return float(settings.llm_timeout_seconds) + HARD_DEADLINE_MARGIN_SECONDS
 
 
-def _swallow_abandoned_result(task: "asyncio.Task[Any]") -> None:
-    """Retrieve a cancelled task's outcome so it is not reported as unhandled.
-
-    The abandoned call still finishes eventually, and its exception would
-    otherwise surface as "Task exception was never retrieved" long after the
-    row that abandoned it has been written.
-    """
-    if task.cancelled():
-        return
-    task.exception()
+# Kept as a name here because tests and call sites refer to it, but the
+# implementation is shared: a second copy would be free to drift from the one
+# the retriever uses.
+_swallow_abandoned_result = swallow_abandoned_result
 
 
 async def _call_with_deadline(awaitable: Any, timeout: float) -> Any:
