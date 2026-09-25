@@ -38,6 +38,27 @@ def load_fixtures() -> list[dict]:
     return payload["fixtures"]
 
 
+def resolve_recorded_path(recorded) -> Path:
+    """把 fixture 里记录的快照路径重挂到**本仓库根目录**。
+
+    为什么需要它：``snapshots`` 里存的是**生成 fixture 那台机器上的绝对路径**
+    （``E:\\设计知识库助手\\data\\frozen_retrieval_cases.jsonl``）。直接按原样读，
+    只在那一台机器上成立——换一台机器（比如 CI 的 Ubuntu）每个 fixture 都会
+    FileNotFoundError。而它在本机上「碰巧能过」，所以这个可移植性问题一直没被发现。
+
+    做法：只取 ``data/`` 之后的部分再拼到 ROOT 上。这样路径不再依赖生成环境，
+    也不需要重新导出 fixture。
+    """
+    normalized = str(recorded).replace("\\", "/")
+    marker = "/data/"
+    idx = normalized.find(marker)
+    if idx >= 0:
+        return ROOT / normalized[idx + 1:]
+    if normalized.startswith("data/"):
+        return ROOT / normalized
+    return Path(recorded)
+
+
 def load_fixture_cases() -> dict:
     """Every case the fixtures refer to, across all recorded snapshots.
 
@@ -51,7 +72,7 @@ def load_fixture_cases() -> dict:
     paths = payload.get("snapshots") or [str(ROOT / "data" / "frozen_retrieval_cases.jsonl")]
     cases: dict = {}
     for path in paths:
-        for question_id, case in load_cases(Path(path)).items():
+        for question_id, case in load_cases(resolve_recorded_path(path)).items():
             cases.setdefault(question_id, case)
     return cases
 
@@ -116,6 +137,11 @@ def test_fixtures_record_the_pack_they_were_scored_against(fixtures):
         assert "max_chars_per_item" in pack
 
 
+# 重放要读 cases，而 cases 来自 data/frozen_retrieval_cases.jsonl —— 20 MB 派生快照，
+# 被 .gitignore 排除，干净检出里没有。所以这个参数化测试在 CI 里**无法成立**，
+# 明确跳过而不是失败。（它在本机「碰巧能过」还有第二层原因：fixture 里记录的是
+# 生成机器上的绝对路径，见 resolve_recorded_path。）
+@needs_single_hop_snapshot
 @pytest.mark.parametrize("fixture_id", [f["fixture_id"] for f in load_fixtures()])
 def test_replay_reproduces_recorded_audit(fixture_id):
     """Re-audit the recorded answer and match the recorded scores."""
