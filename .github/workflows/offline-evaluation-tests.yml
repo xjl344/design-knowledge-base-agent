@@ -8,6 +8,12 @@ name: offline-evaluation-tests
 # Tests requiring Chroma, Torch or a live model are excluded on purpose: they
 # would make the job slow, need secrets, and fail for reasons unrelated to the
 # change under review.
+#
+# ⚠️ A few tests inside the selected files **self-skip** here, because they need
+# `data/frozen_retrieval_cases.jsonl` -- a 20 MB derived snapshot that
+# .gitignore keeps out of the repository.  A clean checkout cannot have it, so
+# they skip explicitly rather than fail.  Seeing "N skipped" in the job summary
+# is expected; a *failure* is not.
 
 on:
   push:

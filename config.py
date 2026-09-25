@@ -84,7 +84,7 @@ class Settings:
     reranker_batch_size: int = int(os.getenv("RERANKER_BATCH_SIZE", "8"))
     reranker_max_length: int = int(os.getenv("RERANKER_MAX_LENGTH", "1024"))
     reranker_use_fp16: bool = os.getenv("RERANKER_USE_FP16", "true").lower() == "true"
-    llm_timeout_seconds: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "60"))
+    llm_timeout_seconds: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "180"))
     chunking_strategy: str = os.getenv("CHUNKING_STRATEGY", "R").upper()
     chunk_size: int = int(os.getenv("CHUNK_SIZE", "800"))
     chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", "150"))
@@ -140,12 +140,12 @@ class Settings:
     require_conditional_recommendation: bool = os.getenv("REQUIRE_CONDITIONAL_RECOMMENDATION", "true").lower() == "true"
     tool_timeout_seconds: float = float(os.getenv("TOOL_TIMEOUT_SECONDS", "30"))
     local_retrieval_timeout_seconds: float = float(
-        os.getenv("LOCAL_RETRIEVAL_TIMEOUT_SECONDS", "30")
+        os.getenv("LOCAL_RETRIEVAL_TIMEOUT_SECONDS", "300")
     )
     local_retrieval_total_timeout_seconds: float = float(
         os.getenv(
             "LOCAL_RETRIEVAL_TOTAL_TIMEOUT_SECONDS",
-            os.getenv("LOCAL_RETRIEVAL_TIMEOUT_SECONDS", "20"),
+            os.getenv("LOCAL_RETRIEVAL_TIMEOUT_SECONDS", "300"),
         )
     )
     embedding_timeout_seconds: float = float(os.getenv("EMBEDDING_TIMEOUT_SECONDS", "10"))
@@ -153,7 +153,7 @@ class Settings:
     bm25_timeout_seconds: float = float(os.getenv("BM25_TIMEOUT_SECONDS", "5"))
     reranker_timeout_seconds: float = float(os.getenv("RERANKER_TIMEOUT_SECONDS", "10"))
     planner_timeout_seconds: float = float(os.getenv("PLANNER_TIMEOUT_SECONDS", "15"))
-    total_pipeline_timeout_seconds: float = float(os.getenv("TOTAL_PIPELINE_TIMEOUT_SECONDS", "120"))
+    total_pipeline_timeout_seconds: float = float(os.getenv("TOTAL_PIPELINE_TIMEOUT_SECONDS", "600"))
     cancel_on_timeout: bool = os.getenv("CANCEL_ON_TIMEOUT", "true").lower() == "true"
     offline_mode: bool = os.getenv("OFFLINE_MODE", "false").lower() == "true"
     allow_web_cache: bool = os.getenv("ALLOW_WEB_CACHE", "true").lower() == "true"

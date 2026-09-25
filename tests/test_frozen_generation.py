@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+import pytest
+
 from langchain_core.documents import Document
 
 from src.frozen_evidence import (
@@ -992,6 +994,13 @@ def test_no_budget_means_nothing_can_be_lost():
     ) == []
 
 
+# 这个测试要同时校验两个快照的默认预算，而 frozen_retrieval_cases.jsonl 是
+# 20 MB 派生快照、被 .gitignore 排除（干净检出里没有）。缺一个就只校验一半，
+# 那会让测试名说谎，所以明确跳过。
+@pytest.mark.skipif(
+    not (Path(__file__).resolve().parent.parent / "data" / "frozen_retrieval_cases.jsonl").exists(),
+    reason="data/frozen_retrieval_cases.jsonl 不在仓库里（派生快照，已 gitignore），无法完整校验",
+)
 def test_the_default_budget_loses_nothing_on_either_question_set():
     """Guards the default itself.
 

@@ -20,6 +20,18 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 FIXTURE_PATH = ROOT / "tests" / "fixtures" / "replay_fixtures.json"
 
+# ``data/frozen_retrieval_cases.jsonl`` is a 20 MB derived snapshot that
+# .gitignore keeps out of the repository (regenerate it with
+# scripts/Create-FrozenRetrievalSnapshot.ps1).  A clean checkout -- which is
+# what CI has -- therefore cannot run the tests that need it.  They skip
+# explicitly instead of pretending to pass, and instead of dropping the whole
+# file from CI (which would lose the 16 tests that do not need it).
+SINGLE_HOP_SNAPSHOT = ROOT / "data" / "frozen_retrieval_cases.jsonl"
+needs_single_hop_snapshot = pytest.mark.skipif(
+    not SINGLE_HOP_SNAPSHOT.exists(),
+    reason="data/frozen_retrieval_cases.jsonl 不在仓库里（派生快照，已 gitignore）",
+)
+
 
 def load_fixtures() -> list[dict]:
     payload = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
@@ -249,6 +261,7 @@ def test_synthesized_failures_are_labelled_as_such(fixtures):
 # the span pre-cleaning landed).  The exporter must refuse those runs instead.
 
 
+@needs_single_hop_snapshot
 def test_exporter_rejects_runs_from_an_older_audit_version(tmp_path):
     import export_replay_fixtures as exporter
 
@@ -278,6 +291,7 @@ def test_exporter_rejects_runs_from_an_older_audit_version(tmp_path):
         )
 
 
+@needs_single_hop_snapshot
 def test_exporter_rejects_runs_without_an_audit_version(tmp_path):
     """Runs predating the version field cannot be reproduced either."""
     import export_replay_fixtures as exporter
@@ -307,6 +321,7 @@ def test_exporter_rejects_runs_without_an_audit_version(tmp_path):
         )
 
 
+@needs_single_hop_snapshot
 def test_exporter_records_the_source_run_for_traceability(tmp_path):
     import export_replay_fixtures as exporter
 
@@ -349,6 +364,7 @@ def test_fixture_answers_come_from_runs_scored_by_current_rules(fixtures):
         assert fixture.get("source_run"), f"{fixture['fixture_id']} lost its provenance"
 
 
+@needs_single_hop_snapshot
 def test_failure_coverage_is_synthesized_when_no_run_fails(tmp_path):
     """A run set with no failures must still yield failure coverage.
 
