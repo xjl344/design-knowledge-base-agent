@@ -1,0 +1,197 @@
+{
+  "description": "界面会话的检索画像快照。用于核对 README 中「同一道题的耗时差三个数量级，根因是进程内检索缓存」这一论断。",
+  "how_to_reproduce": "python scripts/dump_retrieval_profiles.py --checkpoints .tmp/checkpoints --out docs/portfolio/retrieval_cache_evidence.json",
+  "how_to_read": "cache_hit=True 时，reranker_seconds / bm25_seconds 是填充缓存那次冷检索的组件耗时（命中不重算，画像被原样带过来）。多个 True 行若带着完全相同的组件耗时，说明它们是同一个缓存条目的多次命中。",
+  "counts": {
+    "observations": 8,
+    "cache_hit_true": 5,
+    "cold_retrieval": 3,
+    "retrieval_timeout": 2
+  },
+  "observations": [
+    {
+      "checkpoint": "4658d707-bec1-451b-b261-ddc24231310e.json",
+      "checkpoint_written_at": "2026-09-25 13:47:41",
+      "session_id": "4658d707-bec1-451b-b261-ddc24231310e",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "local",
+      "status": "completed",
+      "deliverable": true,
+      "retrieval_profile": {
+        "cache_hit": true,
+        "local_retrieval_seconds": 0.215,
+        "embedding_seconds": 2.598,
+        "dense_seconds": 2.598,
+        "bm25_seconds": 17.45,
+        "reranker_seconds": 136.451,
+        "fusion_seconds": 0.001,
+        "dedup_seconds": 0.0,
+        "error_type": null,
+        "timeout_stage": null,
+        "total_seconds": 0.214
+      }
+    },
+    {
+      "checkpoint": "dbf02f30-c69d-491b-909c-2f46a75b64bb.json",
+      "checkpoint_written_at": "2026-09-25 14:00:18",
+      "session_id": "dbf02f30-c69d-491b-909c-2f46a75b64bb",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "web",
+      "status": "web_empty",
+      "deliverable": false,
+      "retrieval_profile": {
+        "cache_hit": false,
+        "local_retrieval_seconds": 300.047,
+        "embedding_seconds": 0.0,
+        "dense_seconds": 0.0,
+        "bm25_seconds": 0.0,
+        "reranker_seconds": 0.0,
+        "fusion_seconds": 0.0,
+        "dedup_seconds": 0.0,
+        "error_type": "retrieval_timeout",
+        "timeout_stage": "local_retrieval",
+        "total_seconds": null
+      }
+    },
+    {
+      "checkpoint": "0b2e576c-7a35-47f0-a517-f2fec6547bf6.json",
+      "checkpoint_written_at": "2026-09-25 14:10:29",
+      "session_id": "0b2e576c-7a35-47f0-a517-f2fec6547bf6",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "local",
+      "status": "completed",
+      "deliverable": true,
+      "retrieval_profile": {
+        "cache_hit": true,
+        "local_retrieval_seconds": 0.207,
+        "embedding_seconds": 2.89,
+        "dense_seconds": 2.89,
+        "bm25_seconds": 22.391,
+        "reranker_seconds": 179.995,
+        "fusion_seconds": 0.001,
+        "dedup_seconds": 0.0,
+        "error_type": null,
+        "timeout_stage": null,
+        "total_seconds": 0.205
+      }
+    },
+    {
+      "checkpoint": "445047c9-4114-4fbe-a955-10fb191f1311.json",
+      "checkpoint_written_at": "2026-09-25 14:15:26",
+      "session_id": "445047c9-4114-4fbe-a955-10fb191f1311",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "local",
+      "status": "completed",
+      "deliverable": true,
+      "retrieval_profile": {
+        "cache_hit": true,
+        "local_retrieval_seconds": 0.163,
+        "embedding_seconds": 2.89,
+        "dense_seconds": 2.89,
+        "bm25_seconds": 22.391,
+        "reranker_seconds": 179.995,
+        "fusion_seconds": 0.001,
+        "dedup_seconds": 0.0,
+        "error_type": null,
+        "timeout_stage": null,
+        "total_seconds": 0.162
+      }
+    },
+    {
+      "checkpoint": "a48a044d-0f74-4a00-bdc7-4677f8917a9c.json",
+      "checkpoint_written_at": "2026-09-25 14:17:32",
+      "session_id": "a48a044d-0f74-4a00-bdc7-4677f8917a9c",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "local",
+      "status": "degraded_insufficient_evidence",
+      "deliverable": true,
+      "retrieval_profile": {
+        "cache_hit": true,
+        "local_retrieval_seconds": 0.07,
+        "embedding_seconds": 2.89,
+        "dense_seconds": 2.89,
+        "bm25_seconds": 22.391,
+        "reranker_seconds": 179.995,
+        "fusion_seconds": 0.001,
+        "dedup_seconds": 0.0,
+        "error_type": null,
+        "timeout_stage": null,
+        "total_seconds": 0.07
+      }
+    },
+    {
+      "checkpoint": "9b8d7d76-8268-43a2-ae02-306d962f049e.json",
+      "checkpoint_written_at": "2026-09-25 14:19:31",
+      "session_id": "9b8d7d76-8268-43a2-ae02-306d962f049e",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "local",
+      "status": "completed",
+      "deliverable": true,
+      "retrieval_profile": {
+        "cache_hit": true,
+        "local_retrieval_seconds": 0.068,
+        "embedding_seconds": 2.89,
+        "dense_seconds": 2.89,
+        "bm25_seconds": 22.391,
+        "reranker_seconds": 179.995,
+        "fusion_seconds": 0.001,
+        "dedup_seconds": 0.0,
+        "error_type": null,
+        "timeout_stage": null,
+        "total_seconds": 0.068
+      }
+    },
+    {
+      "checkpoint": "541b4a90-2334-4311-ac18-4a300610f6c3.json",
+      "checkpoint_written_at": "2026-09-25 14:49:32",
+      "session_id": "541b4a90-2334-4311-ac18-4a300610f6c3",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "web",
+      "status": "web_empty",
+      "deliverable": false,
+      "retrieval_profile": {
+        "cache_hit": false,
+        "local_retrieval_seconds": 300.012,
+        "embedding_seconds": 0.0,
+        "dense_seconds": 0.0,
+        "bm25_seconds": 0.0,
+        "reranker_seconds": 0.0,
+        "fusion_seconds": 0.0,
+        "dedup_seconds": 0.0,
+        "error_type": "retrieval_timeout",
+        "timeout_stage": "local_retrieval",
+        "total_seconds": null
+      }
+    },
+    {
+      "checkpoint": "462a54c9-98b7-4ec7-a3d1-0645ee1c40ad.json",
+      "checkpoint_written_at": "2026-09-25 15:10:58",
+      "session_id": "462a54c9-98b7-4ec7-a3d1-0645ee1c40ad",
+      "question": "GB/T 16252—2023 的名称和适用范围是什么",
+      "question_type": "simple",
+      "route": "local",
+      "status": "completed",
+      "deliverable": true,
+      "retrieval_profile": {
+        "cache_hit": false,
+        "local_retrieval_seconds": 208.491,
+        "embedding_seconds": 1.779,
+        "dense_seconds": 1.779,
+        "bm25_seconds": 10.78,
+        "reranker_seconds": 177.281,
+        "fusion_seconds": 0.001,
+        "dedup_seconds": 0.0,
+        "error_type": null,
+        "timeout_stage": null,
+        "total_seconds": 208.491
+      }
+    }
+  ]
+}

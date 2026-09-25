@@ -16,22 +16,32 @@ Usage
     # 2. then:
     python scripts/capture_portfolio_assets.py --question "GB/T 16252—2023 的名称和适用范围是什么？"
 
+    # Cold-retrieval demo: restart the app first so the in-process retrieval cache is empty,
+    # then record immediately.  A cold run can take 3~5 minutes (and may hit the 300 s ceiling).
+    python scripts/capture_portfolio_assets.py --timeout 540 --viewport-height 760 \
+        --out-dir docs/portfolio/cold --mp4
+
 Requires: playwright (installed outside the project venv; uses the local Edge browser).
 
 Setup (once, outside the project venv):
 
     pip install playwright
     playwright install ffmpeg   # video recording needs this binary; Edge itself is reused
+    pip install imageio-ffmpeg  # only for --mp4: Playwright's ffmpeg ships VP8 but no libx264
 
 Without `playwright install ffmpeg` the browser context fails at `new_page()` with
 "Video rendering requires ffmpeg binary" — the error is raised before any question is sent,
 so it costs nothing but the setup step.
+
+Recording is always written as `.webm` (VP8) because Playwright's bundled ffmpeg has no
+libx264.  Pass `--mp4` to also transcode a silent H.264 copy via imageio-ffmpeg's ffmpeg.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 import sys
 import time
 from datetime import datetime
@@ -134,6 +144,39 @@ def render_report_screenshot(page, md_path: Path, out_path: Path) -> None:
     page.screenshot(path=str(out_path), full_page=True)
 
 
+def transcode_to_mp4(webm: Path, mp4: Path, log) -> bool:
+    """把 Playwright 录出的 VP8/WebM 转成 H.264/MP4。
+
+    为什么要转：Playwright 自带的 ffmpeg 只编了 VP8，没有 libx264，所以录出来只能是 .webm。
+    有些播放器/浏览器对 VP8 支持不好，作品集里用 MP4 更稳。
+    这里借 imageio-ffmpeg 的 ffmpeg（带 libx264 + aac）来转，**静音输出**——
+    旁白由人按讲稿自己配，视频里不留音轨。
+
+    转码失败不算捕获失败：.webm 原件仍在，调用方只需提示。
+    """
+    try:
+        import imageio_ffmpeg
+    except ImportError:
+        log("      ⚠️ 未安装 imageio-ffmpeg，跳过 MP4 转码（.webm 原件已保留）")
+        log("         安装：pip install imageio-ffmpeg")
+        return False
+
+    ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+    cmd = [
+        ffmpeg, "-y", "-i", str(webm),
+        "-c:v", "libx264", "-preset", "slow", "-crf", "30",
+        "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+        "-an", str(mp4),
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True,
+                            encoding="utf-8", errors="replace")
+    if result.returncode != 0:
+        log(f"      ⚠️ MP4 转码失败（返回码 {result.returncode}），.webm 原件仍在")
+        return False
+    log(f"      · MP4：{mp4.name}（{mp4.stat().st_size / 1e6:.2f} MB，静音 H.264）")
+    return True
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--url", default="http://127.0.0.1:7860/")
@@ -153,6 +196,11 @@ def main() -> int:
         help="超过这么多秒仍未交付就放弃（用于重试慢运行；放弃不会取消服务端任务）",
     )
     parser.add_argument("--no-video", action="store_true", help="screenshots only, skip recording")
+    parser.add_argument(
+        "--mp4",
+        action="store_true",
+        help="录屏后额外转一份 H.264 MP4（静音）。需要 imageio-ffmpeg；失败不影响 .webm",
+    )
     parser.add_argument(
         "--report-md",
         default=None,
@@ -268,6 +316,7 @@ def main() -> int:
         browser.close()
 
     video_path = None
+    mp4_path = None
     if not args.no_video:
         candidates = sorted(video_dir.glob("*.webm"), key=lambda f: f.stat().st_mtime, reverse=True)
         if candidates:
@@ -275,6 +324,10 @@ def main() -> int:
             candidates[0].replace(target)
             video_path = target
             log(f"      · 录屏：{target.name}（{target.stat().st_size / 1e6:.1f} MB）")
+            if args.mp4:
+                mp4_target = out_dir / f"demo_recording_{stamp}.mp4"
+                if transcode_to_mp4(target, mp4_target, log):
+                    mp4_path = mp4_target
 
     summary = {
         "captured_at": stamp,
@@ -290,6 +343,7 @@ def main() -> int:
             "execution_trace": trace_shot.name,
         },
         "video": video_path.name if video_path else None,
+        "video_mp4": mp4_path.name if mp4_path else None,
         "status_text": status_text.strip(),
         "answer_excerpt": answer_text.strip()[:2000],
     }
