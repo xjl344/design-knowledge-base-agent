@@ -174,7 +174,16 @@ try {
     $lines.Add('⚠️ 换机器或换时间重跑，延迟与 BM25 候选计数可能显著不同（实测两次运行的重排延迟相差约 12 倍）。')
     $lines.Add('比对两次运行时应先看上面这张表，再看召回指标；**不要把延迟差异读成策略差异**。')
     $lines.Add('')
-    $lines.Add(('原始完整 JSON：`' + $jsonPath + '`'))
+    # Emit a repo-relative reference when the result lives inside the project.
+    #
+    # The report is committed to the repository, and an absolute path embeds the
+    # author's machine layout (`E:\设计知识库助手\...`) into a public artefact.  It is
+    # also simply less useful to a reader: a relative path resolves on their clone.
+    $jsonRef = $jsonPath
+    if ($jsonPath.StartsWith($projectRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
+        $jsonRef = $jsonPath.Substring($projectRoot.Length).TrimStart('\', '/') -replace '\\', '/'
+    }
+    $lines.Add(('原始完整 JSON：`' + $jsonRef + '`'))
     $lines | Set-Content -LiteralPath $markdownPath -Encoding UTF8
     Write-Host "原始结果已写入：$jsonPath"
     Write-Host "Markdown 摘要已写入：$markdownPath"

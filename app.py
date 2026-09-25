@@ -211,25 +211,36 @@ async def chat(message: str, history: list[dict[str, Any]]):
 
 CSS = """
 .gradio-container { max-width: 1240px !important; }
-#status-column { border-left: 1px solid var(--border-color-primary); padding-left: 20px; }
-@media (max-width: 768px) { #status-column { border-left: 0; padding-left: 0; } }
+/* The execution-trace panel lives in a right-hand sidebar, so it no longer needs the
+   hand-rolled left border that the old two-column Row used. */
+#status-column { border-left: 1px solid var(--border-color-primary); }
 """
 
 
 with gr.Blocks(title="设计知识库助手") as demo:
+    # The trace panel is a `gr.Sidebar`, not a column of a `gr.Row`.
+    #
+    # The previous layout put `chatbot = gr.Chatbot(...)` inside a Row and passed it to
+    # `gr.ChatInterface(chatbot=chatbot)`.  ChatInterface re-renders the chatbot inside its
+    # own layout, so the Row's left column stayed empty: the page showed a blank ~860x270
+    # region on the left and the conversation rendered full-width *below* the trace panel
+    # instead of beside it.  Measured on the running app, not guessed.
+    with gr.Sidebar(
+        label="本次执行追踪",
+        position="right",
+        open=True,
+        width=380,
+        elem_id="status-column",
+    ):
+        route_output = gr.Markdown("**检索路径：** 等待提问")
+        source_output = gr.Markdown("**参考来源**\n\n暂无可用来源。")
+        error_output = gr.Markdown("**运行状态：** 等待提问")
+        metrics_output = gr.JSON(label="本次执行追踪", value={})
+
     gr.Markdown("# 设计知识库助手")
-    with gr.Row():
-        with gr.Column(scale=3):
-            chatbot = gr.Chatbot(height=600)
-        with gr.Column(scale=1, elem_id="status-column", min_width=280):
-            route_output = gr.Markdown("**检索路径：** 等待提问")
-            source_output = gr.Markdown("**参考来源**\n\n暂无可用来源。")
-            error_output = gr.Markdown("**运行状态：** 等待提问")
-            metrics_output = gr.JSON(label="本次执行追踪", value={})
 
     gr.ChatInterface(
         fn=chat,
-        chatbot=chatbot,
         additional_outputs=[route_output, source_output, error_output, metrics_output],
         examples=[
             "比较两种产品方案在成本、可靠性和可维护性方面的差异，并给出推荐。",

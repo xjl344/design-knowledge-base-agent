@@ -1,0 +1,14 @@
+{
+  "captured_at": "20260925_134319",
+  "question": "GB/T 16252—2023 的名称和适用范围是什么？",
+  "elapsed_seconds": 8.0,
+  "screenshots": {
+    "idle": "00_idle_20260925_134319.png",
+    "running": "01_running_20260925_134319.png",
+    "main_interface": "02_main_interface_20260925_134319.png",
+    "execution_trace": "03_execution_trace_20260925_134319.png"
+  },
+  "video": "demo_recording_20260925_134319.webm",
+  "status_text": "processing | 16.1s\n\n检索路径： 等待提问\n\nprocessing | 16.1s\n\n参考来源\n\n暂无可用来源。\n\nprocessing | 16.1s\n\n运行状态： 等待提问\n\n本次执行追踪\nprocessing | 16.1s",
+  "answer_excerpt": "GB/T 16252—2023 的名称和适用范围是什么？"
+}
