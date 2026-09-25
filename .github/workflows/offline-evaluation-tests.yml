@@ -48,6 +48,7 @@ jobs:
 
       - name: Run offline evaluation tests
         run: |
+          set -o pipefail
           python -m pytest \
             tests/test_frozen_generation.py \
             tests/test_generation_slices_and_gates.py \
@@ -57,18 +58,42 @@ jobs:
             tests/test_generation_replay_aggregate.py \
             tests/test_config_timeouts.py \
             tests/test_eval_dependency_surface.py \
-            -q
+            -q --tb=short 2>&1 | tee /tmp/pytest.log
+
+      - name: Surface failures as annotations
+        # 为什么需要这一步：这个 job 的日志要仓库 admin 权限才能下载
+        # （GET /actions/jobs/{id}/logs 对公开仓库也返回 403），
+        # 于是失败原因只能靠猜。把失败行转成 annotation 之后，
+        # 任何人都能用无需认证的接口读到：
+        #   GET /repos/{owner}/{repo}/check-runs/{id}/annotations
+        if: failure()
+        run: |
+          if [ ! -f /tmp/pytest.log ]; then
+            echo "::error::没有 pytest 日志（可能挂在收集阶段之前）"
+            exit 0
+          fi
+          grep -E "^(FAILED|ERROR)" /tmp/pytest.log | head -30 | sed 's/^/::error::/'
+          echo "--- 失败详情 ---"
+          grep -E "^E |AssertionError|Error:" /tmp/pytest.log | head -30 | sed 's/^/::error::/'
 
       - name: Verify the aggregator runs without the model SDK
         # The aggregator is pure arithmetic over recorded runs.  If it ever
         # starts importing the SDK again, it becomes unusable for offline
         # analysis -- and this step is what notices.
         run: |
+          set -o pipefail
           python aggregate_generation_replays.py \
             data/runs/p1_full_v3.json data/runs/p1_full_v3_r2.json \
             --output /tmp/agg.json --report /tmp/report.md \
             --slices data/generation_eval_slices.v1.json \
-            --evaluation data/generation_eval.v2.json
+            --evaluation data/generation_eval.v2.json 2>&1 | tee /tmp/agg.log
+
+      - name: Surface aggregator failures as annotations
+        if: failure()
+        run: |
+          if [ -f /tmp/agg.log ]; then
+            tail -30 /tmp/agg.log | sed 's/^/::error::/'
+          fi
 
       - name: Upload report
         if: always()
