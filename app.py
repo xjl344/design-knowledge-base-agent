@@ -111,6 +111,49 @@ def format_no_evidence_status(state: dict[str, Any]) -> str:
     return "**运行状态：** 没有可用参考资料"
 
 
+def format_trace_summary(state: dict[str, Any]) -> str:
+    """Compact, screenshot-readable header for the execution-trace panel.
+
+    The raw JSON beneath it runs to thousands of lines and scrolls, so the only fields a
+    reader — or a screenshot — ever actually sees are `session_id` and `status`.  These are
+    the same facts a reviewer asks about (question type, plan size, where the time went,
+    the direct/indirect evidence split), rendered small enough to fit one screen.
+    """
+    trace = state.get("execution_trace", []) or []
+    sub_tasks = state.get("sub_tasks", []) or []
+    tool_calls = state.get("tool_calls", []) or []
+    sources = state.get("sources", []) or []
+    direct = sum(1 for item in sources if item.get("retrieval_evidence_status") == "direct")
+    indirect = sum(1 for item in sources if item.get("retrieval_evidence_status") == "indirect")
+    total = round(sum(item.get("duration_seconds", 0) for item in trace), 1)
+    slowest = max(trace, key=lambda item: item.get("duration_seconds", 0)) if trace else None
+    slowest_text = (
+        f"{slowest.get('node')}（{round(slowest.get('duration_seconds', 0), 1)} s）" if slowest else "—"
+    )
+
+    lines = [
+        f"**问题类型：** {state.get('question_type', 'simple')}　**路由：** {state.get('route', 'unknown')}",
+        f"**子任务：** {len(sub_tasks)}　**工具调用：** {len(tool_calls)}　"
+        f"**重写次数：** {state.get('rewrite_attempts', 0)}",
+        f"**节点总耗时：** {total} s　**最慢节点：** {slowest_text}",
+        f"**证据：** direct {direct} / indirect {indirect}　"
+        f"**主张支持率：** {state.get('claim_support_rate', 0.0)}",
+    ]
+    if sub_tasks:
+        lines.extend(["", "**子任务：**"])
+        for task in sub_tasks[:6]:
+            if isinstance(task, dict):
+                text = str(task.get("objective") or task.get("query") or "")[:60]
+                lines.append(f"- `{task.get('id', '-')}` {task.get('operation', '')}：{text}")
+            else:
+                lines.append(f"- {task}")
+    if trace:
+        lines.extend(["", "**节点耗时：** " + "；".join(
+            f"{item.get('node')} {round(item.get('duration_seconds', 0), 1)}s" for item in trace[:8]
+        )])
+    return "\n".join(lines)
+
+
 def format_metrics(state: dict[str, Any], session_id: str) -> dict[str, Any]:
     trace = state.get("execution_trace", [])
     return {
@@ -179,6 +222,7 @@ async def chat(message: str, history: list[dict[str, Any]]):
                                 "**检索路径：** 正在处理",
                                 "**参考来源**\n\n正在整理来源...",
                                 "**运行状态：** 正在生成",
+                                format_trace_summary(final_state),
                                 format_metrics(final_state, session_id),
                             )
                 elif mode == "updates":
