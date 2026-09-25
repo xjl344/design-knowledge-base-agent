@@ -249,6 +249,7 @@ async def chat(message: str, history: list[dict[str, Any]]):
         format_route(final_state),
         format_sources(final_state.get("sources", [])),
         status_text,
+        format_trace_summary(final_state),
         format_metrics(final_state, session_id),
     )
 
@@ -279,13 +280,20 @@ with gr.Blocks(title="设计知识库助手") as demo:
         route_output = gr.Markdown("**检索路径：** 等待提问")
         source_output = gr.Markdown("**参考来源**\n\n暂无可用来源。")
         error_output = gr.Markdown("**运行状态：** 等待提问")
-        metrics_output = gr.JSON(label="本次执行追踪", value={})
+        trace_summary_output = gr.Markdown("**尚未运行。**")
+        metrics_output = gr.JSON(label="本次执行追踪（原始）", value={})
 
     gr.Markdown("# 设计知识库助手")
 
     gr.ChatInterface(
         fn=chat,
-        additional_outputs=[route_output, source_output, error_output, metrics_output],
+        additional_outputs=[
+            route_output,
+            source_output,
+            error_output,
+            trace_summary_output,
+            metrics_output,
+        ],
         examples=[
             "比较两种产品方案在成本、可靠性和可维护性方面的差异，并给出推荐。",
             "一个新产品从概念到量产需要关注哪些设计与工艺问题？",

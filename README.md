@@ -14,17 +14,45 @@
 
 | 主界面 | 执行追踪 | 评测基线 |
 |---|---|---|
-| ![主界面](docs/portfolio/02_main_interface_20260925_134707.png) | ![执行追踪](docs/portfolio/03_execution_trace_20260925_134707.png) | ![评测基线](docs/portfolio/04_eval_baseline_20260925_134723.png) |
+| ![主界面](docs/portfolio/screenshot_1_main_interface.png) | ![执行追踪](docs/portfolio/screenshot_2_execution_trace.png) | ![评测基线](docs/portfolio/screenshot_3_eval_baseline.png) |
 
 演示问题：`GB/T 16252—2023 的名称和适用范围是什么？`
-录屏文件在 `docs/portfolio/demo_recording_20260925_134707.webm`（**本地文件，未上传**，
-因为 GitHub 不适合托管视频；截图已随仓库分发）。
 
-⚠️ **耗时不要写成固定值。** 同一道题实测过两档：判成 `simple` 时只检索一次
-（**24.1 秒**，2026-09-25 录制），判成 `complex` 时先规划成 3 个子任务、检索三次
-（**226.6 / 254.6 / 297.7 秒**，2026-09-24 三次独立运行）。
-`analyze_question` 是模型判断，**同一道题两次跑出不同分类**是当前实现的真实行为。
-延迟也高度依赖机器负载：同一条配置的每题均值实测过 26.0 / 84.5 / 161.7 秒。
+- 主界面：问题、最终回答（含 `[L1]`/`[L2]` 引用）、右侧参考来源清单（每条带 `direct`/`indirect` 证据状态）
+- 执行追踪：问题类型 / 路由 / 子任务数 / 工具调用数 / 重写次数 / 节点总耗时 / 最慢节点 / 证据计数 / 主张支持率，下方是原始 JSON
+- 评测基线：R 策略 10 题指标 + 已知边界 + 检索诊断（`logs/portfolio_baseline/`）
+
+录屏：`docs/portfolio/demo_recording.mp4`（H.264，743 KB，真实时间**未加速未剪辑**；
+`.webm` 原件同目录）。**静音**——按 `作品集Demo讲稿.md` 自己配旁白。
+
+截图与录屏都由 `python scripts/capture_portfolio_assets.py` 驱动真实界面产生，
+不是手工摆拍；`capture_summary.json` 记录了那一次的耗时与交付判定。
+
+#### ⚠️ 这道题的耗时不可复现，而且**不是**分类造成的
+
+2026-09-25 同一配置、同一道题连续六次运行。**六次都是** `question_type=simple`、
+`sub_tasks=0`（不规划），`problem_spec` 逐字段相同
+（`intent=simple`、`explicit_references=['GB/T 16252—2023']`）：
+
+| 时间 | 检索耗时 | 结果 |
+|---|---:|---|
+| 14:19 | **0.1 s** | 可交付，2 条 `direct` 证据（本仓库截图与录屏即此次） |
+| 14:16 | 0.1 s | 可交付，但**先被闸门拦下、严格重写一次**后才通过 |
+| 14:14 | 0.1 s | 可交付，2 条 `direct` 证据 |
+| 14:10 | 0.2 s | 可交付，2 条 `direct` 证据 |
+| 13:47 | 0.2 s | 可交付，2 条 `direct` 证据 |
+| 13:54 | **300.0 s（撞上限）** | **降级拒答**：本地检索超时 + 网络搜索超时 → **0 条来源** |
+
+**同样的输入，检索一次 0.1 秒、一次 300 秒。** 快速那几次的
+`retrieval_evidence_reason` 是「资料命中用户指定标准或参考编号」，只返回被问的那份标准本身的
+2 个 chunk；撞上限那次 0 条来源，`status=web_empty`、`deliverable=false`。
+
+**根因未定位**（已作为未决问题记录）。所以：
+
+- 本仓库**不提供**「答案正确率」或「平均响应时间」这类单值指标
+- 13:54 那次降级的原始记录保留在 `docs/portfolio/evidence_degraded_run_20260925_135405.json`
+  与其追踪截图里，**不隐藏失败的那一次**
+- 延迟也高度依赖机器负载：R 基线同一条配置三次运行的每题均值是 26.0 / 84.5 / 161.7 秒
 
 ### 系统链路
 

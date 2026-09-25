@@ -56,11 +56,16 @@ RUNNING_MARKERS = ("正在生成", "正在处理", "正在整理来源")
 DONE_MARKER = "可交付"
 
 
-def wait_for_completion(page, timeout_seconds: int, log) -> tuple[float, bool]:
+def wait_for_completion(page, timeout_seconds: int, log, abort_after: float | None = None) -> tuple[float, bool]:
     """Poll the status column until the pipeline reports a delivery verdict.
 
     Returns (elapsed_seconds, completed).  `completed` is False when the timeout expired, so
     the caller can still keep whatever was captured instead of discarding the run.
+
+    `abort_after` bails out early.  Retrieval latency on this machine is bimodal — the same
+    query has been measured at ~20 s and at the 300 s ceiling — so a run that is still
+    retrieving after a minute is usually going to hit the ceiling.  Note that abandoning the
+    page does NOT cancel the server-side job; the app has to be restarted to free the CPU.
     """
     started = time.time()
     last_text = ""
@@ -79,6 +84,9 @@ def wait_for_completion(page, timeout_seconds: int, log) -> tuple[float, bool]:
             # Give the UI one more beat to flush the JSON panel and clear the tracker.
             page.wait_for_timeout(4000)
             return time.time() - started, True
+        if abort_after is not None and elapsed >= abort_after:
+            log(f"  [{elapsed:6.1f}s] 提前放弃：超过 {abort_after:.0f} 秒仍未交付")
+            return elapsed, False
     return time.time() - started, False
 
 
@@ -132,6 +140,18 @@ def main() -> int:
     parser.add_argument("--question", default=QUESTION)
     parser.add_argument("--out-dir", default=str(DEFAULT_OUT))
     parser.add_argument("--timeout", type=int, default=900, help="max seconds to wait for the answer")
+    parser.add_argument(
+        "--viewport-height",
+        type=int,
+        default=1000,
+        help="浏览器视口高度。截图是整页截取，视口过高会在输入框下方留下大片空白",
+    )
+    parser.add_argument(
+        "--abort-after",
+        type=float,
+        default=None,
+        help="超过这么多秒仍未交付就放弃（用于重试慢运行；放弃不会取消服务端任务）",
+    )
     parser.add_argument("--no-video", action="store_true", help="screenshots only, skip recording")
     parser.add_argument(
         "--report-md",
@@ -171,10 +191,10 @@ def main() -> int:
 
     with sync_playwright() as p:
         browser = p.chromium.launch(channel="msedge", headless=True)
-        context_kwargs = {"viewport": {"width": 1600, "height": 1000}}
+        context_kwargs = {"viewport": {"width": 1600, "height": args.viewport_height}}
         if not args.no_video:
             context_kwargs["record_video_dir"] = str(video_dir)
-            context_kwargs["record_video_size"] = {"width": 1600, "height": 1000}
+            context_kwargs["record_video_size"] = {"width": 1600, "height": args.viewport_height}
         context = browser.new_context(**context_kwargs)
         page = context.new_page()
         page.goto(args.url, wait_until="domcontentloaded", timeout=60000)
@@ -194,18 +214,47 @@ def main() -> int:
         page.screenshot(path=str(running_shot), full_page=True)
         log(f"      · 已存运行中界面：{running_shot.name}")
 
-        elapsed, completed = wait_for_completion(page, args.timeout, log)
+        elapsed, completed = wait_for_completion(page, args.timeout, log, args.abort_after)
         if completed:
             log(f"[4/5] 运行结束，真实耗时 {elapsed:.1f} 秒")
         else:
             log(f"[4/5] ⚠️ 等待 {elapsed:.1f} 秒仍未拿到交付判定（超时）；仍会保存已捕获的画面")
 
         main_shot = out_dir / f"02_main_interface_{stamp}.png"
+        # The chatbot autoscrolls to the bottom, so a naive screenshot shows only the tail of
+        # the answer — the 【资料事实】 table holding the actual answer is scrolled out of view.
+        # Scroll the message container back to the top for the "final answer" shot.
+        scrolled = page.evaluate(
+            """() => {
+              const el = document.querySelector('.bubble-wrap') || document.querySelector('.chatbot');
+              if (!el) return null;
+              el.scrollTop = 0;
+              return {cls: el.className.toString().slice(0, 40), scrollHeight: el.scrollHeight, clientHeight: el.clientHeight};
+            }"""
+        )
+        if scrolled:
+            log(f"      · 聊天区已滚回顶部：{scrolled['cls']} "
+                f"（内容 {scrolled['scrollHeight']}px / 可视 {scrolled['clientHeight']}px）")
+        else:
+            log("      · ⚠️ 没找到聊天滚动容器，截图可能仍停在底部")
+        page.wait_for_timeout(800)
         page.screenshot(path=str(main_shot), full_page=True)
 
         status_col = page.locator("#status-column")
         trace_shot = out_dir / f"03_execution_trace_{stamp}.png"
         status_col.screenshot(path=str(trace_shot))
+
+        # A second shot of the answer's tail (证据不足与冲突 / 风险与验证 / 参考资料), which is the
+        # part the delivery gate judges.  Same page, same run — not a re-enactment.
+        tail_shot = out_dir / f"02b_answer_tail_{stamp}.png"
+        page.evaluate(
+            """() => {
+              const el = document.querySelector('.bubble-wrap') || document.querySelector('.chatbot');
+              if (el) el.scrollTop = el.scrollHeight;
+            }"""
+        )
+        page.wait_for_timeout(600)
+        page.screenshot(path=str(tail_shot), full_page=True)
 
         status_text = status_col.inner_text()
         # The answer lives in the chatbot column; grab the whole body and let the caller trim.
@@ -237,6 +286,7 @@ def main() -> int:
             "idle": idle_shot.name,
             "running": running_shot.name,
             "main_interface": main_shot.name,
+            "answer_tail": tail_shot.name,
             "execution_trace": trace_shot.name,
         },
         "video": video_path.name if video_path else None,
@@ -254,7 +304,10 @@ def main() -> int:
     log("")
     log("=== 运行状态 ===")
     log(status_text.strip()[:1200])
-    return 0
+
+    # Exit code 2 signals "captured but the pipeline never reported a delivery verdict",
+    # so a retry loop can distinguish it from a crash (1) or success (0).
+    return 0 if completed else 2
 
 
 if __name__ == "__main__":
