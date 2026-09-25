@@ -25,13 +25,20 @@ jobs:
         with:
           python-version: "3.13"
 
-      # langchain-core is the only third-party import in this set: the
-      # frozen-evidence tests build ``Document`` objects to check that retrieval
-      # metadata is carried through.  Nothing here calls a model.
+      # 依赖清单是按「这些测试实际 import 了什么」推出来的，不是猜的。
+      # 它仍比 requirements.txt 轻得多：没有 torch、没有 chromadb、
+      # 没有 sentence-transformers。**这里没有任何一步会真的调用模型**；
+      # 装 SDK 只是因为 config.py 与 src/model_clients.py 在模块级 import 了它们。
+      #
+      # ⚠️ 这个清单刚写出来时是错的，而这个 job 一直没跑过（仓库当时还没有远端），
+      # 所以错误潜伏着。第一次真跑就在收集阶段挂了：
+      #   ModuleNotFoundError: No module named 'dotenv'
+      #   ModuleNotFoundError: No module named 'langchain_openai'
+      # → 往上面加测试文件时，先在一个**干净的 Python 3.13 环境**里本地验一遍。
       - name: Install minimal dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest langchain-core==1.5.5
+          pip install pytest langchain-core==1.5.5 python-dotenv langchain-openai
 
       - name: Run offline evaluation tests
         run: |
