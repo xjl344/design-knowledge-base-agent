@@ -32,8 +32,7 @@
 | `docs/portfolio/demo_recording_cold.mp4` | 4 分 11 秒 | **冷检索**的那一次（重启应用后第一次问）|
 
 两个都是 H.264、真实时间**未加速未剪辑**、**静音**——**有意不配旁白**（配音要真人录，
-脚本替不了）。`作品集Demo讲稿.md` 是**现场讲解**用的稿子，不是配音脚本。
-`.webm` 原件在同目录。
+脚本替不了）。演示时现场讲解即可。`.webm` 原件在同目录。
 
 > **如果你是一个人翻这个仓库**：静音录屏对你不友好，这点我承认。
 > 所以上面放了两张**执行追踪截图**——缓存命中 0.2 秒、冷检索 208.5 秒，
@@ -148,7 +147,7 @@ flowchart LR
 
 逐题结果和原始检索诊断见 `logs/portfolio_baseline/`；运行方式见 `scripts/Run-RBaseline.ps1`。
 
-作品集 Demo 的固定问题、讲解顺序、截图清单和面试追问见 `作品集Demo讲稿.md`。交付前的环境检查报告由 `scripts/Check-PortfolioReadiness.ps1` 生成。
+交付前的环境检查报告由 `scripts/Check-PortfolioReadiness.ps1` 生成。
 
 ## 快速开始
 
@@ -355,8 +354,8 @@ python app.py
 .\scripts\Run-RBaseline.ps1 -NoLangSmithUpload
 ```
 
-如果项目目录包含中文字符导致现有 `.venv` 启动失败，请按
-`作品集第一优先级交付计划.md` 在 ASCII 路径重新创建虚拟环境，再运行上述命令。
+如果项目目录包含中文字符导致现有 `.venv` 启动失败，请在 **ASCII 路径**下重新创建
+虚拟环境（见上面「快速开始」第 1 步），再运行上述命令。
 
 PowerShell 一键运行回归与评测：
 

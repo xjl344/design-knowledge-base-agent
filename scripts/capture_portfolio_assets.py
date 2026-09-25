@@ -7,7 +7,7 @@ error-prone and easy to fake; this script drives the real UI against a real ques
 records what actually happens, including the real elapsed time.
 
 It deliberately does NOT speed up or cut the waiting period: the long retrieval latency is
-part of the project's credibility (see 作品集Demo讲稿.md).
+part of the project's credibility.
 
 Usage
 -----
