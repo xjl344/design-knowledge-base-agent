@@ -83,3 +83,8 @@ data/frozen_retrieval_cases.batch2.jsonl
 #   cat data/frozen_retrieval_cases.jsonl data/frozen_retrieval_cases.batch2.jsonl \
 #     > data/frozen_retrieval_cases.pool_v2.jsonl
 data/frozen_retrieval_cases.pool_v2.jsonl
+
+# 发布前从仓库移出的内部过程文档与实验中间产物。
+# 它们不是作品集要展示的内容，但也不想丢掉，所以放在仓库里、由 git 忽略。
+# 位置：internal-docs/（保留原来的相对路径，方便对照）
+internal-docs/
