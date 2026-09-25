@@ -493,3 +493,11 @@ LANGCHAIN_PROJECT=design-knowledge-qa
 python eval_langsmith.py              # 全量评测（约 20 题 × 3 次 LLM 调用）
 python eval_langsmith.py --check      # 本地预检，不花钱不联网
 ```
+
+## 许可
+
+MIT，见 [`LICENSE`](LICENSE)。
+
+⚠️ 仓库**不包含**知识库源文档（PDF/TXT/Markdown）。它们受各自版权约束，
+只在本机 `data/documents/` 下，已被 `.gitignore` 忽略。
+想复现请自备文档，或先跑 `python ingest.py --source-dir tests/fixtures/documents` 用测试语料。
