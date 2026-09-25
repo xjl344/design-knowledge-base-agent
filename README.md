@@ -1,6 +1,6 @@
 # 设计知识库助手
 
-这是一个面向设计知识库的、可审计的 CRAG + Web Search Agent：简单问题优先检索本地知识库；复杂/对比问题会先拆解为子任务并行检索，再聚合回答；本地证据不足时，使用 DuckDuckGo 搜索摘要补充回答。
+这是一个面向设计知识库的、可审计的 CRAG + Web Search Agent：简单问题优先检索本地知识库；复杂/对比问题会先拆解为子任务并行检索，再聚合回答；本地证据不足时，用 `ddgs`（DuckDuckGo 客户端库，实际会回落到多个搜索后端）抓取搜索摘要补充回答。
 
 当前版本已经具备作品集级 v1.0 的主要工程能力：领域无关的问题契约（ProblemSpec）、动态任务图（TaskSpec）、BM25 + Dense + RRF 混合检索、Cross-Encoder 重排、统一工具注册、工具超时/重试、执行轨迹、证据覆盖审计、来源冲突检测、并发限制、token 预算和会话检查点。规划路径、任务结构、工具调用、证据覆盖和节点耗时会显示在界面右侧的“本次执行追踪”面板。规划器不会针对某个具体产品或材料写专用流程，问题中的领域词汇只作为动态输入参与检索。
 
@@ -74,9 +74,12 @@
 > **一个会随「进程里问过没有」移动的指标，不能用来描述系统能力**——
 > 这是判据 7 的又一例。对外不要说「这套系统 X 秒能答一道题」。
 
-**冷检索能不能在 300 秒内跑完，本机实测是一半对一半。** 这是已知边界，不是待修 bug：
-300 秒上限是保护措施（它让超时的那次**没有硬答**，而是降级并说明原因），
-放开它属于「放宽上限」而非「看得更深」，需要先量出它原本在防什么。
+**冷检索能不能在 300 秒内跑完？三次里两次撞上上限**（n=3，不够给出一个比率，只能说次数）。
+这是已知边界，不是待修 bug：300 秒上限是保护措施（它让超时的那次**没有硬答**，
+而是降级并说明原因），放开它属于「放宽上限」而非「看得更深」，需要先量出它原本在防什么。
+
+⚠️ **撞上限那两次的画像里没有任何组件耗时**（`retrieval_profile` 只在检索成功返回时才填充），
+所以**无法判断当时是重排变慢、还是卡在别的环节**——不要猜一个原因。
 
 另外仍然成立：
 
@@ -142,7 +145,12 @@ flowchart LR
 
 作品集 Demo 的固定问题、讲解顺序、截图清单和面试追问见 `作品集Demo讲稿.md`。交付前的环境检查报告由 `scripts/Check-PortfolioReadiness.ps1` 生成。
 
-## 1. 进入项目环境
+## 快速开始
+
+下面 1~5 步是在 **Windows** 上从零跑起来的过程。只想看结果的话，上面两节（Demo 与 R 基线）已经够了；
+只想跑评测、不碰应用的话，看「生成链路评测」那一节——它不需要 GPU、也不需要重排模型。
+
+### 1. 进入项目环境
 
 推荐把虚拟环境放在 ASCII 路径，避免 Windows 对中文工作区中的 `.venv` 启动失败：
 
@@ -174,7 +182,7 @@ $env:TMP = $env:TEMP
 $env:GRADIO_TEMP_DIR = 'E:\设计知识库助手\data\gradio_tmp'
 ```
 
-## 2. 安装 CUDA Torch 和项目依赖
+### 2. 安装 CUDA Torch 和项目依赖
 
 ```powershell
 .\scripts\Install-CudaTorch.ps1
@@ -191,7 +199,7 @@ CUDA Torch wheel 约 1.9GB。安装脚本第一次运行时将 wheel 下载到
 python -c "import torch; print(torch.__version__); print(torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
 ```
 
-## 3. 配置 LLM（OpenAI 或兼容接口）
+### 3. 配置 LLM（OpenAI 或兼容接口）
 
 在项目根目录创建 `.env`，参考 `.env.example` 填写：
 
@@ -223,9 +231,9 @@ chunks/s，batch=32 约 280 chunks/s（快约 7 倍），峰值显存约 2.3GB�
 
 `.env` 已加入 `.gitignore`，不要把真实密钥写入 `.env.example`。
 
-## 4. 导入知识库
+### 4. 导入知识库
 
-### 分块策略
+#### 分块策略
 
 通过 `.env` 中的 `CHUNKING_STRATEGY` 选择入库分块方式：`F` 为固定长度、`R` 为当前递归字符分块、`P` 为段落/章节语义分块，`V` 预留给后续向量语义边界算法。切换策略后必须使用 `--full` 重建索引。
 
@@ -325,7 +333,7 @@ python ingest.py --source-dir tests\fixtures\documents --persist-dir data\test_c
 
 测试文档是虚构内容，不应作为真实设计依据。
 
-## 5. 测试与运行
+### 5. 测试与运行
 
 ```powershell
 python -m pytest
@@ -470,9 +478,18 @@ experiment, use `--experiment NAME` or the PowerShell wrapper:
 
 运行结果会生成 session checkpoint 到 `.tmp\checkpoints`，用于本地调试和后续恢复能力扩展。
 
+### 旧版 LangSmith 全量评测脚本
+
+`eval_langsmith.py` 是更早的 20 题评测脚本，与上面按 Dataset / Experiment 上传的链路并存。
+它读 `.env` 里的这几项：
+
+```dotenv
 LANGCHAIN_API_KEY=lsv2_你的key        # smith.langchain.com 获取
 LANGCHAIN_TRACING_V2=true
 LANGCHAIN_PROJECT=design-knowledge-qa
+```
 
-python eval_langsmith.py              # 全量评测（约 20题×3次LLM调用）
-python eval_langsmith.py --check      # 本地预检，不花钱不联网（我刚跑过）
+```powershell
+python eval_langsmith.py              # 全量评测（约 20 题 × 3 次 LLM 调用）
+python eval_langsmith.py --check      # 本地预检，不花钱不联网
+```
