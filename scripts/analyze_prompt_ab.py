@@ -94,8 +94,18 @@ CASE_SETS = {
 }
 
 
-def hop_recall(row: dict[str, Any], cache: dict[str, Any]) -> float | None:
-    """Re-score one row against the contract, and return its hop recall."""
+def rescore_row(row: dict[str, Any], cache: dict[str, Any]) -> dict[str, Any] | None:
+    """Rebuild the pack from the arm's config and re-audit one row.
+
+    Returns the *whole* audit dict, not just the hop recall, so callers that
+    need another field (a span recall, a hop count) do not have to re-derive it
+    with a second copy of this logic.  Two copies of the re-scoring rules is
+    precisely how the runtime audit and the recomputed audit drifted apart in
+    the first place.
+
+    Returns ``None`` when the row cannot be re-scored: an unregistered case set,
+    a question missing from the snapshot or the evaluation spec.
+    """
     case_set = row["case_set"]
     question_id = row["question_id"]
     if case_set not in CASE_SETS:
@@ -118,7 +128,7 @@ def hop_recall(row: dict[str, Any], cache: dict[str, Any]) -> float | None:
     pack = build_evidence_pack(
         case, max_items=max_items, max_chars_per_item=max_chars
     )
-    audit = soft_audit(
+    return soft_audit(
         row.get("answer") or "",
         pack,
         expected_answer_spans=spec.get("expected_answer_spans", []),
@@ -128,6 +138,13 @@ def hop_recall(row: dict[str, Any], cache: dict[str, Any]) -> float | None:
         ambiguity_requirements=spec.get("ambiguity_requirements", []),
         required_hops=spec.get("required_hops", []),
     )
+
+
+def hop_recall(row: dict[str, Any], cache: dict[str, Any]) -> float | None:
+    """Re-score one row against the contract, and return its hop recall."""
+    audit = rescore_row(row, cache)
+    if audit is None:
+        return None
     hops = audit.get("hop_results") or []
     if not hops:
         return None

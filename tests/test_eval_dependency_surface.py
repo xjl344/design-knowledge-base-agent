@@ -36,6 +36,7 @@ OFFLINE_MODULES = {
     "src/gates_runner.py": set(),
     "src/eval_report.py": set(),
     "src/frozen_evidence.py": set(),
+    "src/paired_statistics.py": set(),
 }
 
 # Packages whose presence means the model SDK / vector store got pulled in.

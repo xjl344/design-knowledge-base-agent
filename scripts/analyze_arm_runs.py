@@ -282,14 +282,24 @@ def main(argv: list[str] | None = None) -> int:
     for label, entry in result["by_case_set_and_arm"].items():
         print(_line(label, entry))
 
-    print("\n配对（两臂都完成的题）：")
+    print("\n配对（两臂都完成的题；统计量按**独立单元**计算，不是按配对对数）：")
+    versions = sorted({
+        str(entry["statistics_version"])
+        for entry in result["paired"].values()
+        if entry.get("statistics_version")
+    })
+    print(f"  口径版本：{', '.join(versions) or '未知'}")
     for case_set, entry in result["paired"].items():
+        ci = entry.get("ci95")
+        ci_text = f"[{ci[0]:+.4f}, {ci[1]:+.4f}]" if ci else "n/a"
         print(
-            f"  {case_set}: n={entry['comparable_pairs']} "
+            f"  {case_set}: 配对={entry['comparable_pairs']} "
+            f"独立单元={entry.get('independent_units')} "
             f"dropped={entry['dropped_cells']} "
             f"{pair[0]}={entry.get(f'{pair[0]}_mean_hop_recall')} "
             f"{pair[1]}={entry.get(f'{pair[1]}_mean_hop_recall')} "
             f"diff={entry.get('mean_difference')} "
+            f"SE={entry.get('standard_error')} CI95={ci_text} MDE={entry.get('mde')} "
             f"({pair[1]}更好 {entry.get(f'{pair[1]}_better_pairs')} / "
             f"{pair[0]}更好 {entry.get(f'{pair[0]}_better_pairs')} / "
             f"持平 {entry['tied_pairs']})"

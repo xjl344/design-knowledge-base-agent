@@ -51,7 +51,6 @@ from datetime import datetime
 import json
 from pathlib import Path
 import random
-import statistics
 import sys
 import time
 from typing import Any
@@ -81,7 +80,15 @@ from src.generator_v2 import (  # noqa: E402
 )
 from src.model_clients import model_descriptor  # noqa: E402
 
-COMPLETED = "completed"
+# 配对统计的实现搬到了 src/paired_statistics.py：那里不 import 模型 SDK，
+# 所以这段算术能在没有第三方包的环境里被测试（见 tests/test_eval_dependency_surface.py）。
+# 这里重新导出，调用方（含 analyze_arm_runs.py）无需改 import 路径。
+from src.paired_statistics import (  # noqa: E402
+    COMPLETED,
+    PAIRED_STATISTICS_VERSION,
+    paired_rows,
+    summarise_pairs,
+)
 
 
 def parse_case_set(spec: str) -> dict[str, str]:
@@ -235,76 +242,6 @@ def hop_counts(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "total": total,
         "ratio": round(matched / total, 3) if total else None,
         "per_question": dict(sorted(per_question.items())),
-    }
-
-
-def paired_rows(
-    rows: list[dict[str, Any]], arms: list[str]
-) -> tuple[list[dict[str, Any]], int]:
-    """Rows where both arms completed the same question in the same round.
-
-    Returns the pairs and the number of cells dropped because one arm failed.
-    That dropped count is the honest denominator: the pairs are not a random
-    sample of the questions, they are the questions the provider happened to let
-    through twice.
-    """
-    first, second = arms
-    cells: dict[tuple[str, str, int], dict[str, dict[str, Any]]] = {}
-    for row in rows:
-        key = (str(row["case_set"]), str(row["question_id"]), int(row["round"]))
-        cells.setdefault(key, {})[str(row["arm"])] = row
-
-    pairs: list[dict[str, Any]] = []
-    dropped = 0
-    for (case_set, question_id, round_index), values in sorted(cells.items()):
-        left, right = values.get(first), values.get(second)
-        if not left or not right:
-            dropped += 1
-            continue
-        if left["status"] != COMPLETED or right["status"] != COMPLETED:
-            dropped += 1
-            continue
-        left_audit = left.get("audit") or {}
-        right_audit = right.get("audit") or {}
-        pairs.append({
-            "case_set": case_set,
-            "question_id": question_id,
-            "round": round_index,
-            f"{first}_hop_recall": left_audit.get("hop_recall"),
-            f"{second}_hop_recall": right_audit.get("hop_recall"),
-            f"{first}_span_recall": left_audit.get("expected_answer_span_recall"),
-            f"{second}_span_recall": right_audit.get("expected_answer_span_recall"),
-        })
-    return pairs, dropped
-
-
-def summarise_pairs(pairs: list[dict[str, Any]], arms: list[str]) -> dict[str, Any]:
-    first, second = arms
-    comparable = [
-        pair for pair in pairs
-        if pair.get(f"{first}_hop_recall") is not None
-        and pair.get(f"{second}_hop_recall") is not None
-    ]
-    diffs = [
-        pair[f"{second}_hop_recall"] - pair[f"{first}_hop_recall"]
-        for pair in comparable
-    ]
-    return {
-        "definition": f"每对 = 同一题、同一轮里两臂都完成；差值 = {second} - {first}",
-        "comparable_pairs": len(comparable),
-        f"{first}_mean_hop_recall": (
-            round(statistics.fmean(pair[f"{first}_hop_recall"] for pair in comparable), 3)
-            if comparable else None
-        ),
-        f"{second}_mean_hop_recall": (
-            round(statistics.fmean(pair[f"{second}_hop_recall"] for pair in comparable), 3)
-            if comparable else None
-        ),
-        "mean_difference": round(statistics.fmean(diffs), 3) if diffs else None,
-        f"{second}_better_pairs": sum(1 for diff in diffs if diff > 0),
-        f"{first}_better_pairs": sum(1 for diff in diffs if diff < 0),
-        "tied_pairs": sum(1 for diff in diffs if diff == 0),
-        "pairs": pairs,
     }
 
 
@@ -533,6 +470,10 @@ async def run(args: argparse.Namespace) -> dict[str, Any]:
             else None
         ),
         "audit_version": AUDIT_VERSION,
+        # 与 audit_version 分开记。前者是「一条答案怎么被判分」，这个是「判分
+        # 结果怎么被聚合成统计量」。两者都会让新旧运行不可直接比较，但原因
+        # 不同；共用一个号，事后就分不出究竟是哪一个变了。
+        "paired_statistics_version": PAIRED_STATISTICS_VERSION,
         "case_sets": [
             {
                 "name": case_set["name"],

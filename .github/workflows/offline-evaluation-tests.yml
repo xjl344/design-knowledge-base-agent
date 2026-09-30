@@ -58,6 +58,7 @@ jobs:
             tests/test_generation_replay_aggregate.py \
             tests/test_config_timeouts.py \
             tests/test_eval_dependency_surface.py \
+            tests/test_paired_statistics.py \
             -q --tb=short 2>&1 | tee /tmp/pytest.log
 
       - name: Surface failures as annotations
