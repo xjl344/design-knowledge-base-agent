@@ -128,8 +128,13 @@ class GraphNodes:
             }
             execution_trace = self._trace(state, "analyze_question", "success", started)
             if not self._web_allowed():
+                # 节点名统一用 "web_search"，用 status="blocked" 表达被拦——
+                # 与下面 web_search 节点自身的记录方式（_trace(state, "web_search", "blocked", ...)）
+                # 保持一致。之前这里写的是 "web_search_blocked"，导致同一语义有两种节点名，
+                # 读取轨迹的代码必须同时认两种写法才能不漏。
+                # 注意：状态字段 `web_search_blocked`（bool）是另一回事，仍然保留。
                 execution_trace.append({
-                    "node": "web_search_blocked",
+                    "node": "web_search",
                     "status": "blocked",
                     "duration_seconds": 0.0,
                     "error": "web_disabled",
