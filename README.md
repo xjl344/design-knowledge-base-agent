@@ -31,6 +31,7 @@
 | 想了解 | 看这里 |
 | --- | --- |
 | 产品文档：一页纸 PRD / RICE 优先级 | [docs/prd-feedback-loop.md](docs/prd-feedback-loop.md)、[docs/backlog-rice.md](docs/backlog-rice.md) |
+| 给用户的问题采集表（含可复制的邀约话术） | [docs/question-intake.md](docs/question-intake.md) |
 | 产品决策与取舍的全过程 | §3 |
 | 指标口径、判据、哪些结论不能得 | [docs/evaluation-contract.md](docs/evaluation-contract.md)、[docs/experiment-protocol.md](docs/experiment-protocol.md) |
 | 评测链路结构与模块职责 | [docs/architecture.md](docs/architecture.md) |
