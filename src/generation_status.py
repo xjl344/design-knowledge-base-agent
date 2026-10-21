@@ -44,8 +44,30 @@ COMPLETED_STATUS = "completed"
 # answer re-rolls the dice instead of fixing the parser.
 RETRYABLE_FAILURE_CLASSES = PROVIDER_FAILURE_CLASSES
 
+# Which production chain answers a question.
+#
+# These live here for the same reason the status names do: three separate
+# modules need to agree on them, and only one of them may import the model SDK.
+#
+#   * ``generator_v2``  -- dispatches on the value
+#   * ``config``        -- reads it from the environment and validates it
+#   * the aggregator / scripts -- report which chain produced a row
+#
+# ``config`` importing ``generator_v2`` would be a cycle (generator_v2 imports
+# config), so a shared zero-dependency home is the only place all three can
+# read from one definition.
+#
+#   BACKEND_V2      the offline evaluation's prompt over EvidencePack context
+#   BACKEND_LEGACY  src/generator.py -- the seven-section chain app.py used
+BACKEND_V2 = "v2"
+BACKEND_LEGACY = "legacy"
+GENERATOR_BACKENDS = (BACKEND_V2, BACKEND_LEGACY)
+
 __all__ = [
+    "BACKEND_LEGACY",
+    "BACKEND_V2",
     "COMPLETED_STATUS",
+    "GENERATOR_BACKENDS",
     "PROVIDER_FAILURE_CLASSES",
     "PROVIDER_HARD_ERROR_CLASSES",
     "PROVIDER_LATENCY_CLASSES",

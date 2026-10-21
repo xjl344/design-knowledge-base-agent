@@ -10,6 +10,8 @@ from typing import Protocol
 from langchain_core.documents import Document
 
 from src.generator import generate_answer
+from src.generator_v2 import BACKEND_LEGACY, BACKEND_V2, generate_from_pack
+from src.live_evidence import pack_from_documents
 from src.grader import grade_documents
 from src.retriever import _lexical_terms, retrieve_documents_multi
 from src.web_search import web_search
@@ -193,7 +195,33 @@ class DefaultServices:
         return {"documents": documents, "queries": queries, "errors": errors}
 
     async def generate(self, question: str, documents: list[Document]) -> str:
-        return await self.generator_breaker.call(generate_answer, question, documents)
+        """Answer from these documents, using whichever chain the config selects.
+
+        The chain choice lives here rather than in the graph because "which
+        prompt answers" is an implementation detail of this service, not part of
+        what the graph orchestrates.  Keeping it here also means the `Services`
+        protocol -- and every test double implementing it -- is unchanged.
+        """
+        if settings.generator_backend == BACKEND_LEGACY:
+            return await self.generator_breaker.call(generate_answer, question, documents)
+        return await self.generator_breaker.call(
+            self._answer_with_v2, question, documents
+        )
+
+    async def _answer_with_v2(
+        self, question: str, documents: list[Document]
+    ) -> str:
+        """The v2 chain over the *same* documents the retriever returned.
+
+        Nothing upstream changes: the pack is built from documents that were
+        already retrieved, so this swaps the prompt and the evidence rendering
+        and nothing else.
+        """
+        pack = pack_from_documents(
+            question, documents, max_items=settings.generator_max_evidence
+        )
+        result = await generate_from_pack(pack, backend=BACKEND_V2)
+        return result.answer
 
     async def analyze_complexity(self, question: str) -> dict:
         fallback = heuristic_plan(question)

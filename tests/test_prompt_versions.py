@@ -22,6 +22,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.interleaved_generation_rounds import parse_arm  # noqa: E402
+from src.generation_status import BACKEND_LEGACY, BACKEND_V2  # noqa: E402
 from src.generator_v2 import (  # noqa: E402
     GENERATOR_PROMPTS,
     GENERATOR_PROMPT_VERSION,
@@ -43,7 +44,31 @@ def test_an_arm_without_a_prompt_version_keeps_its_old_meaning():
         "max_items": 99,
         "max_chars_per_item": None,
         "prompt_version": None,
+        # An old command line says nothing about a backend.  Its old meaning is
+        # the offline evaluation's chain, so the default must stay `v2` even
+        # though the app now has a backend switch of its own -- a default that
+        # followed the app would silently re-label every recorded invocation.
+        "backend": BACKEND_V2,
     }
+
+
+def test_an_arm_can_select_the_legacy_backend():
+    """The app's own chain must be selectable inside the same time window.
+
+    Comparing the two chains in two separate runs would attribute whatever the
+    provider was doing during each block to the chains.  That is why `backend`
+    is a fourth segment of the arm rather than a run-level flag.
+    """
+    arm = parse_arm(f"legacy=5:none:none:{BACKEND_LEGACY}")
+    assert arm["backend"] == BACKEND_LEGACY
+    assert arm["max_items"] == 5
+    assert arm["prompt_version"] is None
+
+
+def test_an_unknown_backend_fails_loudly():
+    """Falling back to the default would make the arm a copy of the other one."""
+    with pytest.raises(SystemExit):
+        parse_arm("legacy=5:none:none:does-not-exist")
 
 
 def test_an_arm_can_carry_a_prompt_version():

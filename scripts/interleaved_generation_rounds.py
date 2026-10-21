@@ -74,10 +74,31 @@ from src.frozen_evidence import (  # noqa: E402
     load_cases,
 )
 from src.generator_v2 import (  # noqa: E402
+    BACKEND_LEGACY,
+    BACKEND_V2,
+    GENERATOR_BACKENDS,
     GENERATOR_MAX_RETRIES,
     GENERATOR_PROMPT_VERSION,
     generate_from_pack,
 )
+from src.live_evidence import legacy_context  # noqa: E402
+
+# Existing command lines say nothing about a backend, and they all mean "the
+# offline evaluation's chain".  Making that the default is what keeps every
+# recorded invocation reproducible.
+DEFAULT_BACKEND = BACKEND_V2
+
+
+def rendered_context(pack: Any, arm: dict[str, Any]) -> str:
+    """The context string this arm will actually send.
+
+    Recorded per row because the two backends render the *same* pack
+    differently.  Reporting the v2 length for a legacy arm would make the two
+    look like they saw identical context when they did not.
+    """
+    if (arm.get("backend") or DEFAULT_BACKEND) == BACKEND_LEGACY:
+        return legacy_context(pack)
+    return pack.context_text()
 from src.model_clients import model_descriptor  # noqa: E402
 
 # 配对统计的实现搬到了 src/paired_statistics.py：那里不 import 模型 SDK，
@@ -110,35 +131,54 @@ def parse_case_set(spec: str) -> dict[str, str]:
 
 
 def parse_arm(spec: str) -> dict[str, Any]:
-    """``name=<max_items>:<max_chars>[:<prompt_version>]``.
+    """``name=<max_items>:<max_chars>[:<prompt_version>][:<backend>]``.
 
-    `max_chars` may be ``none``; `prompt_version` is optional and defaults to the
-    module default, so every existing command line keeps its meaning.
+    `max_chars` may be ``none``; `prompt_version` may be empty or ``-``;
+    `backend` defaults to ``v2`` so every existing command line keeps its
+    meaning exactly.
 
     A prompt version is carried by the *arm* rather than by the run because the
     only way to compare two prompts is to interleave them within one time
     window.  Running prompt A to completion and then prompt B would attribute
     whatever the provider was doing during each block to the prompts, which is
     the mistake this harness exists to avoid.
+
+    ``backend`` selects which *production chain* answers (``v2`` = the offline
+    evaluation's prompt, ``legacy`` = what ``app.py`` runs).  It is a separate
+    segment from `prompt_version` because the legacy chain has no prompt
+    version to select -- folding it into the same field would make
+    ``:legacy`` ambiguous with a prompt literally named "legacy".
     """
     name, separator, rest = spec.partition("=")
     if not separator:
         raise SystemExit(
-            f"臂定义必须是 name=max_items:max_chars[:prompt_version]，收到 {spec!r}"
+            f"臂定义必须是 name=max_items:max_chars[:prompt_version][:backend]，收到 {spec!r}"
         )
     parts = rest.split(":")
     if len(parts) < 2:
         raise SystemExit(
-            f"臂定义必须是 name=max_items:max_chars[:prompt_version]，收到 {spec!r}"
+            f"臂定义必须是 name=max_items:max_chars[:prompt_version][:backend]，收到 {spec!r}"
+        )
+    if len(parts) > 4:
+        raise SystemExit(
+            f"臂定义最多四段（name:max_items:max_chars:prompt_version:backend），收到 {spec!r}"
         )
     max_items, max_chars = parts[0], parts[1]
-    prompt_version = ":".join(parts[2:]).strip() or None
+    prompt_version = (parts[2].strip() if len(parts) >= 3 else "") or None
+    if prompt_version is not None and prompt_version.lower() in ("none", "-"):
+        prompt_version = None
+    backend = (parts[3].strip() if len(parts) >= 4 else "") or DEFAULT_BACKEND
+    if backend not in GENERATOR_BACKENDS:
+        raise SystemExit(
+            f"未知的生成后端 {backend!r}；可用：{list(GENERATOR_BACKENDS)}"
+        )
     budget = None if max_chars.strip().lower() in ("none", "-", "") else int(max_chars)
     return {
         "name": name.strip(),
         "max_items": int(max_items),
         "max_chars_per_item": budget,
         "prompt_version": prompt_version,
+        "backend": backend,
     }
 
 
@@ -174,8 +214,9 @@ async def score_one(
             # A/B plumbing, and a row that cannot say which prompt it would
             # have used cannot verify anything.
             "prompt_version": arm.get("prompt_version") or GENERATOR_PROMPT_VERSION,
+            "generator_backend": arm.get("backend") or DEFAULT_BACKEND,
             "evidence_count": len(pack.items),
-            "context_chars": len(pack.context_text()),
+            "context_chars": len(rendered_context(pack, arm)),
             "truncation_lost_facts": lost_facts,
             "generation_latency_seconds": None,
             "error": None,
@@ -194,6 +235,7 @@ async def score_one(
         required_hops=spec.get("required_hops", []),
         max_retries=max_retries,
         prompt_version=arm.get("prompt_version"),
+        backend=arm.get("backend") or DEFAULT_BACKEND,
     )
     row = {
         # `question_id` must be the *case* id: the contract and the pairing both
@@ -205,8 +247,9 @@ async def score_one(
         # Which prompt produced this row.  Without it a mixed run cannot be
         # split back into its conditions.
         "prompt_version": arm.get("prompt_version") or GENERATOR_PROMPT_VERSION,
+        "generator_backend": arm.get("backend") or DEFAULT_BACKEND,
         "evidence_count": len(pack.items),
-        "context_chars": len(pack.context_text()),
+        "context_chars": len(rendered_context(pack, arm)),
         "truncation_lost_facts": lost_facts,
     }
     row.update(result.as_dict())

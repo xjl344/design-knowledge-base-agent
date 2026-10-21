@@ -20,11 +20,16 @@ from src.frozen_evidence import (
     soft_audit,
 )
 from src.generation_status import (
+    BACKEND_LEGACY,
+    BACKEND_V2,
+    GENERATOR_BACKENDS,
     PROVIDER_FAILURE_CLASSES,
     PROVIDER_HARD_ERROR_CLASSES,
     PROVIDER_LATENCY_CLASSES,
     RETRYABLE_FAILURE_CLASSES,
 )
+from src.generator import get_generator_chain
+from src.live_evidence import legacy_context
 from src.model_clients import chat_model, model_descriptor, require_role_model
 
 
@@ -91,6 +96,16 @@ GENERATOR_PROMPTS = {
     GENERATOR_PROMPT_VERSION: GENERATOR_V2_PROMPT,
     GENERATOR_PROMPT_VERSION_R3: GENERATOR_V2_PROMPT_R3,
 }
+
+# The backend names are defined in ``src.generation_status`` and re-exported
+# here, because three modules need to agree on them and only one of them may
+# import this one (see that module's comment).
+#
+#   BACKEND_V2      -- this module's prompt over ``EvidencePack.context_text()``.
+#                      The offline evaluation has always used this one.
+#   BACKEND_LEGACY  -- ``src/generator.py``, the chain ``app.py`` used to run.
+#                      It renders evidence with ``format_context`` instead, and
+#                      it is not sanitised (see ``generate_from_pack``).
 
 # Replay measures a single model call per row, so retries stay off. This is the
 # value the harness must pass; keeping it here means the recorded metadata and
@@ -319,6 +334,7 @@ async def generate_from_pack(
     required_hops: Iterable[Any] = (),
     max_retries: int = GENERATOR_MAX_RETRIES,
     prompt_version: str | None = None,
+    backend: str = BACKEND_V2,
 ) -> GenerationResult:
     """Generate from a pack, optionally retrying transient provider failures.
 
@@ -327,7 +343,23 @@ async def generate_from_pack(
     preceded success.  A row that only succeeded on the third try is visibly
     different from one that succeeded immediately, which is what keeps a
     retried run from being mistaken for a stable one.
+
+    ``backend`` selects **which production chain answers**: ``v2`` (this
+    module's prompt) or ``legacy`` (``src/generator.py``, the chain ``app.py``
+    actually runs).  Only the call and the evidence rendering differ -- the
+    deadline, the retry loop, the sanitisation policy, the auditor and the
+    failure bookkeeping are shared, because two copies of *those* would be free
+    to drift and the comparison would then be measuring the copies.
+
+    One asymmetry is deliberate and is recorded in the row rather than hidden:
+    the legacy chain is **not** sanitised, because the app does not sanitise it
+    either.  Measuring a cleaned-up version of the legacy chain would answer a
+    question nobody asked.
     """
+    if backend not in GENERATOR_BACKENDS:
+        raise ValueError(
+            f"未知的生成后端 {backend!r}；可用：{sorted(GENERATOR_BACKENDS)}"
+        )
     started = time.perf_counter()
     raw_answer = ""
     error: str | None = None
@@ -342,10 +374,15 @@ async def generate_from_pack(
         error = None
         try:
             require_role_model("generator")
-            chain = _build_chain(prompt_version)
+            if backend == BACKEND_LEGACY:
+                chain = get_generator_chain()
+                context = legacy_context(pack)
+            else:
+                chain = _build_chain(prompt_version)
+                context = pack.context_text()
             raw_answer = str(
                 await _call_with_deadline(
-                    chain.ainvoke({"question": pack.question, "context": pack.context_text()}),
+                    chain.ainvoke({"question": pack.question, "context": context}),
                     _hard_deadline_seconds(),
                 )
             ).strip()
@@ -388,7 +425,15 @@ async def generate_from_pack(
         )
         break
 
-    answer, sanitization_rules = sanitize_answer(raw_answer)
+    if backend == BACKEND_LEGACY:
+        # The app does not sanitise the legacy chain's output, so neither does
+        # the replay -- measuring a cleaned-up version of it would answer a
+        # question nobody asked.  The rules list is left *empty* rather than
+        # populated with "nothing applied", so a row cannot be misread as
+        # "sanitisation ran and found nothing to do".
+        answer, sanitization_rules = str(raw_answer), []
+    else:
+        answer, sanitization_rules = sanitize_answer(raw_answer)
     audit = soft_audit(
         answer,
         pack,
@@ -443,6 +488,9 @@ async def generate_from_pack(
             }
         ]
     audit["model_error"] = error
+    # Which chain produced this answer.  Without it a run that mixed backends
+    # could not be split back into its conditions.
+    audit["generator_backend"] = backend
     audit["raw_answer_length"] = len(raw_answer)
     audit["sanitization_applied"] = bool(sanitization_rules)
     audit["sanitization_rules"] = list(sanitization_rules)

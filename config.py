@@ -8,6 +8,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from src.generation_status import GENERATOR_BACKENDS
+
 
 ROOT_DIR = Path(__file__).resolve().parent
 # Explicit process environment variables win over .env. This is required by
@@ -85,6 +87,31 @@ class Settings:
     reranker_max_length: int = int(os.getenv("RERANKER_MAX_LENGTH", "1024"))
     reranker_use_fp16: bool = os.getenv("RERANKER_USE_FP16", "true").lower() == "true"
     llm_timeout_seconds: float = float(os.getenv("LLM_TIMEOUT_SECONDS", "180"))
+    # Which production chain answers the app.
+    #
+    # `v2` is the default because it was measured to be **equally accurate and
+    # far more reliable** than the legacy chain: on
+    # `data/runs/app_baseline_legacy_vs_v2_sol.json` (11 questions x 2 arms x 3
+    # rounds, interleaved) hop_recall showed no detectable difference
+    # (-0.076, CI95 [-0.304, +0.152], MDE 0.228) while availability was 100% vs
+    # 81.8% and median latency 42s vs 101s.  The legacy chain's seven-section
+    # prompt asks for 3-5k characters of output, which is what made it slow and
+    # flaky.
+    #
+    # The *median* is quoted on purpose.  The legacy arm's mean is 243s only
+    # because one call took 4214s before its provider timeout fired -- a mean
+    # that moves with one outlier is not a description of system behaviour, and
+    # this is the same reason the R baseline's latency lives outside its metric
+    # table.
+    #
+    # `legacy` restores the old chain -- keep it switchable, because the two
+    # were compared on one model and one question set, and a future model may
+    # reverse the result.
+    generator_backend: str = os.getenv("GENERATOR_BACKEND", "v2").strip().lower()
+    # How many evidence items the v2 chain receives in the app.  5 matches the
+    # offline evaluation's baseline arm, so app behaviour and recorded runs stay
+    # comparable; raising it is a measured lever (evidence quantity +0.258).
+    generator_max_evidence: int = int(os.getenv("GENERATOR_MAX_EVIDENCE", "5"))
     chunking_strategy: str = os.getenv("CHUNKING_STRATEGY", "R").upper()
     chunk_size: int = int(os.getenv("CHUNK_SIZE", "800"))
     chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", "150"))
@@ -229,6 +256,15 @@ def ensure_runtime_dirs() -> None:
 
 
 settings = Settings()
+
+# A misspelled backend would fall through to the default chain, and "the switch
+# did not fire" looks exactly like "the switch was never set".  Fail at import,
+# where the message is unambiguous and every entry point is covered.
+if settings.generator_backend not in GENERATOR_BACKENDS:
+    raise ValueError(
+        f"未知的 GENERATOR_BACKEND={settings.generator_backend!r}；"
+        f"可用：{list(GENERATOR_BACKENDS)}"
+    )
 
 
 def check_timeout_consistency(instance: "Settings" = settings) -> list[str]:
