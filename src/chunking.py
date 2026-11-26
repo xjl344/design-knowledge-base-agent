@@ -34,6 +34,175 @@ def _fixed(documents: list[Document]) -> list[Document]:
     return chunks
 
 
+_MD_HEADING_RE = re.compile(r"^\s{0,3}(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
+_MD_TABLE_SEP_RE = re.compile(r"^\s*\|?\s*:?-{2,}\s*(?:\|\s*:?-{2,}\s*)*\|?\s*$")
+
+
+def _is_markdown_document(document: Document) -> bool:
+    source = str(document.metadata.get("source", "")).lower()
+    return source.endswith(".md")
+
+
+def _split_markdown_table(table_text: str, max_chars: int) -> list[str]:
+    """Split an oversized Markdown table by rows while repeating its header."""
+    lines = [line for line in table_text.splitlines() if line.strip()]
+    if len(lines) <= 2 or len(table_text) <= max_chars:
+        return [table_text]
+    if len(lines) >= 2 and _MD_TABLE_SEP_RE.match(lines[1]):
+        header = lines[:2]
+        body = lines[2:]
+    else:
+        header = lines[:1]
+        body = lines[1:]
+    header_text = "\n".join(header)
+    pieces: list[str] = []
+    current = list(header)
+    for row in body:
+        candidate = "\n".join(current + [row])
+        if len(current) > len(header) and len(candidate) > max_chars:
+            pieces.append("\n".join(current))
+            current = list(header) + [row]
+        else:
+            current.append(row)
+    if len(current) > len(header) or not pieces:
+        pieces.append("\n".join(current))
+    return pieces
+
+
+def _split_markdown_contextual(
+    document: Document, chunk_size: int, chunk_overlap: int
+) -> list[Document]:
+    """Split a Markdown document along heading/table boundaries with breadcrumb context.
+
+    Every chunk carries the document's H1 title and active section hierarchy so
+    tables and deep subsections stay retrievable in bilingual/technical corpora
+    instead of turning into contextless orphans.
+    """
+    text = (document.page_content or "").replace("\r\n", "\n")
+    lines = text.split("\n")
+    doc_title = ""
+    for line in lines[:30]:
+        match = _MD_HEADING_RE.match(line)
+        if match and len(match.group(1)) == 1:
+            doc_title = match.group(2).strip()
+            break
+
+    sections: list[tuple[str, int, list[tuple[str, str]]]] = []
+    heading_stack: list[tuple[int, str]] = []
+    current_blocks: list[tuple[str, str]] = []
+    current_lines: list[str] = []
+    in_table = False
+    section_start = 0
+    cursor = 0
+
+    def active_path() -> str:
+        titles: list[str] = []
+        if doc_title:
+            titles.append(doc_title)
+        for _, title in heading_stack:
+            if title and title not in titles:
+                titles.append(title)
+        return " > ".join(titles)
+
+    def flush_block(kind: str) -> None:
+        nonlocal current_lines
+        body = "\n".join(current_lines).strip()
+        if body:
+            current_blocks.append((body, kind))
+        current_lines = []
+
+    def flush_section() -> None:
+        nonlocal current_blocks
+        flush_block("table" if in_table else "paragraph")
+        if current_blocks:
+            sections.append((active_path(), section_start, current_blocks))
+            current_blocks = []
+
+    for line in lines:
+        line_len = len(line) + 1
+        match = _MD_HEADING_RE.match(line)
+        if match:
+            flush_section()
+            in_table = False
+            level = len(match.group(1))
+            title = match.group(2).strip()
+            heading_stack = [(lvl, t) for lvl, t in heading_stack if lvl < level]
+            heading_stack.append((level, title))
+            section_start = cursor
+            cursor += line_len
+            continue
+        is_table_line = bool(_TABLE_RE.match(line))
+        if is_table_line and not in_table:
+            flush_block("paragraph")
+            in_table = True
+        elif in_table and not is_table_line:
+            flush_block("table")
+            in_table = False
+        if not is_table_line and not line.strip():
+            flush_block("paragraph")
+        else:
+            current_lines.append(line)
+        cursor += line_len
+    flush_section()
+
+    if not sections:
+        return []
+
+    body_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=max(200, chunk_size),
+        chunk_overlap=min(chunk_overlap, max(0, chunk_size // 4)),
+        separators=["\n\n", "\n", "。", "；", "！", "？", ". ", "，", " ", ""],
+    )
+
+    chunks: list[Document] = []
+    for section_path, start_offset, blocks in sections:
+        prefix = f"{section_path}\n\n" if section_path else ""
+        budget = max(200, chunk_size - len(prefix))
+
+        expanded_blocks: list[str] = []
+        for block_text, kind in blocks:
+            if len(block_text) <= budget:
+                expanded_blocks.append(block_text)
+            elif kind == "table":
+                expanded_blocks.extend(_split_markdown_table(block_text, budget))
+            else:
+                local_splitter = RecursiveCharacterTextSplitter(
+                    chunk_size=budget,
+                    chunk_overlap=min(chunk_overlap, max(0, budget // 4)),
+                    separators=["\n\n", "\n", "。", "；", "！", "？", ". ", "，", " ", ""],
+                )
+                expanded_blocks.extend(local_splitter.split_text(block_text))
+
+        pending: list[str] = []
+        piece_offset = start_offset
+
+        def emit_piece(body_text: str) -> None:
+            nonlocal piece_offset
+            rendered = f"{prefix}{body_text}".strip()
+            if not rendered:
+                return
+            meta = _metadata(document, "R", section_path)
+            if doc_title:
+                meta["title"] = doc_title
+                meta["source_title"] = doc_title
+            meta["start_index"] = piece_offset
+            meta["end_index"] = piece_offset + len(rendered)
+            chunks.append(Document(page_content=rendered, metadata=meta))
+            piece_offset += len(body_text) + 2
+
+        for block_text in expanded_blocks:
+            candidate = "\n\n".join(pending + [block_text]) if pending else block_text
+            if pending and len(candidate) > budget:
+                emit_piece("\n\n".join(pending))
+                pending = [block_text]
+            else:
+                pending.append(block_text)
+        if pending:
+            emit_piece("\n\n".join(pending))
+
+    return chunks
+
+
 def _recursive(documents: list[Document]) -> list[Document]:
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=settings.chunk_size,
@@ -41,9 +210,18 @@ def _recursive(documents: list[Document]) -> list[Document]:
         add_start_index=True,
         separators=["\n\n", "\n", "。", "；", "！", "？", "，", " ", ""],
     )
-    chunks = splitter.split_documents(documents)
-    for chunk in chunks:
-        chunk.metadata = _metadata(chunk, "R")
+    chunks: list[Document] = []
+    plain_docs: list[Document] = []
+    for doc in documents:
+        if _is_markdown_document(doc) and _MD_HEADING_RE.search(doc.page_content or ""):
+            chunks.extend(_split_markdown_contextual(doc, settings.chunk_size, settings.chunk_overlap))
+        else:
+            plain_docs.append(doc)
+    if plain_docs:
+        plain_chunks = splitter.split_documents(plain_docs)
+        for chunk in plain_chunks:
+            chunk.metadata = _metadata(chunk, "R")
+        chunks.extend(plain_chunks)
     return chunks
 
 

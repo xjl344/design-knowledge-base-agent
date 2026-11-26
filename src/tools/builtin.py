@@ -19,13 +19,24 @@ def register_builtin_tools(
     allow_web: bool = True,
     query_decompose_enabled: bool | None = None,
 ) -> None:
-    async def _local_retrieval_tool(question: str):
+    default_decompose = query_decompose_enabled
+    async def _local_retrieval_tool(
+        question: str,
+        query_decompose_enabled: bool | None = None,
+    ):
         # The timeout is enforced by ToolRegistry and also passed to the
         # retriever so it can stop before starting another sub-query.
+        # Callers running inside a multi-task plan pass
+        # `query_decompose_enabled=False` to prevent double decomposition.
+        effective_decompose = (
+            default_decompose
+            if query_decompose_enabled is None
+            else query_decompose_enabled
+        )
         return await retrieve_documents_multi(
             question,
             total_timeout_seconds=local_retrieval_timeout_seconds,
-            query_decompose_enabled=query_decompose_enabled,
+            query_decompose_enabled=effective_decompose,
         )
 
     registry.register(

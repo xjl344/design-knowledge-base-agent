@@ -10,6 +10,20 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any
 import math
+import re
+
+
+_CYLINDER_CAPACITY_RE = re.compile(
+    r"内径\s*([0-9]+(?:\.[0-9]+)?)\s*mm.*?(?:有效液高|液高)\s*([0-9]+(?:\.[0-9]+)?)\s*mm"
+)
+
+
+def parse_cylinder_capacity_question(question: str) -> tuple[str, str] | None:
+    """Extract ``(diameter_text, height_text)`` from a cylinder-capacity prompt."""
+    match = _CYLINDER_CAPACITY_RE.search(str(question or ""))
+    if not match:
+        return None
+    return match.group(1), match.group(2)
 
 
 @dataclass

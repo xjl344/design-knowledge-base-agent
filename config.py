@@ -122,6 +122,21 @@ class Settings:
     retriever_dense_top_k: int = int(os.getenv("RETRIEVER_DENSE_TOP_K", "50"))
     retriever_bm25_top_k: int = int(os.getenv("RETRIEVER_BM25_TOP_K", "50"))
     retriever_rerank_top_k: int = int(os.getenv("RETRIEVER_RERANK_TOP_K", "20"))
+    # Cap how many RRF-union candidates enter the Cross-Encoder reranker.
+    # On CPU environments, scoring all 200 union candidates causes 100-200 s
+    # latency; 40 keeps 2x the Top-20 rerank pool while cutting CPU work ~3-5x.
+    # Set to 0 to rerank the full union.
+    retriever_rerank_input_cap: int = int(os.getenv("RETRIEVER_RERANK_INPUT_CAP", "40"))
+    # Toggle corpus-specific domain heuristics (cup/material/GB standard rules).
+    # Set to false to run pure domain-agnostic hybrid retrieval on new corpora.
+    retriever_domain_rules_enabled: bool = (
+        os.getenv("RETRIEVER_DOMAIN_RULES_ENABLED", "true").lower() == "true"
+    )
+    # Cross-lingual Chinese <-> English technical term bridge for BM25 queries
+    # over bilingual corpora (e.g. Chinese questions over English DFM guides).
+    retriever_bilingual_glossary_enabled: bool = (
+        os.getenv("RETRIEVER_BILINGUAL_GLOSSARY_ENABLED", "true").lower() == "true"
+    )
     retriever_union_max_candidates: int = int(os.getenv("RETRIEVER_UNION_MAX_CANDIDATES", "200"))
     retriever_expansion_bm25_top_k: int = int(os.getenv("RETRIEVER_EXPANSION_BM25_TOP_K", "20"))
     retriever_source_role_priority: bool = os.getenv("RETRIEVER_SOURCE_ROLE_PRIORITY", "true").lower() == "true"
@@ -211,6 +226,8 @@ class Settings:
             raise ValueError("retrieval task and web query budgets are invalid")
         if min(self.retriever_top_k, self.retriever_dense_top_k, self.retriever_bm25_top_k, self.retriever_rerank_top_k) <= 0:
             raise ValueError("retriever top-k values must be positive")
+        if self.retriever_rerank_input_cap < 0:
+            raise ValueError("RETRIEVER_RERANK_INPUT_CAP must be non-negative")
         if self.retriever_ranking_mode not in {"reranker_only", "reranker_entity", "reranker_entity_rrf"}:
             raise ValueError("RETRIEVER_RANKING_MODE must be reranker_only, reranker_entity, or reranker_entity_rrf")
         if self.retriever_bm25_mode not in {"conditional", "original_only", "independent_all"}:

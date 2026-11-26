@@ -15,8 +15,11 @@ from src.evaluation import decision_quality_metrics
 from src.retriever import confidence_from_documents
 from src.model_clients import model_descriptor
 from src.evidence import audit_claims, delivery_decision
-from src.calculation import calculate_cylinder_capacity, validate_derivation
-import re
+from src.calculation import (
+    calculate_cylinder_capacity,
+    parse_cylinder_capacity_question,
+    validate_derivation,
+)
 
 
 def _errors(state: GraphState) -> list[str]:
@@ -100,10 +103,7 @@ class GraphNodes:
             analyzer = getattr(self.services, "analyze_complexity", None)
             policy = self._policy()
             allow_planning = True if policy is None else bool(getattr(policy, "allow_planning", True))
-            calculation_question = bool(re.search(
-                r"内径\s*[0-9]+(?:\.[0-9]+)?\s*mm.*?(?:有效液高|液高)\s*[0-9]+(?:\.[0-9]+)?\s*mm",
-                question,
-            ))
+            calculation_question = parse_cylinder_capacity_question(question) is not None
             analysis = fallback if calculation_question else (await analyzer(question) if analyzer and allow_planning else fallback)
             # A custom/LLM analyzer must not upgrade an obviously simple input.
             # This keeps the simple CRAG contract stable when an analyzer emits
@@ -171,11 +171,8 @@ class GraphNodes:
     async def calculation(self, state: GraphState) -> GraphState:
         started = time.perf_counter()
         question = state["question"]
-        match = re.search(
-            r"内径\s*([0-9]+(?:\.[0-9]+)?)\s*mm.*?(?:有效液高|液高)\s*([0-9]+(?:\.[0-9]+)?)\s*mm",
-            question,
-        )
-        if not match:
+        parsed = parse_cylinder_capacity_question(question)
+        if not parsed:
             return {
                 "generation": "无法从题目中解析出内径和有效液高。",
                 "deliverable": False,
@@ -185,7 +182,8 @@ class GraphNodes:
                 "allowed_citations": [],
                 "execution_trace": self._trace(state, "calculation", "error", started, "calculation_input_missing"),
             }
-        record = calculate_cylinder_capacity(float(match.group(1)), float(match.group(2)))
+        diameter_text, height_text = parsed
+        record = calculate_cylinder_capacity(float(diameter_text), float(height_text))
         errors = validate_derivation(record)
         result = record.as_dict()
         if errors:
@@ -202,7 +200,7 @@ class GraphNodes:
         value = result["result"]["ideal_capacity_ml"]
         generation = (
             f"计算公式：{record.formula}\n\n"
-            f"代入：V = π × {match.group(1)}² / 4 × {match.group(2)} = "
+            f"代入：V = π × {diameter_text}² / 4 × {height_text} = "
             f"{result['result']['volume_mm3']:.0f} mm³ ≈ {value:.1f} mL。\n\n"
             "以上是忽略杯底圆角、壁厚、杯盖和液面余量的理想几何容量，"
             "不等同于额定容量；应通过实测内腔尺寸和装液测试确认。"
@@ -727,12 +725,6 @@ class GraphNodes:
         except Exception as exc:
             errors.append(f"答案生成失败：{exc}")
             generation = build_fallback_answer(state["question"], documents)
-            """legacy fallback below"""
-            generation_legacy = (
-                NO_EVIDENCE_ANSWER
-                if not documents
-                else "资料已经找到，但答案生成服务暂时不可用，请稍后重试。"
-            )
         audit = {}
         if generation:
             try:

@@ -292,11 +292,19 @@ class DefaultServices:
                         completed[task_id] = result
                         return result
                     retrieval = await asyncio.wait_for(
-                        self.call_tool("local_retrieval", question=task_question),
+                        self.call_tool(
+                            "local_retrieval",
+                            question=task_question,
+                            query_decompose_enabled=False,
+                        ),
                         timeout=remaining,
                     )
                 else:
-                    retrieval = await self.call_tool("local_retrieval", question=task_question)
+                    retrieval = await self.call_tool(
+                        "local_retrieval",
+                        question=task_question,
+                        query_decompose_enabled=False,
+                    )
                 if not retrieval.success:
                     result = {
                         **task,

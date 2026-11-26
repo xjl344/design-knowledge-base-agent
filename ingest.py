@@ -10,6 +10,7 @@ Optional: garbled PDF text layers are recovered via OCR (rapidocr_onnxruntime).
 from __future__ import annotations
 
 import argparse
+from fnmatch import fnmatch
 import hashlib
 import json
 import shutil
@@ -417,8 +418,9 @@ def update_vectorstore_incremental(
     source_dir: Path,
     persist_dir: Path,
     collection_name: str,
+    force_glob: str | None = None,
 ) -> tuple[int, int, int]:
-    """Ingest only new/changed files; drop chunks of removed files.
+    """Ingest only new/changed files (or files matching ``force_glob``); drop removed files.
 
     Returns (new_or_changed, removed, unchanged) file counts.
     """
@@ -439,6 +441,9 @@ def update_vectorstore_incremental(
             manifest = load_manifest(legacy_path)
     previous = manifest["files"]
     removed, changed = _plan_incremental(current_hashes, previous)
+    if force_glob:
+        forced = [rel for rel in sorted(files) if fnmatch(rel, force_glob)]
+        changed = sorted(set(changed) | set(forced))
     unchanged = len(files) - len(changed)
 
     if not removed and not changed:
@@ -512,6 +517,11 @@ def parse_args() -> argparse.Namespace:
         "(default is incremental: only new/changed files are ingested)",
     )
     parser.add_argument(
+        "--force-glob",
+        default=None,
+        help="In incremental mode, force re-chunking & re-embedding files matching this relative glob (e.g. '05_制造工艺/*.md' or '*.md')",
+    )
+    parser.add_argument(
         "--metadata-output",
         type=Path,
         default=None,
@@ -533,7 +543,10 @@ def main() -> int:
 
     if not args.full:
         added, removed, unchanged = update_vectorstore_incremental(
-            args.source_dir, args.persist_dir, args.collection_name
+            args.source_dir,
+            args.persist_dir,
+            args.collection_name,
+            force_glob=args.force_glob,
         )
         print(
             f"Incremental ingest done: {added} new/changed file(s), "
