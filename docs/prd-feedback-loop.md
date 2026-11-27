@@ -1,6 +1,6 @@
 # 一页纸 PRD：反馈入口与坏案例台账
 
-**状态**：待评审　|　**版本**：v0.1（2026-10-21）　|　**来源**：[backlog-rice.md](backlog-rice.md) RICE 第 1 名（300）
+**状态**：✅ 已上线实现（2026-11-27，见 `src/feedback.py`、`app.py`、`scripts/triage_feedback.py`），待外部用户试用验证　|　**版本**：v0.2（2026-11-27）　|　**来源**：[backlog-rice.md](backlog-rice.md) RICE 第 1 名（300）
 
 本文件说明「为什么现在做反馈闭环」「做成什么样算成功」「明确不做什么」，以及它在什么条件下应该被判定为失败。
 
