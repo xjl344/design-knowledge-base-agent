@@ -1,0 +1,80 @@
+record_template:
+  description: |
+    每一条痛点都必须按同一结构记录，便于横向比较。
+    严禁把 Agent 自己推理出的问题伪装成设计师原话。
+
+  fields:
+    - name: pain_id
+      description: 唯一编号，格式 P-{stage}-{序号}
+      detail_level: 极简
+
+    - name: designer_type
+      description: 工业设计师 / 产品设计师 / 驻厂设计师 / 设计咨询 / 设计学生
+      detail_level: 极简
+
+    - name: work_stage
+      description: 对应 S01-S08 中的哪个阶段
+      detail_level: 极简
+
+    - name: scenario
+      description: 什么情况下发生，要具体到能想象出画面
+      detail_level: 详细
+
+    - name: original_quote
+      description: |
+        尽可能保留当事人原话，不要改写。
+        中文原话保留中文，英文原话保留英文并附中文翻译。
+        没有原话就写「无原话，仅有间接证据」。
+      detail_level: 详细
+
+    - name: root_cause
+      description: 为什么会发生（不是现象复述，是机制）
+      detail_level: 详细
+
+    - name: current_workaround
+      description: 设计师目前怎么绕过这个问题（具体动作，不是「想办法解决」）
+      detail_level: 详细
+
+    - name: cost
+      description: 时间与资源成本，能定量就定量（每天几小时、返工几轮、多少钱）
+      detail_level: 详细
+
+    - name: impact
+      description: 对效率、质量、成本、体验的影响
+      detail_level: 简要
+
+    - name: tool_gap
+      description: 现有工具为什么没解决好（具体到工具名和缺什么功能）
+      detail_level: 详细
+
+    - name: evidence_source
+      description: 原始链接 + 发布日期 + 作者/来源
+      detail_level: 简要
+
+    - name: evidence_level
+      description: direct（直接原话）/ indirect（招聘、工具请求等间接迹象）/ inferred（归纳推断）
+      detail_level: 极简
+
+    - name: deep_dive
+      description: |
+        六问深挖，缺一不可：
+        1. 具体任务是什么
+        2. 为什么困难
+        3. 目前怎么解决
+        4. 造成什么后果
+        5. 现有工具为什么没解决
+        6. 有没有潜在机会
+      detail_level: 详细
+
+    - name: scores
+      description: |
+        六维打分，1-5 分，必须给理由：
+        frequency / severity / solution_cost / unmet / ai_fit / willingness
+      detail_level: 详细
+
+quality_rules:
+  - 一条记录只能有一个 evidence_level，混级要拆开
+  - 没有原话的记录，scores 里的 ai_fit 不能高于 3
+  - 招聘信息只能作为 indirect 证据，不能当作痛点本身
+  - 社区热门帖不等于行业普遍现象，frequency 打分要说明依据
+  - 同一痛点在不同阶段出现，要合并还是拆分必须写理由

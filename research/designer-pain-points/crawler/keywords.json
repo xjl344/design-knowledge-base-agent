@@ -1,0 +1,63 @@
+{
+  "_说明": "四方向关键词配置。中文用于小红书/抖音/B站，英文用于后续论坛补充。",
+  "A_决策依据与说服": {
+    "cn": [
+      "设计师 被客户问懵",
+      "方案 说不出理由",
+      "设计 拍脑袋",
+      "汇报 被老板怼",
+      "设计方案 没依据",
+      "设计师 说服 客户"
+    ],
+    "en": [
+      "defend design decision",
+      "design rationale",
+      "prove design value"
+    ]
+  },
+  "B_按功能找参考": {
+    "cn": [
+      "工业设计 找参考",
+      "灵感枯竭 设计",
+      "设计 同质化",
+      "结构 参考 怎么找",
+      "设计师 没想法",
+      "工业设计 参考网站"
+    ],
+    "en": [
+      "functional reference design",
+      "mechanism design reference",
+      "design inspiration block"
+    ]
+  },
+  "C_按受众派生材料": {
+    "cn": [
+      "效果图 客户看不懂",
+      "渲染 太真实 被误解",
+      "汇报 PPT 改到崩溃",
+      "客户 看不懂 草图",
+      "设计师 做PPT",
+      "渲染图 误导客户"
+    ],
+    "en": [
+      "client doesn't understand render",
+      "sketch vs render fidelity",
+      "over-rendered concept"
+    ]
+  },
+  "D_工艺可制造性": {
+    "cn": [
+      "开模 翻车",
+      "模具厂 打回",
+      "拔模 斜度",
+      "结构 改图",
+      "开模 踩坑",
+      "工业设计 不懂结构"
+    ],
+    "en": [
+      "injection molding design review",
+      "draft angle problem",
+      "DFM checklist designer"
+    ]
+  }
+}

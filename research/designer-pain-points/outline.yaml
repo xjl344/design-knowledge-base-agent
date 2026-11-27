@@ -1,0 +1,143 @@
+topic: 产品设计师与工业设计师的真实工作痛点
+scope:
+  include:
+    - 产品设计师
+    - 工业设计师
+    - 驻厂设计师
+    - 设计咨询公司设计师
+    - 设计专业学生（毕业设计/实习阶段）
+  exclude:
+    - UI/UX 设计师（第一轮不纳入）
+    - 平面设计师
+    - 室内设计师
+rationale: |
+  用户已有设计知识库 RAG 项目，第一轮聚焦产品/工业设计方向，
+  避免跨职能泛化结论。
+
+workflow_stages:
+  - id: S01
+    name: 项目需求与问题定义
+    items:
+      - id: S01a
+        task: 客户需求模糊、设计目标反复变化
+        question: 设计师如何判断自己真正应该解决什么问题？
+      - id: S01b
+        task: 需求转译为可执行的设计任务
+        question: 口头需求如何变成设计任务书？
+
+  - id: S02
+    name: 资料搜集与前期调研
+    items:
+      - id: S02a
+        task: 竞品资料搜集与整理
+        question: 资料在哪里找、如何判断可信度、如何结构化比较？
+      - id: S02b
+        task: 用户研究资料处理
+        question: 访谈、观察、问卷的原始材料如何变成可用洞察？
+      - id: S02c
+        task: 标准规范与材料工艺资料检索
+        question: 标准、TDS、工艺资料的获取与理解成本有多高？
+
+  - id: S03
+    name: 信息分析与设计决策
+    items:
+      - id: S03a
+        task: 从海量资料归纳洞察
+        question: 为什么收集了很多资料却依然不知道该怎么设计？
+      - id: S03b
+        task: 建立设计决策依据
+        question: 设计师如何证明某个决定是有依据的而不是凭感觉？
+
+  - id: S04
+    name: 创意构思与方案生成
+    items:
+      - id: S04a
+        task: 灵感获取与概念发散
+        question: 设计师如何从已有信息走向新创意？
+      - id: S04b
+        task: 方案同质化与参考依赖
+        question: 为什么方案容易趋同、难以突破？
+
+  - id: S05
+    name: 设计深化与制作
+    items:
+      - id: S05a
+        task: 重复建模、效果图、文件转换
+        question: 哪些工作耗费大量时间却不产生设计价值？
+      - id: S05b
+        task: 工程参数查询与打样沟通
+        question: 尺寸、材料、工艺参数的查询与核对成本有多高？
+
+  - id: S06
+    name: 沟通与协作
+    items:
+      - id: S06a
+        task: 反馈收集、版本管理、修改迭代
+        question: 设计方案为什么经常在沟通中失真？
+      - id: S06b
+        task: 与工程师、供应商的信息传递
+        question: 设计意图如何跨越专业语言差异？
+
+  - id: S07
+    name: 方案汇报与设计验证
+    items:
+      - id: S07a
+        task: 方案说服与汇报材料制作
+        question: 如何证明方案合理而不只是好看？
+      - id: S07b
+        task: 用户测试与可行性验证
+        question: 验证环节的成本与信息缺口在哪？
+
+  - id: S08
+    name: 职业发展与知识积累
+    items:
+      - id: S08a
+        task: 作品集整理与项目复盘
+        question: 设计师如何把项目经验变成可复用资产？
+      - id: S08b
+        task: 跨项目知识复用
+        question: 上一个项目的经验如何迁移到下一个项目？
+
+information_sources:
+  chinese:
+    - 知乎（设计话题问答）
+    - 小红书（设计师吐槽/经验贴）
+    - 站酷 ZCOOL（文章评论区、圈子）
+    - V2EX
+    - 少数派
+    - Billwang 工业设计论坛
+    - 设计癖
+  international:
+    - Core77 Discussion Boards（boards.core77.com）
+    - Reddit r/IndustrialDesign
+    - Behance / Dribbble（项目描述与评论）
+    - Stack Exchange（Engineering / Manufacturing）
+  tool_feedback:
+    - Figma Community
+    - Autodesk 论坛（Fusion 360 / Inventor）
+    - Adobe 社区
+    - Rhino / KeyShot 官方论坛
+    - 各工具的功能请求区
+  job_postings:
+    - BOSS 直聘 / 拉勾 / 猎聘（工业设计师、产品设计师 JD）
+  retrospectives:
+    - 设计公司公开案例
+    - 设计师个人博客/公众号的项目复盘
+
+evidence_levels:
+  direct: 设计师公开表达过的原话（论坛帖、访谈、评论、视频）
+  indirect: 招聘要求、工具功能请求、项目流程文档中体现的问题
+  inferred: 基于多条证据归纳的推断（必须标注）
+
+evaluation_dimensions:
+  - frequency: 发生频率
+  - severity: 问题严重程度
+  - solution_cost: 当前解决成本
+  - unmet: 现有工具的未满足程度
+  - ai_fit: AI 适配程度
+  - willingness: 设计师改变工作方式的意愿
+
+execution:
+  batch_size: 4
+  items_per_agent: 5
+  output_dir: ./results
