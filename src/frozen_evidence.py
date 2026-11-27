@@ -682,15 +682,37 @@ class EvidencePack:
     def context_text(self) -> str:
         if not self.items:
             return "（无可用本地证据）"
+        has_web = any(
+            item.citation_id.startswith("W")
+            or str(item.metadata.get("source_type", "local")) == "web"
+            for item in self.items
+        )
         sections = [
             "本次允许引用：" + "、".join(self.allowed_citations),
             "只能使用以下证据回答；没有证据支持的内容必须明确说明无法确认。",
         ]
+        if has_web:
+            sections.append(
+                "回答组织要求：\n"
+                "1. 直接按问题本身的逻辑顺序（如完整流程步骤、核心要点或对比维度），将本地资料 [L*] 与网络补充 [W*] 融合成**一份完整、连贯、具体的解答**；不要按来源把回答拆成“本地确认/网络补充”两块，也不要写成“某网络资料称……另一资料概述为……”的罗列腔。\n"
+                "2. 每个步骤或要点尽量结合上下文给出具体动作或关键考量，不要只列空洞名词；仅在句末轻量保留对应引用编号（如 [L1]、[W1]），正文里不必反复解释资料来源。\n"
+                "3. 正文以客观说明流程、原理与要点为主，不要用网络补充或间接资料下“推荐/建议优先选择”类定案结论，也不要编造精确参数或把 [W*] 写成“资料事实”。\n"
+                "4. 完整回答结束后，在文末单独写一段简短的「**来源说明**」（2～3 句话），直接说明哪部分内容来自本地知识库，哪部分来自网络检索补充、仅供参考且使用前需自行辨别核验。"
+            )
         for item in self.items:
             page = f"，第 {int(item.page) + 1} 页" if isinstance(item.page, int) else ""
+            is_web = (
+                item.citation_id.startswith("W")
+                or str(item.metadata.get("source_type", "local")) == "web"
+            )
+            source_line = (
+                f"来源（网络补充 · 需核验）：{item.source}"
+                if is_web
+                else f"来源：{item.source}{page}"
+            )
             sections.append(
                 f"[{item.citation_id}] 标题：{item.title}\n"
-                f"来源：{item.source}{page}\n"
+                f"{source_line}\n"
                 f"原始检索排名：{item.retrieval_rank}\n"
                 f"证据状态：{item.retrieval_evidence_status}\n"
                 f"{item.page_content}"
@@ -733,6 +755,7 @@ def build_evidence_pack(
     """
     selected: list[EvidenceItem] = []
     seen: set[str] = set()
+    counters = {"local": 0, "web": 0}
     limit = None if max_chars_per_item is None else max(0, int(max_chars_per_item))
     for document in case.documents:
         identity = document.chunk_id or document.content_hash or document.document_id
@@ -742,6 +765,9 @@ def build_evidence_pack(
         if len(selected) >= max(0, int(max_items)):
             break
         metadata = dict(document.metadata)
+        source_type = "web" if str(metadata.get("source_type", "local")) == "web" else "local"
+        counters[source_type] += 1
+        citation_id = f"{'W' if source_type == 'web' else 'L'}{counters[source_type]}"
         source = str(metadata.get("source") or metadata.get("parent_document") or "未知来源")
         content = document.page_content
         if limit is not None and len(content) > limit:
@@ -749,7 +775,7 @@ def build_evidence_pack(
             metadata["context_truncated"] = True
             metadata["context_original_chars"] = len(document.page_content)
         selected.append(EvidenceItem(
-            citation_id=f"L{len(selected) + 1}",
+            citation_id=citation_id,
             document_id=document.document_id,
             chunk_id=document.chunk_id,
             content_hash=document.content_hash,

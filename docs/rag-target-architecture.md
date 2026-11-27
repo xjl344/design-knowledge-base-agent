@@ -28,17 +28,17 @@ flowchart TD
         L["lexical.py<br/>BM25 词法召回"] --> F["fusion.py<br/>Chroma 向量 + RRF 融合 + 证据分级"]
         D["domain_rules.py<br/>可插拔领域规则插件<br/>(RETRIEVER_DOMAIN_RULES_ENABLED)"] -.-> L
         D -.-> F
-        F --> CAP["重排候选预算截断<br/>RETRIEVER_RERANK_INPUT_CAP (默认 40)"]
+        F --> CAP["重排候选预算截断<br/>RETRIEVER_RERANK_INPUT_CAP (默认 25)"]
         CAP --> RR["reranker.py<br/>Cross-Encoder 重排"]
         RR --> RK["ranking.py<br/>组合打分 + source_cap 去重 + 审计"]
         D -.-> RK
     end
 
-    PIPE --> EV["3. 证据覆盖检查 & 受控联网补证<br/>grade_documents / audit_evidence → [web_search]"]
-    EV --> GEN["4. 证据包生成<br/>generator_v2.py (默认 v2)"]
-    GEN --> GATE["5. 交付审计与最多一次重写<br/>evidence.py → validate_delivery"]
+    PIPE --> EV["3. 充分性联合评分 & 受控联网补证<br/>grade_documents (sufficient/partial/insufficient) / audit_evidence → [web_search]"]
+    EV --> GEN["4. 证据包融合生成<br/>generator_v2.py (正文完整连贯 + 文末来源说明)"]
+    GEN --> GATE["5. 分层交付审计与最多一次重写<br/>evidence.py → validate_delivery"]
     C --> GATE
-    GATE --> OUT["带证据分级 / 拒答说明的最终回答"]
+    GATE --> OUT["可溯源回答 + 右侧状态/耗时成本/来源面板 + 一键隐私反馈"]
 ```
 
 ## 2. 核心不变量（Architecture Invariants）
@@ -47,7 +47,7 @@ flowchart TD
    - 当问题进入 `create_plan → execute_plan` 多子任务规划路径时，每个子任务调用 `local_retrieval` **强制 `query_decompose_enabled=False`**。
    - LLM 查询分解（`decompose_question`）只在单路 `retrieve` 且用户显式开启时生效，永不与任务规划叠加。
 2. **重排输入预算不变量（Bounded Rerank Input）**
-   - 无论 RRF 并集多宽（`RETRIEVER_UNION_MAX_CANDIDATES=200` 用于保留诊断和实体池），送入 Cross-Encoder 推理的候选数必须受 `RETRIEVER_RERANK_INPUT_CAP`（默认 `40`）硬限制，且通过 `_limit_union_candidates` 保留显式实体代表。
+   - 无论 RRF 并集多宽（`RETRIEVER_UNION_MAX_CANDIDATES=200` 用于保留诊断和实体池），送入 Cross-Encoder 推理的候选数必须受 `RETRIEVER_RERANK_INPUT_CAP`（默认 `25`）硬限制，且通过 `_limit_union_candidates` 保留显式实体代表。
 3. **领域规则可插拔不变量（Isolated Domain Heuristics）**
    - 所有特定语料/历史评测集的实体词典、标准号映射、水杯/材料先验集中收口到 `src/retrieval/domain_rules.py`。
    - 设置 `RETRIEVER_DOMAIN_RULES_ENABLED=false` 即可一键退化为**纯领域无关的通用混合检索**，方便接入钣金、CNC、注塑、压铸等新工艺语料。
@@ -66,8 +66,8 @@ flowchart TD
 | `src/retrieval/pipeline.py` | `retrieve_documents`（缓存+串行锁+重排预算）、`retrieve_documents_multi` | 上述全部 + `reranker`, `embeddings` |
 | `src/retriever.py` | **薄兼容门面**（re-export 公共 API 与历史符号），零业务逻辑 | `src/retrieval/*` |
 
-## 4. 后续演进建议（基于瘦身后架构）
+## 4. 已落地演进与现状（截至 2026-11-27）
 
-- **新工艺语料召回优化**：在 `RETRIEVER_DOMAIN_RULES_ENABLED=false` 基线上测纯通用检索，再按需为跨语种工艺指南新增轻量双语术语表或表格切分策略，不再污染核心检索管线。
-- **消除 CPU 重排瓶颈**：若本机装上 CUDA PyTorch（`.\scripts\Install-CudaTorch.ps1`），重排可进一步降到秒级；无 GPU 时通过 `RETRIEVER_RERANK_INPUT_CAP`（如 `25`–`40`）控制延迟在可接受区间。
-- **下一步无缝衔接产品闭环**：架构清爽后，可直接推进 [prd-feedback-loop.md](prd-feedback-loop.md) 的反馈入口与耗时/成本打点。
+- **跨语种新工艺召回优化（已完成）**：新增 Markdown 上下文切分与中英工程术语桥接（`RETRIEVER_BILINGUAL_GLOSSARY_ENABLED=true`），在 `RETRIEVER_DOMAIN_RULES_ENABLED=false` 纯通用基线上将厂商 DFM 工艺指南答案级 `pass@5` 从 **40% 提升至 80%（无重排）/ 90%（重排 `CAP=25`）**。
+- **充分性前置路由与融合回答（已完成）**：`src/grader.py` 在单次调用中同时产出 `relevant_ids`、`coverage`（`sufficient`/`partial`/`insufficient`）与 `search_query`，缺口题在生成前直接联网补齐；正文融合输出完整步骤，文末简明交代来源与核验边界；`src/evidence.py` 与 `validate_delivery` 实行高危红线硬拦截 + 轻度提醒放行。
+- **产品闭环与工作台升级（已完成）**：已落地 [prd-feedback-loop.md](prd-feedback-loop.md) 的隐私哈希反馈账本（`src/feedback.py`）、单问耗时/Token/费用账本（`src/cost_ledger.py`）、周度分诊 CLI（`scripts/triage_feedback.py`），并完成瑞士极简双栏工程工作台 UI 重构（`src/ui_theme.py` + `app.py`）。

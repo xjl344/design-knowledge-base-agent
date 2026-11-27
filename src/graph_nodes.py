@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import asyncio
+import re
 import time
 from typing import Any
 
@@ -43,6 +44,13 @@ def _compact_documents(documents: list[Any], per_source: int = 2, total: int = 1
         if len(result) >= total:
             break
     return result
+
+
+_ANSWER_GAP_RE = re.compile(
+    r"当前资料(?:仅能|无法|未|没有)|"
+    r"(?:上述|所列|现有|本地)资料(?:仅能|无法|未|没有)|"
+    r"资料无法确认|无法确认|资料不足|未提供(?:完整|具体|相关|该)"
+)
 
 
 def _estimate_tokens(question: str, answer: str) -> int:
@@ -463,13 +471,18 @@ class GraphNodes:
         by_task = {str(result.get("id", "")): result for result in task_results}
 
         async def search_one(gap: dict[str, Any]) -> tuple[list[Any], str, list[str], Any | None]:
-            query_parts = [
-                str(state.get("question", "")),
-                str(gap.get("query", "")),
-                str(gap.get("objective", "")),
-                "、".join(str(item) for item in gap.get("requirements", [])[:4]),
-            ]
-            query = "；".join(part.strip() for part in query_parts if part.strip())
+            # Prefer the focused task query over concatenating verbose metadata
+            # clauses with semicolons, which causes web search engines to return empty.
+            raw_query = (
+                str(gap.get("query") or "").strip()
+                or str(gap.get("objective") or "").strip()
+                or str(state.get("question") or "").strip()
+            )
+            query = re.split(
+                r"[；;]\s*(?:重点评价|评估维度|评价维度|输出要求|约束条件)[:：]",
+                raw_query,
+                maxsplit=1,
+            )[0].strip()
             if not query:
                 return [], query, [], None
             if query in queries:
@@ -477,10 +490,15 @@ class GraphNodes:
             try:
                 caller = getattr(self.services, "call_tool", None)
                 if caller:
-                    remaining = max(0.0, float(state.get("web_fallback_deadline", time.perf_counter())) - time.perf_counter())
-                    if remaining <= 0:
+                    remaining = (
+                        max(0.0, float(web_deadline) - time.perf_counter())
+                        if web_deadline is not None
+                        else None
+                    )
+                    if remaining is not None and remaining <= 0:
                         raise TimeoutError("web fallback budget exhausted")
-                    result = await asyncio.wait_for(caller("web_search", question=query), timeout=remaining)
+                    call = caller("web_search", question=query)
+                    result = await asyncio.wait_for(call, timeout=remaining) if remaining is not None else await call
                     if not result.success:
                         raise RuntimeError(result.error or "网络搜索工具失败")
                     return list(result.data or [])[:3], query, [], result
@@ -496,7 +514,7 @@ class GraphNodes:
         )
         for gap in gaps[:max_queries]:
             found, query, found_errors, tool_result = await search_one(gap)
-            if query:
+            if query and query not in queries:
                 queries.append(query)
             search_errors.extend(found_errors)
             if tool_result is not None:
@@ -618,18 +636,43 @@ class GraphNodes:
             }
 
         errors = _errors(state)
+        grader_coverage = "sufficient"
+        grader_missing = ""
+        grader_search_query = ""
         try:
-            relevant = await self.services.grade(state["question"], documents)
+            assessor = getattr(self.services, "grade_with_assessment", None)
+            if assessor:
+                assessment = await assessor(state["question"], documents)
+                relevant = list(assessment.documents)
+                grader_coverage = str(assessment.coverage or ("sufficient" if relevant else "insufficient"))
+                grader_missing = str(assessment.missing_aspects or "")
+                grader_search_query = str(assessment.search_query or "")
+            else:
+                relevant = await self.services.grade(state["question"], documents)
+                grader_coverage = "sufficient" if relevant else "insufficient"
         except Exception as exc:
             relevant = []
+            grader_coverage = "insufficient"
             errors.append(f"文档相关性评分失败：{exc}")
+        # Keep direct local sources ahead of indirect background docs so [L1]/[L2]
+        # always present the strongest local evidence first.
+        relevant = sorted(
+            relevant,
+            key=lambda doc: 0 if str(doc.metadata.get("retrieval_evidence_status", "")) == "direct" else 1,
+        )
         statuses = {
             str(document.metadata.get("retrieval_evidence_status", "unknown"))
             for document in relevant
         }
         confidence, confidence_status, confidence_reason = confidence_from_documents(relevant)
         low_confidence = confidence_status in {"low", "uncertain"}
-        needs_web = not relevant or statuses.issubset({"indirect", "scope_mismatch"}) or low_confidence
+        coverage_gap = grader_coverage in {"partial", "insufficient"}
+        needs_web = (
+            not relevant
+            or coverage_gap
+            or statuses.issubset({"indirect", "scope_mismatch"})
+            or low_confidence
+        )
         confidence_error = (
             [f"本地检索置信度不足：{confidence_reason}，将补充精确/网络证据"]
             if low_confidence else []
@@ -638,18 +681,44 @@ class GraphNodes:
             "documents": relevant,
             "route": "web" if needs_web else "local",
             "errors": errors + confidence_error,
-            "status": "local_indirect" if needs_web and relevant else "local_hit" if relevant else "local_irrelevant",
+            "status": (
+                "local_partial" if coverage_gap and relevant
+                else "local_indirect" if needs_web and relevant
+                else "local_hit" if relevant
+                else "local_irrelevant"
+            ),
             "confidence": confidence,
             "confidence_status": confidence_status,
             "confidence_reason": confidence_reason,
-            "fallback_reason": confidence_reason if low_confidence else state.get("fallback_reason"),
-            "execution_trace": self._trace(state, "grade_documents", "success" if relevant else "empty", started),
+            "grader_coverage": grader_coverage,
+            "grader_missing_aspects": grader_missing,
+            "grader_search_query": grader_search_query,
+            "fallback_reason": (
+                grader_missing
+                if coverage_gap and grader_missing
+                else confidence_reason if low_confidence else state.get("fallback_reason")
+            ),
+            "execution_trace": self._trace(
+                state,
+                "grade_documents",
+                "partial" if coverage_gap and relevant else "success" if relevant else "empty",
+                started,
+            ),
         }
 
     def decide_next_step(self, state: GraphState) -> str:
         if state.get("documents") and state.get("route") == "local":
             return "generate"
         return "generate" if not self._web_allowed() else "web_search"
+
+    def decide_after_generate(self, state: GraphState) -> str:
+        """Fallback to bounded web search once if the local answer reports an evidence gap."""
+        if not self._web_allowed() or state.get("web_search_attempted"):
+            return "validate_delivery"
+        generation = str(state.get("generation") or "")
+        if _ANSWER_GAP_RE.search(generation):
+            return "web_search"
+        return "validate_delivery"
 
     async def web_search(self, state: GraphState) -> GraphState:
         started = time.perf_counter()
@@ -682,26 +751,27 @@ class GraphNodes:
                 "execution_trace": self._trace(state, "web_search", "blocked", started, "web_fallback_unreachable"),
             }
         tool_calls = list(state.get("tool_calls", []))
+        search_query = str(state.get("grader_search_query") or "").strip() or state["question"]
         try:
             caller = getattr(self.services, "call_tool", None)
             if caller:
                 remaining = max(0.0, float(web_deadline) - time.perf_counter()) if web_deadline is not None else None
                 if remaining is not None and remaining <= 0:
                     raise TimeoutError("web fallback budget exhausted")
-                call = caller("web_search", question=state["question"])
+                call = caller("web_search", question=search_query)
                 result = await asyncio.wait_for(call, timeout=remaining) if remaining is not None else await call
                 tool_calls = self._tool_calls(state, "web_search", result)
                 if not result.success:
                     raise RuntimeError(result.error or "网络搜索工具失败")
                 documents = result.data or []
             else:
-                documents = await self.services.search(state["question"])
+                documents = await self.services.search(search_query)
         except Exception as exc:
             documents = []
             errors.append(f"网络搜索失败：{exc}")
         local_documents = list(state.get("documents") or state.get("local_documents", []))
         merged_documents = local_documents + [
-            self._annotate_web_document(document, state["question"]) for document in documents
+            self._annotate_web_document(document, search_query) for document in documents
         ]
         return {
             "documents": merged_documents,
@@ -709,7 +779,7 @@ class GraphNodes:
             "route": "web",
             "web_search_triggered": True,
             "web_search_attempted": True,
-            "web_search_queries": list(state.get("web_search_queries", [])) + [state["question"]],
+            "web_search_queries": list(state.get("web_search_queries", [])) + [search_query],
             "errors": errors,
             "status": "web_hit" if documents else "web_empty",
             "tool_calls": tool_calls,
@@ -765,8 +835,10 @@ class GraphNodes:
         if attempts < 1:
             strict_question = (
                 f"{state.get('question', '')}\n\n"
-                "严格重写要求：只使用上下文中列出的允许引用；direct 才能写成资料事实；"
-                "推荐必须写明适用条件、风险/限制、验证要求，并在证据不足时明确拒答。"
+                "严格重写要求：只使用上下文中列出的允许引用；优先引用标注为 direct 的本地资料；"
+                "若包含 [W*] 网络补充资料，先按逻辑顺序融合成连贯完整的客观解答（句末附 [L*]/[W*] 编号），"
+                "不要用间接或网络资料下“推荐/建议优先选择”类定案，也不要把 [W*] 写成“资料事实”；"
+                "最后在文末用简短「来源说明」注明哪部分来自网络补充、仅供参考需核验。"
             )
             try:
                 rewritten = await self.services.generate(strict_question, documents)
@@ -788,6 +860,56 @@ class GraphNodes:
                         "execution_trace": self._trace(state, "validate_delivery", "rewritten", started),
                     }
                 blocking = decision["blocking_issues"]
+                # Tiered auditing: hard-block high-risk integrity violations
+                # (invalid citations, scope mismatch, formula conflicts, disguised
+                # indirect facts, unconditional recommendations). When an answer
+                # already carries valid citations and only has minor unreferenced
+                # prose reminders, deliver the answer with advisory warnings
+                # instead of wiping out the entire reply.
+                high_risk_statuses = {
+                    "citation_invalid",
+                    "scope_mismatch",
+                    "calculation_inconsistent",
+                    "indirect_evidence",
+                    "recommendation_unconditional",
+                }
+                has_high_risk = any(
+                    str(item.get("status", "")) in high_risk_statuses
+                    for item in blocking
+                )
+                has_valid_citations = bool(
+                    re.search(r"\[[LW]\d+\]", rewritten or "")
+                    and decision.get("allowed_citations")
+                )
+                if not has_high_risk and has_valid_citations:
+                    soft_warnings = list(audit.get("warnings", [])) + [
+                        {
+                            "status": "minor_unreferenced_note",
+                            "reason": item.get("reason", "部分提示性表述未附带引用编号"),
+                            "claim_id": item.get("claim_id"),
+                            "claim": item.get("claim"),
+                        }
+                        for item in blocking
+                    ]
+                    return {
+                        "generation": rewritten,
+                        "deliverable": True,
+                        "delivery_status": "completed",
+                        "status": "completed",
+                        "blocking_issues": [],
+                        "allowed_citations": decision.get("allowed_citations", []),
+                        "blocking_issue_summary": {},
+                        "rewrite_attempts": 1,
+                        "audit_warnings": soft_warnings,
+                        "claims": audit.get("claims", []),
+                        "source_assessments": audit.get("source_assessments", []),
+                        "conflicts": audit.get("conflicts", []),
+                        "unsupported_claims": audit.get("unsupported_claims", []),
+                        "recommendation_conditions": audit.get("recommendation_conditions", []),
+                        "claim_support_rate": audit.get("claim_support_rate", 0.0),
+                        "decision_metrics": decision_quality_metrics(audit),
+                        "execution_trace": self._trace(state, "validate_delivery", "accepted_with_notes", started),
+                    }
                 generation = build_refusal_answer(blocking, documents)
                 return {
                     "generation": generation,

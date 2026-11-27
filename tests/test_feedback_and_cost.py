@@ -197,7 +197,8 @@ def test_app_feedback_handlers_and_progress_helpers(tmp_path):
         "deliverable": True,
     }
     msg_up, _ = app_module.submit_positive_feedback(turn, ledger=ledger)
-    assert "已记录正面反馈" in msg_up
+    assert "感谢反馈" in msg_up
+    assert "哈希" not in msg_up
 
     msg_missing, _panel, *_ = app_module.submit_negative_feedback(
         turn, None, [], "", False, ledger=ledger
@@ -212,7 +213,9 @@ def test_app_feedback_handlers_and_progress_helpers(tmp_path):
         False,
         ledger=ledger,
     )
-    assert "已记入坏案例台账" in msg_down
+    assert "已记录问题" in msg_down
+    assert "哈希" not in msg_down
+    assert "坏案例台账" not in msg_down
 
     saved = ledger.load_all()
     assert len(saved) == 2
@@ -310,7 +313,8 @@ def test_ui_theme_cards_render_badges_and_escape_html():
     )
     assert "<script>" not in xss_card
     assert "&lt;script&gt;" in xss_card
-    assert "direct" in xss_card
+    assert "直接依据" in xss_card
+    assert 'data-status="direct"' in xss_card
 
     cost_html = render_cost_card(
         {

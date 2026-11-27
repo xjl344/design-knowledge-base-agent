@@ -12,7 +12,7 @@ from langchain_core.documents import Document
 from src.generator import generate_answer
 from src.generator_v2 import BACKEND_LEGACY, BACKEND_V2, generate_from_pack
 from src.live_evidence import pack_from_documents
-from src.grader import grade_documents
+from src.grader import GradingAssessment, grade_documents, grade_documents_with_assessment
 from src.retriever import _lexical_terms, retrieve_documents_multi
 from src.web_search import web_search
 from config import settings
@@ -126,6 +126,50 @@ class DefaultServices:
             raise RuntimeError(result.error or "local retrieval failed")
         return result.data or []
 
+    async def grade_with_assessment(
+        self, question: str, documents: list[Document]
+    ) -> GradingAssessment:
+        try:
+            return await self.grader_breaker.call(
+                grade_documents_with_assessment, question, documents
+            )
+        except Exception:
+            fallback_docs = self._deterministic_grade_fallback(question, documents)
+            return GradingAssessment(
+                documents=fallback_docs,
+                coverage="sufficient" if fallback_docs else "insufficient",
+            )
+
+    def _deterministic_grade_fallback(
+        self, question: str, documents: list[Document]
+    ) -> list[Document]:
+        terms = [term.lower() for term in _lexical_terms(question)]
+        scored = []
+        for document in documents:
+            if document.metadata.get("retrieval_evidence_status") == "scope_mismatch":
+                continue
+            searchable = " ".join([
+                str(document.page_content or ""),
+                str(document.metadata.get("source", "")),
+                str(document.metadata.get("title", "")),
+            ]).lower()
+            score = sum(searchable.count(term) for term in terms)
+            if score:
+                scored.append((score, document))
+        scored.sort(key=lambda item: item[0], reverse=True)
+        relevant = [document for _, document in scored]
+        if relevant:
+            direct = [
+                document for document in relevant
+                if document.metadata.get("retrieval_evidence_status") == "direct"
+            ]
+            return direct + [document for document in relevant if document not in direct]
+        usable = [
+            document for document in documents
+            if document.metadata.get("retrieval_evidence_status") != "scope_mismatch"
+        ]
+        return usable[:1]
+
     async def grade(
         self, question: str, documents: list[Document]
     ) -> list[Document]:
@@ -133,32 +177,7 @@ class DefaultServices:
             return await self.grader_breaker.call(grade_documents, question, documents)
         except Exception:
             # A deterministic fallback keeps the local path usable when the LLM is unavailable.
-            terms = [term.lower() for term in _lexical_terms(question)]
-            scored = []
-            for document in documents:
-                if document.metadata.get("retrieval_evidence_status") == "scope_mismatch":
-                    continue
-                searchable = " ".join([
-                    str(document.page_content or ""),
-                    str(document.metadata.get("source", "")),
-                    str(document.metadata.get("title", "")),
-                ]).lower()
-                score = sum(searchable.count(term) for term in terms)
-                if score:
-                    scored.append((score, document))
-            scored.sort(key=lambda item: item[0], reverse=True)
-            relevant = [document for _, document in scored]
-            if relevant:
-                direct = [
-                    document for document in relevant
-                    if document.metadata.get("retrieval_evidence_status") == "direct"
-                ]
-                return direct + [document for document in relevant if document not in direct]
-            usable = [
-                document for document in documents
-                if document.metadata.get("retrieval_evidence_status") != "scope_mismatch"
-            ]
-            return usable[:1]
+            return self._deterministic_grade_fallback(question, documents)
 
     async def search(self, question: str) -> list[Document]:
         if not self.policy.allow_web:
@@ -177,13 +196,11 @@ class DefaultServices:
             return {"documents": [], "queries": [], "errors": ["web_disabled: 当前评测策略禁止网络搜索"]}
         max_queries = self.policy.web_fallback_max or self.policy.max_web_queries
         for gap in gaps[: max_queries]:
-            query_parts = [
-                question,
-                str(gap.get("query", "")),
-                str(gap.get("objective", "")),
-                "、".join(str(item) for item in gap.get("requirements", [])[:4]),
-            ]
-            query = "；".join(part.strip() for part in query_parts if part.strip())
+            query = (
+                str(gap.get("query") or "").strip()
+                or str(gap.get("objective") or "").strip()
+                or str(question or "").strip()
+            )
             if not query or query in queries:
                 continue
             queries.append(query)

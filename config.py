@@ -123,10 +123,10 @@ class Settings:
     retriever_bm25_top_k: int = int(os.getenv("RETRIEVER_BM25_TOP_K", "50"))
     retriever_rerank_top_k: int = int(os.getenv("RETRIEVER_RERANK_TOP_K", "20"))
     # Cap how many RRF-union candidates enter the Cross-Encoder reranker.
-    # On CPU environments, scoring all 200 union candidates causes 100-200 s
-    # latency; 40 keeps 2x the Top-20 rerank pool while cutting CPU work ~3-5x.
+    # On CPU environments, 25 keeps >1.2x the Top-20 rerank pool with 90%
+    # answer-level pass@5 while cutting CPU cold latency ~40% vs 40.
     # Set to 0 to rerank the full union.
-    retriever_rerank_input_cap: int = int(os.getenv("RETRIEVER_RERANK_INPUT_CAP", "40"))
+    retriever_rerank_input_cap: int = int(os.getenv("RETRIEVER_RERANK_INPUT_CAP", "25"))
     # Toggle corpus-specific domain heuristics (cup/material/GB standard rules).
     # Set to false to run pure domain-agnostic hybrid retrieval on new corpora.
     retriever_domain_rules_enabled: bool = (
@@ -173,7 +173,7 @@ class Settings:
     query_decompose_enabled: bool = (
         os.getenv("QUERY_DECOMPOSE_ENABLED", "true").lower() == "true"
     )
-    web_search_max_results: int = int(os.getenv("WEB_SEARCH_MAX_RESULTS", "3"))
+    web_search_max_results: int = int(os.getenv("WEB_SEARCH_MAX_RESULTS", "5"))
     agent_planning_enabled: bool = os.getenv("AGENT_PLANNING_ENABLED", "true").lower() == "true"
     max_concurrent_requests: int = int(os.getenv("MAX_CONCURRENT_REQUESTS", "2"))
     max_concurrent_local_retrieval: int = int(os.getenv("MAX_CONCURRENT_LOCAL_RETRIEVAL", "1"))

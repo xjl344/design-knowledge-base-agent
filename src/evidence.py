@@ -22,6 +22,17 @@ _NUMBER_RE = re.compile(r"[-+]?\d+(?:\.\d+)?(?:\s*[~～至到-]\s*[-+]?\d+(?:\.\
 # `查询 GB/T 16252—2023 的名称和适用范围。` counted as a numeric claim and was
 # blocked for having no citation -- the 需求分析 line that restates the question.
 _STANDARD_CODE_RE = re.compile(r"(?:GB/T|GBT|GB|ISO|ASTM|EN|FDA|EU)\s*\+?\s*[\d.]+\s*[—–-]?\s*\d{0,4}")
+_LIST_NUMBER_PREFIX_RE = re.compile(r"^\s*[（(]?\d{1,2}[)）\.、]\s*")
+_NON_MEASUREMENT_DIM_RE = re.compile(r"(?<![A-Za-z0-9])\d+[Dd](?![A-Za-z0-9])")
+
+
+def _extract_numeric_claims(sentence: str) -> list[str]:
+    """Extract measured numbers while ignoring list numbering (1., 2、), citations, standard codes, and 2D/3D."""
+    cleaned = _LIST_NUMBER_PREFIX_RE.sub("", sentence)
+    cleaned = _CITATION_RE.sub(" ", cleaned)
+    cleaned = _STANDARD_CODE_RE.sub(" ", cleaned)
+    cleaned = _NON_MEASUREMENT_DIM_RE.sub(" ", cleaned)
+    return _NUMBER_RE.findall(cleaned)
 _CONFLICT_MARKERS = ("但是", "然而", "相反", "不一致", "冲突", "分别")
 _REFERENCE_RE = re.compile(r"(?:GB/T|ISO|IEC|ASTM|EN|DIN|JIS|RFC)\s*[A-Za-z0-9./—\-]+", re.IGNORECASE)
 _BLOCKING_STATUSES = {
@@ -30,7 +41,6 @@ _BLOCKING_STATUSES = {
     "indirect_evidence",
     "scope_mismatch",
     "calculation_inconsistent",
-    "web_evidence_unverified",
 }
 
 
@@ -103,7 +113,20 @@ def _is_structural_sentence(text: str) -> bool:
         header_words = {"方案", "材料", "结论", "证据", "来源", "状态", "风险", "验证", "推荐"}
         if cells and all(cell in header_words for cell in cells if cell):
             return True
-    if re.fullmatch(r"[【\[]?(?:资料事实|设计建议|待验证项|验证建议|结论|限制与风险)[】\]]?[:：]?", value):
+    if re.fullmatch(
+        r"(?:\*\*)?[【\[]?(?:资料事实|设计建议|有限建议|工程推导|待验证项|验证建议|结论|限制与风险|"
+        r"本地知识库[^。！？\n]{0,16}|网络补充[^。！？\n]{0,16})"
+        r"(?:（[^）]{1,18}）|\([^)]{1,18}\))?[】\]]?(?:\*\*)?[:：]?",
+        value,
+    ):
+        return True
+    # Standalone Markdown bold subheadings (e.g. "**有限建议（非资料原文结论）**")
+    # carry no factual assertion of their own.
+    if (
+        re.fullmatch(r"\*\*[^*\n]{2,32}\*\*[:：]?", value)
+        and not _CITATION_RE.search(value)
+        and not re.search(r"[。！？!?]", value)
+    ):
         return True
     if re.fullmatch(r"(?:\[[LW]\d+\]\s*)+", value):
         return True
@@ -111,16 +134,30 @@ def _is_structural_sentence(text: str) -> bool:
 
 
 _REFUSAL_RE = re.compile(
-    r"无法(?:科学地)?给出|当前资料无法确认|资料无法确认|无法确认|资料不足|不能依据|无法支持|不应定案|"
-    r"不能(?:直接)?提供|无法(?:直接)?提供|无法[^。！？；]{0,20}推荐|不能[^。！？；]{0,20}推荐|"
+    r"无法(?:科学地|据此|直接)?(?:给出|确认|提供|支持|判断|确定)|"
+    r"(?:不能|难以|尚不能|未能|不足以)(?:据此|直接|单独)?(?:确认|依据|支持|提供|判断|得出|形成)|"
+    r"当前(?:本地)?资料无法确认|资料无法确认|资料不足|不应定案|"
+    r"无法[^。！？；]{0,20}推荐|不能[^。！？；]{0,20}推荐|"
     r"没有[^。！？；]{0,20}直接证据|没有支持[^。！？；]{0,20}direct"
+)
+
+
+_VERIFICATION_REMINDER_RE = re.compile(
+    r"先(?:做|进行|在|通过)[^。！？；]{0,20}(?:样件|测试|验证|对比|试打|复测|试模)|"
+    r"(?:应|需|请|建议|推荐)先[^。！？；]{0,20}(?:验证|测试|核验|确认|打样|复测|试模)|"
+    r"通过(?:试模|打样|实验|测试)[^。！？；]{0,12}(?:确定|验证|确认)"
+)
+_SOURCE_DISCLOSURE_LINE_RE = re.compile(
+    r"^\s*(?:>\s*)?(?:\*\*)?(?:来源说明|参考说明|信息来源说明)(?:\*\*)?[:：]"
 )
 
 
 def _claim_role(text: str, claim_type: str) -> tuple[str, bool]:
     if _is_structural_sentence(text):
         return "structural", False
-    if _REFUSAL_RE.search(text) or re.search(r"需要.*验证", text):
+    if _SOURCE_DISCLOSURE_LINE_RE.match(text):
+        return "refusal", True
+    if _REFUSAL_RE.search(text) or re.search(r"需要.*验证", text) or _VERIFICATION_REMINDER_RE.search(text):
         return "refusal", True
     if re.search(r"待验证|限制|风险|尚需|仍需", text):
         return "limitation", True
@@ -192,7 +229,14 @@ _HEADING_RE = re.compile(r"^#{1,6}\s*(.+?)\s*$")
 # Sections the prompt itself defines as "what is unknown / what still needs
 # checking / where the sources are".  Sentences inside them are limitations and
 # to-dos, not assertions that require evidence.
-_UNVERIFIED_SECTION_RE = re.compile(r"证据不足|冲突|风险|验证|参考|局限|限制|待验证|不确定")
+_UNVERIFIED_SECTION_RE = re.compile(
+    r"证据不足|冲突|风险|验证|参考|局限|限制|待验证|不确定|网络补充|联网补充|需核验|来源说明"
+)
+_WEB_SUPPLEMENT_MARKER_RE = re.compile(
+    r"网络补充|联网补充|网络参考|网络检索|网上参考|需核验|仅供参考|未核验"
+)
+_DIRECT_FACT_ASSERTION_RE = re.compile(r"资料事实|直接资料|原文指出")
+_LOCAL_SECTION_RESET_RE = re.compile(r"本地知识库|本地资料|资料事实")
 
 
 def _sections(answer: str) -> list[tuple[str, list[str]]]:
@@ -246,13 +290,22 @@ def _section_is_exempt(heading: str, blocks: list[str]) -> bool:
     return not _CITATION_RE.search("\n".join(blocks))
 
 
+_RECOMMENDATION_VERB_RE = re.compile(r"推荐|建议|优先|更适合|选择|应当|应该")
+
+
 def extract_claims(answer: str) -> list[dict[str, Any]]:
     claims = []
     index = 0
     for heading, blocks in _sections(_drop_table_headers(answer)):
         if _section_is_exempt(heading, blocks):
             continue
+        in_web_supplement = bool(_WEB_SUPPLEMENT_MARKER_RE.search(heading))
         for block in blocks:
+            block_has_web_marker = bool(_WEB_SUPPLEMENT_MARKER_RE.search(block))
+            if block_has_web_marker and not _DIRECT_FACT_ASSERTION_RE.search(block):
+                in_web_supplement = True
+            elif _LOCAL_SECTION_RESET_RE.search(block) and not block_has_web_marker:
+                in_web_supplement = False
             block_citations = _CITATION_RE.findall(block)
             for sentence in _sentences(block):
                 index += 1
@@ -263,6 +316,31 @@ def extract_claims(answer: str) -> list[dict[str, Any]]:
                 # A sentence with its own citation keeps it; otherwise it is
                 # covered by the citations its block declares.
                 citations = _CITATION_RE.findall(sentence) or list(block_citations)
+                # Honest descriptive web-supplemented statements (citing [W*],
+                # NOT disguised as local 资料事实, NOT an unconditional
+                # recommendation, and NOT an undisclosed compliance claim) pass
+                # delivery with an advisory warning rather than requiring magic
+                # headings or forcing a rewrite.
+                is_web_only = bool(citations) and all(c.startswith("W") for c in citations)
+                is_disguised_local_fact = bool(_DIRECT_FACT_ASSERTION_RE.search(sentence))
+                is_recommendation = (
+                    claim_type in {"design_inference", "derived_result"}
+                    and bool(_RECOMMENDATION_VERB_RE.search(sentence))
+                )
+                disclosed_web = (
+                    in_web_supplement
+                    or block_has_web_marker
+                    or bool(_WEB_SUPPLEMENT_MARKER_RE.search(sentence))
+                )
+                if (
+                    role not in {"refusal", "structural"}
+                    and is_web_only
+                    and not is_disguised_local_fact
+                    and not is_recommendation
+                    and (claim_type != "compliance_claim" or disclosed_web)
+                ):
+                    role = "web_supplement"
+                    claim_type = "web_reference"
                 claims.append({
                     "id": f"claim-{index}",
                     "text": sentence,
@@ -270,7 +348,7 @@ def extract_claims(answer: str) -> list[dict[str, Any]]:
                     "claim_role": role,
                     "is_auditable": auditable,
                     "citations": citations,
-                    "numbers": _NUMBER_RE.findall(_STANDARD_CODE_RE.sub(" ", sentence)),
+                    "numbers": _extract_numeric_claims(sentence),
                     "evidence_status": "unreviewed",
                     "confidence": 0.0,
                 })
@@ -595,13 +673,42 @@ def detect_claim_warnings(
     # referencing indirect sources or mentioning "推荐" inside a refusal.
     if claim.get("claim_role") == "refusal":
         return warnings
+    if claim.get("claim_role") == "web_supplement":
+        if any(
+            document.metadata.get("source_type") == "web"
+            for document in cited_documents
+        ):
+            warnings.append({
+                "status": "web_supplement_unverified",
+                "reason": "已标注为网络补充参考，使用前请核验原始资料",
+            })
+        return warnings
     if any(item.get("status") == "indirect" for item in source_assessments) and not any(
         item.get("status") == "full" for item in source_assessments
     ):
-        warnings.append({
-            "status": "indirect_evidence",
-            "reason": "引用资料只能作为背景或间接参考，不能单独支持该主张",
-        })
+        # Indirect/background sources (e.g. handbooks) must be blocked when used
+        # to assert verified local facts, concrete numerical specs, compliance
+        # claims, or recommendations; qualitative background caveats are kept as
+        # non-blocking advisories instead of wiping out an otherwise grounded reply.
+        is_high_stakes_indirect = bool(
+            _DIRECT_FACT_ASSERTION_RE.search(text)
+            or claim.get("numbers")
+            or claim.get("type") == "compliance_claim"
+            or (
+                claim.get("type") in {"design_inference", "derived_result"}
+                and _RECOMMENDATION_VERB_RE.search(text)
+            )
+        )
+        if is_high_stakes_indirect:
+            warnings.append({
+                "status": "indirect_evidence",
+                "reason": "引用资料只能作为背景或间接参考，不能单独支持该主张",
+            })
+        else:
+            warnings.append({
+                "status": "indirect_background_note",
+                "reason": "该定性背景说明引用了间接参考资料，仅作背景补充",
+            })
     if any(
         document.metadata.get("source_type") == "web"
         for document in cited_documents
@@ -732,6 +839,9 @@ def audit_claims(answer: str, documents: list[Document], problem_spec: dict[str,
         elif any(item.get("status") == "citation_invalid" for item in claim_warnings):
             claim["evidence_status"] = "citation_invalid"
             unsupported.append(claim["text"])
+        elif claim.get("claim_role") == "web_supplement":
+            claim["evidence_status"] = "supported"
+            claim["confidence"] = 0.6
         elif any(item.get("status") == "scope_mismatch" for item in claim_warnings):
             claim["evidence_status"] = "scope_mismatch"
             unsupported.append(claim["text"])
@@ -753,8 +863,12 @@ def audit_claims(answer: str, documents: list[Document], problem_spec: dict[str,
         elif any(item["status"] == "indirect" for item in source_assessments) and not any(
             item["status"] == "full" for item in source_assessments
         ):
-            claim["evidence_status"] = "indirect_evidence"
-            unsupported.append(claim["text"])
+            if any(w.get("status") == "indirect_evidence" for w in claim_warnings):
+                claim["evidence_status"] = "indirect_evidence"
+                unsupported.append(claim["text"])
+            else:
+                claim["evidence_status"] = "supported"
+                claim["confidence"] = 0.65
         elif source_assessments:
             claim["evidence_status"] = "supported"
             claim["confidence"] = 0.9 if claim["type"] == "direct_fact" else 0.7

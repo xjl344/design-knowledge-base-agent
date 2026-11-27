@@ -345,3 +345,122 @@ def test_direct_process_guide_wall_thickness_recommendation_is_deliverable():
     audit = audit_claims(answer, [dfm_doc], {})
     decision = delivery_decision(answer, [dfm_doc], audit)
     assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
+def test_disclosed_web_supplement_is_deliverable_while_invalid_web_citation_is_blocked():
+    """Labeled web supplements pass delivery; disguised local facts & invalid W-IDs stay blocked."""
+    from src.live_evidence import pack_from_documents
+
+    local = direct_doc()
+    web = indirect_doc()
+    pack = pack_from_documents(
+        "钣金的加工过程是什么？",
+        [local, local, local, local, local, web],
+        max_items=5,
+    )
+    assert "W1" in pack.allowed_citations
+    assert "来源说明" in pack.context_text()
+
+    answer = (
+        "1. 前期设计检查与模具准备：确认树脂牌号、干燥与脱模设计。[L1]\n"
+        "2. 合模、填充、保压、冷却与脱模：将熔融塑料注入模腔并冷却定型取出。[W1]\n\n"
+        "**来源说明**：前期设计检查来自本地知识库（[L1]）；成型循环步骤来自网络补充参考（[W1]），仅供参考需核验。"
+    )
+    audit = audit_claims(answer, [local, web], {})
+    decision = delivery_decision(answer, [local, web], audit)
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+    bad_citation = (
+        "网络补充参考（需核验）：\n"
+        "- 常见流程包括下料与折弯。[W9]"
+    )
+    bad_decision = delivery_decision(bad_citation, [local, web], audit_claims(bad_citation, [local, web], {}))
+    assert bad_decision["deliverable"] is False
+    assert any(item["status"] == "citation_invalid" for item in bad_decision["blocking_issues"])
+
+
+def test_natural_web_supplement_phrasing_passes_without_magic_heading():
+    """Honest descriptive [W1] statements pass regardless of heading wording; web recommendations stay blocked."""
+    local = direct_doc()
+    web = indirect_doc()
+
+    natural = (
+        "现有资料介绍了折弯特征加工要点 [L1]。\n"
+        "常见工艺还包含激光下料、折弯成形、焊接装配与表面涂装 [W1]。"
+    )
+    decision = delivery_decision(natural, [local, web], audit_claims(natural, [local, web], {}))
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+    web_rec = "建议优先选择该工艺方案 [W1]。"
+    rec_decision = delivery_decision(web_rec, [web], audit_claims(web_rec, [web], {}))
+    assert rec_decision["deliverable"] is False
+
+
+def test_bold_subheading_and_honest_refusal_phrasing_are_not_false_blocked():
+    """Bold subheadings and '不能据此确认' refusals must not falsely block a web-supplemented answer."""
+    web = indirect_doc()
+    answer = (
+        "**本地知识库确认**\n\n"
+        "当前本地资料均为 indirect 证据，不能据此确认 MIM 金属注射成型适合生产哪些零件。\n\n"
+        "**网络补充参考（需核验）**\n\n"
+        "- MIM 工艺常用于大批量生产小型、结构复杂的精密金属零件，如手机卡托、医疗器械微型件和齿轮。[W1]\n\n"
+        "**有限建议（非资料原文结论）**\n\n"
+        "如需工程定型，仍需结合零件重量、壁厚和材料牌号进一步验证。"
+    )
+    audit = audit_claims(answer, [web], {})
+    decision = delivery_decision(answer, [web], audit)
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
+def test_ordered_list_numbers_and_3d_token_are_not_treated_as_unreferenced_measurements():
+    """Ordered-list prefixes (1., 2.) and '3D' must not trigger unreferenced numeric blocks."""
+    local = direct_doc()
+    web = indirect_doc()
+    answer = (
+        "SLA 可选后处理包括涂装、透明件精整和纹理。[L1]\n\n"
+        "1. **先做样件对比**：在设备、材料、模型方向相同的条件下测试不同可用层厚，并比较层纹和打印时间。\n"
+        "2. **需要外观处理时再评估后处理**：适用于 3D 打印外观件；应先在非关键区域验证，并复测关键尺寸。\n\n"
+        "网络资料称光固化层纹可从曝光参数和后处理打磨入手改善。[W1]"
+    )
+    claims = extract_claims(answer)
+    list_claim = next(c for c in claims if "先做样件对比" in c["text"])
+    second_claim = next(c for c in claims if "需要外观处理时再评估后处理" in c["text"])
+    assert list_claim["numbers"] == [], list_claim["numbers"]
+    assert second_claim["numbers"] == [], second_claim["numbers"]
+
+    audit = audit_claims(answer, [local, web], {})
+    decision = delivery_decision(answer, [local, web], audit)
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
+def test_qualitative_indirect_background_caveat_passes_while_numeric_indirect_fact_blocks():
+    """Qualitative background notes citing an indirect handbook pass; numeric/fact claims still block."""
+    handbook = Document(
+        page_content="PET瓶生产需要先注塑瓶坯再拉伸吹塑。",
+        metadata={
+            "source_type": "local",
+            "source": "实用工程塑料手册.pdf",
+            "title": "实用工程塑料手册",
+            "retrieval_evidence_status": "indirect",
+        },
+    )
+    direct = direct_doc()
+    caveat_answer = (
+        "前期需确认树脂牌号、干燥与脱模设计。[L1]\n"
+        "若生产的是 PET 瓶，瓶坯注射后还需再加热、拉伸吹塑和冷却，不能等同于普通注塑流程。[L2]"
+    )
+    decision = delivery_decision(
+        caveat_answer,
+        [direct, handbook],
+        audit_claims(caveat_answer, [direct, handbook], {}),
+    )
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+    numeric_indirect = "PET 瓶坯再加热温度应控制在 110℃。[L1]"
+    bad_decision = delivery_decision(
+        numeric_indirect,
+        [handbook],
+        audit_claims(numeric_indirect, [handbook], {}),
+    )
+    assert bad_decision["deliverable"] is False
+    assert any(item["status"] == "indirect_evidence" for item in bad_decision["blocking_issues"])

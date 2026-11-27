@@ -91,9 +91,25 @@ def pack_from_documents(
     plausible values here would let an unreproducible pack masquerade as a
     recorded one.
     """
+    doc_list = list(documents)
+    local_docs = [
+        doc for doc in doc_list if str(doc.metadata.get("source_type", "local")) != "web"
+    ]
+    web_docs = [
+        doc for doc in doc_list if str(doc.metadata.get("source_type", "local")) == "web"
+    ]
+    effective_max_items = int(max_items)
+    if web_docs and effective_max_items > 0:
+        # Keep top local docs and append up to 4 web supplements so web fallback
+        # results are never sliced away when local hits already fill max_items.
+        selected_docs = local_docs[:effective_max_items] + web_docs[:4]
+        effective_max_items = len(selected_docs)
+    else:
+        selected_docs = doc_list
+
     frozen = tuple(
         FrozenDocument.from_document(document, rank)
-        for rank, document in enumerate(documents, 1)
+        for rank, document in enumerate(selected_docs, 1)
     )
     case = FrozenRetrievalCase(
         question_id=str(question_id),
@@ -106,7 +122,7 @@ def pack_from_documents(
         retrieval_timing={},
     )
     return build_evidence_pack(
-        case, max_items=max_items, max_chars_per_item=max_chars_per_item
+        case, max_items=effective_max_items, max_chars_per_item=max_chars_per_item
     )
 
 

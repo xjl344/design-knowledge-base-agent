@@ -37,6 +37,9 @@ class GraphState(TypedDict, total=False):
     confidence: float | None
     confidence_status: str
     confidence_reason: str | None
+    grader_coverage: str
+    grader_missing_aspects: str
+    grader_search_query: str
     evidence_matrix: list[dict[str, Any]]
     requirement_coverage: float
     unsupported_claims: list[str]

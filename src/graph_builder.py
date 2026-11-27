@@ -67,6 +67,10 @@ def build_graph(services: Services | None = None):
         {"generate": "generate", "web_search": "web_search"},
     )
     workflow.add_edge("web_search", "generate")
-    workflow.add_edge("generate", "validate_delivery")
+    workflow.add_conditional_edges(
+        "generate",
+        nodes.decide_after_generate,
+        {"web_search": "web_search", "validate_delivery": "validate_delivery"},
+    )
     workflow.add_edge("validate_delivery", END)
     return workflow.compile()

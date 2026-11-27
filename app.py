@@ -60,8 +60,8 @@ _NODE_STAGE_LABELS: dict[str, str] = {
     "grade_documents": "已完成证据相关性评估，准备生成回答…",
     "audit_evidence": "已完成证据覆盖审计，准备整理回答…",
     "search_evidence_gaps": "本地证据存在缺口，已尝试联网补充…",
-    "web_search": "已完成联网补充检索，准备生成回答…",
-    "generate": "已生成初稿，正在执行引用与交付审计…",
+    "web_search": "本地资料不完整，已完成联网补充检索，正在整合回答…",
+    "generate": "已生成初稿，正在核对来源与引用…",
     "aggregate_results": "已综合多路证据生成初稿，正在执行交付审计…",
     "calculation": "已完成确定性工程计算，正在校验交付边界…",
     "validate_delivery": "交付审计完成。",
@@ -101,11 +101,11 @@ def _stage_progress_text(state: dict[str, Any], node_name: str, elapsed: float) 
     if sources:
         direct = sum(1 for item in sources if item.get("retrieval_evidence_status") == "direct")
         return (
-            f"⏳ {label}\n\n"
+            f"**{label}**\n\n"
             f"> 已耗时 {elapsed:.1f} s · 已找到 **{len(sources)}** 条参考来源"
-            f"（其中 `direct` {direct} 条，已在右侧栏先展示）"
+            f"（其中直接依据 {direct} 条，已在右侧栏先展示）"
         )
-    return f"⏳ {label}\n\n> 已耗时 {elapsed:.1f} s（首次冷检索或重排可能需要 20–45 秒，请稍候）"
+    return f"**{label}**\n\n> 已耗时 {elapsed:.1f} s（首次冷检索或重排可能需要 20–45 秒，请稍候）"
 
 
 def _evidence_choices_from_sources(sources: list[dict[str, Any]]) -> list[str]:
@@ -299,13 +299,13 @@ def format_metrics(state: dict[str, Any], session_id: str) -> dict[str, Any]:
 
 def _feedback_prompt_for_turn(turn: dict[str, Any] | None) -> str:
     if not turn:
-        return "完成一次提问后，可在此一键反馈（默认仅记录哈希，不保存问题原文）。"
+        return "完成一次提问后，可在下方一键评价本次回答。"
     if not turn.get("deliverable", False):
         return (
-            "💬 本次回答因证据不足已降级——你认为知识库里其实应该有相关资料吗？"
-            "点 **👍** 或 **👎** 帮助我们定位缺口。"
+            "本次回答资料不完整——你认为知识库里其实应该有相关资料吗？"
+            "点击右侧按钮告诉我们。"
         )
-    return "💬 这个回答能直接用于你的设计决策吗？点 **👍**（一键完成）或 **👎** 告诉我们卡在哪。"
+    return "这个回答对你有帮助吗？点击右侧按钮快速反馈。"
 
 
 def submit_positive_feedback(
@@ -331,7 +331,7 @@ def submit_positive_feedback(
     )
     target_ledger.append(record)
     return (
-        f"✅ 已记录正面反馈（编号 `{record.feedback_id}`，仅保存哈希）。感谢！",
+        "感谢反馈，已收到你的认可。",
         gr.update(visible=False),
     )
 
@@ -362,7 +362,7 @@ def submit_negative_feedback(
     reason_code = _REASON_LABEL_TO_CODE.get(str(reason_label or "").strip())
     if not reason_code:
         return (
-            "⚠️ 请先在四项原因中勾选一项，再提交。",
+            "请先在四项原因中勾选一项，再提交。",
             gr.update(visible=True),
             gr.update(),
             gr.update(),
@@ -386,9 +386,8 @@ def submit_negative_feedback(
         deliverable=bool(turn.get("deliverable", False)),
     )
     target_ledger.append(record)
-    privacy_note = "已按你的勾选附带问题原文" if record.question_text else "仅保存哈希"
     return (
-        f"✅ 已记入坏案例台账（编号 `{record.feedback_id}`，原因：`{reason_label}`，{privacy_note}）。",
+        f"感谢反馈，已记录问题（原因：{reason_label}），我们会持续优化。",
         gr.update(visible=False),
         gr.update(value=None),
         gr.update(value=[]),
@@ -399,7 +398,7 @@ def submit_negative_feedback(
 def _sync_feedback_bar(turn: dict[str, Any] | None) -> tuple[str, Any, Any]:
     if not turn:
         return (
-            "回答生成完成后可在此一键反馈（默认仅保存哈希）。",
+            "回答生成完成后，可在下方一键评价。",
             gr.update(visible=False),
             gr.update(choices=[], value=[]),
         )
@@ -420,7 +419,7 @@ async def chat(message: str, history: list[dict[str, Any]]):
 
     # Immediate progress acknowledgement so cold retrieval never shows a blank pane.
     yield (
-        "⏳ 正在分析问题并检索本地知识库…\n\n> 首次冷检索或重排可能需要 20–45 秒，检索命中后会先在右侧栏展示参考来源。",
+        "**正在分析问题并检索本地知识库…**\n\n> 首次冷检索或重排可能需要 20–45 秒，检索命中后会先在右侧栏展示参考来源。",
         render_delivery_card(final_state, route_label="分析中…", stage_note="正在检索本地知识库…"),
         render_cost_card(pending=True),
         render_sources_card([], loading=True),
@@ -446,7 +445,7 @@ async def chat(message: str, history: list[dict[str, Any]]):
                                 render_delivery_card(
                                     final_state,
                                     route_label=_route_label(final_state),
-                                    stage_note="正在生成带证据分级的回答…",
+                                    stage_note="正在整理回答…",
                                 ),
                                 render_cost_card(pending=True),
                                 render_sources_card(preview_sources, loading=False),
@@ -460,6 +459,8 @@ async def chat(message: str, history: list[dict[str, Any]]):
                         last_node = str(node_name)
                         if isinstance(update, dict):
                             final_state.update(update)
+                    if last_node in {"web_search", "search_evidence_gaps"}:
+                        partial_answer = ""
                     elapsed = time.perf_counter() - started
                     preview_sources = _preview_sources(final_state)
                     progress_md = partial_answer or _stage_progress_text(final_state, last_node, elapsed)
@@ -543,17 +544,18 @@ with gr.Blocks(title="设计知识库助手 · DesignKB Agent", fill_height=True
     gr.HTML(HEADER_HTML)
 
     with gr.Row(elem_id="dkb-main-row"):
-        with gr.Column(scale=7, min_width=520):
+        with gr.Column(scale=7, min_width=0, elem_id="dkb-chat-column"):
             chatbot = gr.Chatbot(
-                height=460,
+                height=490,
                 show_label=False,
                 layout="panel",
                 buttons=["copy"],
                 placeholder=CHATBOT_PLACEHOLDER_HTML,
+                elem_id="dkb-chatbot",
                 render=False,
             )
             textbox = gr.Textbox(
-                placeholder="输入材料选型、标准合规、注塑/钣金/CNC 工艺或尺寸推导问题，按 Enter 发送…",
+                placeholder="输入材料、标准、注塑/钣金/CNC 工艺或尺寸问题，按 Enter 发送…",
                 container=False,
                 scale=7,
                 render=False,
@@ -564,7 +566,7 @@ with gr.Blocks(title="设计知识库助手 · DesignKB Agent", fill_height=True
             cost_card_output = gr.HTML(render_cost_card(None), render=False)
             source_card_output = gr.HTML(render_sources_card([]), render=False)
             trace_card_output = gr.HTML(render_trace_card(None), render=False)
-            metrics_output = gr.JSON(label="本次执行追踪（原始）", value={}, render=False)
+            metrics_output = gr.JSON(label="详细执行数据", value={}, render=False)
 
             gr.ChatInterface(
                 fn=chat,
@@ -581,14 +583,14 @@ with gr.Blocks(title="设计知识库助手 · DesignKB Agent", fill_height=True
                 examples=[
                     "PC注塑件壁厚一般做多少毫米？",
                     "铝件用CNC铣削最大能做多大？",
-                    "压铸件为什么不能做尖角？圆角怎么定？",
-                    "比较两种产品方案在成本、可靠性和可维护性方面的差异，并给出推荐。",
+                    "注塑生产流程是什么？",
+                    "电镀和阳极氧化有什么区别？",
                 ],
                 example_labels=[
                     "注塑壁厚 · PC",
                     "CNC 最大尺寸 · 铝件",
-                    "压铸圆角与冷隔",
-                    "多维度方案对比推荐",
+                    "注塑完整流程",
+                    "电镀 vs 阳极氧化",
                 ],
                 show_progress="minimal",
                 cache_examples=False,
@@ -597,12 +599,12 @@ with gr.Blocks(title="设计知识库助手 · DesignKB Agent", fill_height=True
             with gr.Group(elem_id="feedback-bar"):
                 with gr.Row(elem_classes=["dkb-fb-row"]):
                     feedback_status = gr.Markdown(
-                        "完成一次提问后，可在此一键反馈（默认仅记录哈希，不保存问题原文）。",
+                        "完成一次提问后，可在下方一键评价本次回答。",
                         scale=6,
                         elem_classes=["dkb-fb-prompt"],
                     )
-                    btn_up = gr.Button("👍 有帮助", variant="secondary", size="sm", scale=0, min_width=104)
-                    btn_down = gr.Button("👎 有问题", variant="secondary", size="sm", scale=0, min_width=104)
+                    btn_up = gr.Button("有帮助", variant="secondary", size="sm", scale=0, min_width=96)
+                    btn_down = gr.Button("有问题", variant="secondary", size="sm", scale=0, min_width=96)
                 with gr.Column(visible=False, elem_id="down-panel") as down_panel:
                     reason_radio = gr.Radio(
                         choices=_REASON_LABELS,
@@ -611,7 +613,7 @@ with gr.Blocks(title="设计知识库助手 · DesignKB Agent", fill_height=True
                     )
                     blamed_evidence_input = gr.CheckboxGroup(
                         choices=[],
-                        label="可选：勾选你认为有问题的证据编号",
+                        label="可选：勾选你认为有问题的来源编号",
                         value=[],
                     )
                     free_text_input = gr.Textbox(
@@ -621,19 +623,19 @@ with gr.Blocks(title="设计知识库助手 · DesignKB Agent", fill_height=True
                     )
                     include_question_checkbox = gr.Checkbox(
                         value=False,
-                        label="附带本次问题原文（默认关闭，仅保存 SHA-256 哈希）",
+                        label="允许附带本次提问内容，帮助我们改进回答质量",
                     )
                     with gr.Row():
                         btn_submit_down = gr.Button("提交问题反馈", variant="primary", size="sm")
                         btn_cancel_down = gr.Button("收起", variant="secondary", size="sm")
 
-        with gr.Column(scale=4, min_width=360, elem_id="status-column"):
+        with gr.Column(scale=4, min_width=0, elem_id="status-column"):
             gr.HTML(SIDEBAR_HEADER_HTML)
             delivery_card_output.render()
             cost_card_output.render()
             source_card_output.render()
             trace_card_output.render()
-            with gr.Accordion("原始执行追踪 JSON（调试用）", open=False):
+            with gr.Accordion("详细执行数据", open=False):
                 metrics_output.render()
 
     latest_turn_state.change(
