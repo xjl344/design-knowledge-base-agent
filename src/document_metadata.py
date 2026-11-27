@@ -178,7 +178,15 @@ def question_profile(question: str) -> dict[str, Any]:
     dimension = _contains_any(text, ("尺寸", "直径", "杯径", "握持", "人体工学", "手部", "高度", "容量", "尺寸建议"))
     material = _contains_any(text, ("材料", "材质", "牌号", "耐热", "抗冲击", "食品接触", "选材", "合规"))
     food_contact = _contains_any(text, ("食品接触", "迁移", "饮用水", "食品安全", "food contact"))
-    process = _contains_any(text, ("注塑", "吹塑", "冲压", "焊接", "工艺", "加工", "dfm", "成型"))
+    process = _contains_any(
+        text,
+        (
+            "注塑", "吹塑", "冲压", "焊接", "压铸", "钣金", "折弯",
+            "铣削", "车削", "cnc", "阳极氧化", "表面处理", "3d打印", "3d 打印",
+            "光固化", "sla", "sls", "包胶", "脱模", "拔模", "壁厚", "圆角", "尖角",
+            "工艺", "加工", "dfm", "成型",
+        ),
+    )
     testing = _contains_any(text, ("测试", "验证", "跌落", "泄漏", "耐久", "洗碗机", "可靠性"))
     return {
         "adult": _contains_any(text, ("成人", "成年人", "adult")) and not _contains_any(text, ("未成年人", "儿童", "children")),

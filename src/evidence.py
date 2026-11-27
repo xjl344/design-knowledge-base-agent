@@ -110,10 +110,17 @@ def _is_structural_sentence(text: str) -> bool:
     return False
 
 
+_REFUSAL_RE = re.compile(
+    r"无法(?:科学地)?给出|当前资料无法确认|资料无法确认|无法确认|资料不足|不能依据|无法支持|不应定案|"
+    r"不能(?:直接)?提供|无法(?:直接)?提供|无法[^。！？；]{0,20}推荐|不能[^。！？；]{0,20}推荐|"
+    r"没有[^。！？；]{0,20}直接证据|没有支持[^。！？；]{0,20}direct"
+)
+
+
 def _claim_role(text: str, claim_type: str) -> tuple[str, bool]:
     if _is_structural_sentence(text):
         return "structural", False
-    if re.search(r"无法(?:科学地)?给出|资料不足|不能依据|无法支持|不应定案|需要.*验证", text):
+    if _REFUSAL_RE.search(text) or re.search(r"需要.*验证", text):
         return "refusal", True
     if re.search(r"待验证|限制|风险|尚需|仍需", text):
         return "limitation", True
@@ -121,7 +128,7 @@ def _claim_role(text: str, claim_type: str) -> tuple[str, bool]:
 
 
 def classify_claim(text: str) -> str:
-    if re.search(r"无法(?:科学地)?给出|资料不足|不能依据|无法支持|不应定案", text):
+    if _REFUSAL_RE.search(text):
         return "refusal_claim"
     if re.search(r"资料事实|直接资料|原文指出", text):
         return "direct_fact"
@@ -393,7 +400,11 @@ def validate_recommendations(
         duties_met = _covers_recommendation_duties(claims)
     issues: list[dict[str, Any]] = []
     for claim in claims:
-        if not claim.get("is_auditable", True) or claim.get("type") not in {"design_inference", "derived_result"}:
+        if (
+            not claim.get("is_auditable", True)
+            or claim.get("claim_role") == "refusal"
+            or claim.get("type") not in {"design_inference", "derived_result"}
+        ):
             continue
         text = str(claim.get("text", ""))
         if not re.search(r"推荐|建议|优先|更适合|选择|应当|应该", text):
@@ -579,7 +590,14 @@ def detect_claim_warnings(
             "status": "citation_invalid",
             "reason": "引用编号不存在，或无法映射到真实候选资料",
         })
-    if any(item.get("status") == "indirect" for item in source_assessments):
+    # Honest refusal claims state what the evidence cannot support; they must
+    # still use valid citation IDs above, but should never be blocked for
+    # referencing indirect sources or mentioning "推荐" inside a refusal.
+    if claim.get("claim_role") == "refusal":
+        return warnings
+    if any(item.get("status") == "indirect" for item in source_assessments) and not any(
+        item.get("status") == "full" for item in source_assessments
+    ):
         warnings.append({
             "status": "indirect_evidence",
             "reason": "引用资料只能作为背景或间接参考，不能单独支持该主张",
@@ -616,6 +634,10 @@ def detect_claim_warnings(
         and cited_documents
         and not any(
             document.metadata.get("material_grade", UNKNOWN) != UNKNOWN
+            or (
+                document.metadata.get("source_category") == "process_guide"
+                and document.metadata.get("retrieval_evidence_status") == "direct"
+            )
             for document in cited_documents
         )
     ):
@@ -728,7 +750,9 @@ def audit_claims(answer: str, documents: list[Document], problem_spec: dict[str,
         elif any(item["status"] == "mismatch" for item in source_assessments):
             claim["evidence_status"] = "scope_mismatch"
             unsupported.append(claim["text"])
-        elif any(item["status"] == "indirect" for item in source_assessments):
+        elif any(item["status"] == "indirect" for item in source_assessments) and not any(
+            item["status"] == "full" for item in source_assessments
+        ):
             claim["evidence_status"] = "indirect_evidence"
             unsupported.append(claim["text"])
         elif source_assessments:

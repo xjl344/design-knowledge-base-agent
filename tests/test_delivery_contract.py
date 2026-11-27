@@ -289,3 +289,59 @@ def test_local_retrieval_cache_reuses_identical_query(monkeypatch):
     assert retriever.retrieve_documents("same query")
     assert retriever.retrieve_documents("same query")
     assert calls["count"] == 1
+
+
+def test_v2_refusal_phrasing_is_not_blocked_as_unconditional_recommendation():
+    """Refusals containing '无法确认' or '不能提供推荐值' must pass delivery."""
+    indirect = Document(
+        page_content="仅包含注塑定性原则，无压铸最小壁厚数值。",
+        metadata={
+            "source_type": "local",
+            "source": "05_制造工艺/Die_Casting/Xometry_Die_Casting_Design_Tips.md",
+            "source_category": "process_guide",
+            "retrieval_evidence_status": "indirect",
+        },
+    )
+    answer = (
+        "当前资料无法确认压铸件的最小壁厚一般取多少毫米。[L1]\n\n"
+        "所列证据均标记为 indirect，没有支持该问题数值结论的 direct 证据。"
+        "因此，不能提供具体毫米数或通用推荐值。"
+    )
+    audit = audit_claims(answer, [indirect], {})
+    decision = delivery_decision(answer, [indirect], audit)
+    assert decision["deliverable"] is True, decision["blocking_issues"]
+
+
+def test_direct_process_guide_wall_thickness_recommendation_is_deliverable():
+    """Manufacturer DFM process guides are direct evidence for molding wall thickness."""
+    from src.document_metadata import classify_document_for_question
+
+    die_status, _ = classify_document_for_question(
+        "压铸件为什么不能做尖角？圆角怎么定？",
+        {
+            "source_category": "process_guide",
+            "population": "unknown",
+            "material_grade": "unknown",
+            "source": "05_制造工艺/Die_Casting/Xometry_Die_Casting_Design_Tips.md",
+        },
+        "Fillets and radii prevent cold shuts.",
+    )
+    assert die_status == "direct"
+
+    dfm_doc = Document(
+        page_content="Polycarbonate recommended wall thickness: 1.016mm - 3.81mm.",
+        metadata={
+            "source_type": "local",
+            "source": "05_制造工艺/Injection_Molding/Protolabs_Injection_Molding_Design_Guidelines.md",
+            "source_category": "process_guide",
+            "material_grade": "unknown",
+            "retrieval_evidence_status": "direct",
+        },
+    )
+    answer = (
+        "PC 注塑件的参考推荐壁厚为 1.016～3.81 mm（适用条件：聚碳酸酯注塑件）。[L1]\n\n"
+        "当前资料无法确认不同壁厚的具体风险、限制及验证要求，也无法在缺少零件条件时推荐一个确定数值。"
+    )
+    audit = audit_claims(answer, [dfm_doc], {})
+    decision = delivery_decision(answer, [dfm_doc], audit)
+    assert decision["deliverable"] is True, decision["blocking_issues"]

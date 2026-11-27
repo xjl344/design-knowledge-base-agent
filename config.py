@@ -204,6 +204,15 @@ class Settings:
     tool_max_retries: int = int(os.getenv("TOOL_MAX_RETRIES", "2"))
     per_query_token_limit: int = int(os.getenv("PER_QUERY_TOKEN_LIMIT", "10000"))
     daily_token_limit: int = int(os.getenv("DAILY_TOKEN_LIMIT", "1000000"))
+    # Estimated LLM pricing in CNY per 1M tokens for per-query cost accounting.
+    llm_input_price_per_1m_cny: float = float(os.getenv("LLM_INPUT_PRICE_PER_1M_CNY", "2.0"))
+    llm_output_price_per_1m_cny: float = float(os.getenv("LLM_OUTPUT_PRICE_PER_1M_CNY", "8.0"))
+    feedback_ledger_path: Path = Path(
+        os.getenv("FEEDBACK_LEDGER_PATH", str(LOG_DIR / "feedback_ledger.jsonl"))
+    )
+    query_cost_ledger_path: Path = Path(
+        os.getenv("QUERY_COST_LEDGER_PATH", str(LOG_DIR / "query_cost_ledger.jsonl"))
+    )
     langsmith_sampling_rate: float = float(os.getenv("LANGSMITH_SAMPLING_RATE", "0.1"))
     checkpoint_dir: Path = Path(os.getenv("CHECKPOINT_DIR", str(CHECKPOINT_DIR)))
 
